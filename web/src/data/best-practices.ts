@@ -26,11 +26,11 @@ export const bestPractices: BestPractice[] = [
   {
     id: 3,
     slug: 'color-contrast',
-    title: 'Meet WCAG Colour Contrast Ratios',
+    title: 'Meet WCAG Color Contrast Ratios',
     category: 'Accessibility',
     summary:
       'Normal text must have a contrast ratio of at least 4.5:1 and large text at least 3:1 against its background.',
-    why: 'Insufficient contrast makes text unreadable for users with low vision or colour blindness and is a WCAG 2.1 AA requirement.',
+    why: 'Insufficient contrast makes text unreadable for users with low vision or color blindness and is a WCAG 2.1 AA requirement.',
   },
   {
     id: 4,
