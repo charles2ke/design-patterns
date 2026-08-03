@@ -1,0 +1,30 @@
+name: Packages npm
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - packages/npm/**
+      - .github/workflows/packages-npm.yml
+
+defaults:
+  run:
+    working-directory: packages/npm
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/npm/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test

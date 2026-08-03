@@ -1,0 +1,24 @@
+name: Packages Rust
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - packages/rust/**
+      - .github/workflows/packages-rust.yml
+
+defaults:
+  run:
+    working-directory: packages/rust
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test
