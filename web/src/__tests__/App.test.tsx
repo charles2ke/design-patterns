@@ -1,11 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { App } from '../App';
 
 describe('App', () => {
   afterEach(() => {
     window.location.hash = '';
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
 
   it('renders the index page', () => {
@@ -25,14 +24,21 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('switches pages after hash changes', () => {
+  it('switches pages after hash changes', async () => {
     render(<App />);
 
-    window.location.hash = '#backend-best-practices';
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    act(() => {
+      window.location.hash = '#backend-best-practices';
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
 
-    expect(
-      screen.getByRole('heading', { name: 'Backend Code Best Practices', level: 1 }),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', {
+          name: 'Backend Code Best Practices',
+          level: 1,
+        }),
+      ).toBeInTheDocument();
+    });
   });
 });
