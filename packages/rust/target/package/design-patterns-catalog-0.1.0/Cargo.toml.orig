@@ -1,6 +1,0 @@
-
-[package]
-name = "design-patterns-catalog"
-version = "0.1.0"
-edition = "2021"
-description = "Installable catalog of the 23 Gang of Four design patterns with filtering helpers."

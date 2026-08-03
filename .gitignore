@@ -1,0 +1,5 @@
+# Build artifacts
+packages/rust/target/
+packages/nuget/obj/
+packages/nuget/bin/
+packages/nuget/nupkg/
