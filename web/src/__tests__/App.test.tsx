@@ -48,6 +48,31 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the backend best practices page from hash routing', () => {
+    window.location.hash = '#backend-best-practices';
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Backend Code Best Practices', level: 1 }),
+    ).toBeInTheDocument();
+  });
+
+  it('switches to the backend best practices page on hashchange', () => {
+    render(<App />);
+
+    act(() => {
+      window.location.hash = '#backend-best-practices';
+      window.dispatchEvent(new Event('hashchange'));
+    });
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Backend Code Best Practices',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
   it('renders the database design page on its path', () => {
     window.history.replaceState({}, '', '/database-design-best-practices');
     render(<App />);

@@ -293,3 +293,26 @@ body {
   margin: 0;
   line-height: 1.45;
 }
+
+.backend-page {
+  margin: 0 auto;
+  max-width: 900px;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.backend-page__section {
+  background: var(--surface);
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.backend-page__section h2 {
+  margin-top: 0;
+}
+
+.backend-page__section ul {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}
