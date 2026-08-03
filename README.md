@@ -4,11 +4,21 @@ Design patterns every engineer should be aware of.
 
 ## Web index page
 
-A browsable React index of all 23 patterns lives in [`web/`](web/README.md):
+A browsable React index of all 23 patterns lives in [`web/`](web/README.md). It includes search, category filters, and a clickable table of contents for jumping directly to any visible pattern.
+
+Live site: https://charles2ke.github.io/design-patterns/
 
 ```bash
 cd web && npm install && npm run dev
 ```
+
+Production deploys are published automatically to GitHub Pages from `main`.
+
+## Repository quick links
+
+- [Web app documentation](web/README.md)
+- [GitHub Pages deployment](https://charles2ke.github.io/design-patterns/)
+- [Gang of Four catalog](#gang-of-four-gof-design-patterns)
 
 ## Gang of Four (GoF) Design Patterns
 

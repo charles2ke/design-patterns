@@ -2,7 +2,8 @@
 
 A React + TypeScript single-page index of the 23 Gang of Four design patterns
 documented in the [repository README](../README.md). Patterns can be searched by
-name/intent/usage and filtered by category.
+name/intent/usage, filtered by category, and browsed with a clickable table of
+contents.
 
 ![Index page](docs/screenshots/index-page.png)
 
@@ -13,6 +14,14 @@ cd web
 npm install
 npm run dev
 ```
+
+## Deployment
+
+- Production builds use `VITE_BASE_PATH` so the app can be deployed under the
+  repository GitHub Pages path.
+- Pushes to `main` automatically build `web/dist` and deploy it to GitHub
+  Pages.
+- Default production URL: https://charles2ke.github.io/design-patterns/
 
 ## Scripts
 

@@ -6,7 +6,11 @@ interface PatternCardProps {
 
 export function PatternCard({ pattern }: PatternCardProps) {
   return (
-    <article className="pattern-card" data-testid={`pattern-${pattern.slug}`}>
+    <article
+      id={`pattern-${pattern.slug}`}
+      className="pattern-card"
+      data-testid={`pattern-${pattern.slug}`}
+    >
       <h2 className="pattern-card__title">
         <span className="pattern-card__id">{pattern.id}.</span> {pattern.name}
       </h2>
