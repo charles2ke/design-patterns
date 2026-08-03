@@ -29,7 +29,7 @@ describe('App', () => {
 
     act(() => {
       window.location.hash = '#backend-best-practices';
-      window.dispatchEvent(new HashChangeEvent('hashchange'));
+      window.dispatchEvent(new Event('hashchange'));
     });
 
     await waitFor(() => {
