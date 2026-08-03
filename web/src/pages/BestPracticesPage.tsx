@@ -33,7 +33,7 @@ export function BestPracticesPage({ source = allPractices }: BestPracticesPagePr
     <main className="best-practices-page">
       <Header
         title="AI-First Best Practices"
-        subtitle="12 practices for building software in an AI-assisted world."
+        subtitle="Best practices for building software in an AI-assisted world."
       />
       <SearchBar value={query} onChange={setQuery} />
       <nav className="category-filter" aria-label="Filter by category">
