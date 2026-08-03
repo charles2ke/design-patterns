@@ -22,6 +22,15 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
         title="Design Patterns Index"
         subtitle="The 23 Gang of Four patterns every engineer should know."
       />
+      <p>
+        <a
+          className="page-link"
+          href="./database-design-best-practices"
+          aria-label="Open database design best practices page"
+        >
+          Database Design Best Practices
+        </a>
+      </p>
       <TableOfContents patterns={visiblePatterns} />
       <SearchBar value={query} onChange={setQuery} />
       <CategoryFilterBar value={category} onChange={setCategory} />
