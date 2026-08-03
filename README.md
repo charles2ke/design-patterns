@@ -2,6 +2,14 @@
 
 Design patterns every engineer should be aware of.
 
+## Web index page
+
+A browsable React index of all 23 patterns lives in [`web/`](web/README.md):
+
+```bash
+cd web && npm install && npm run dev
+```
+
 ## Gang of Four (GoF) Design Patterns
 
 The GoF catalog contains 23 object-oriented patterns grouped into three families:

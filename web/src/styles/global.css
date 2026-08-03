@@ -1,0 +1,133 @@
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.index-page {
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2.25rem;
+}
+
+.header__subtitle {
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.search-bar__label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.search-bar__input {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid #334155;
+  background: var(--surface);
+  color: inherit;
+  font-size: 1rem;
+}
+
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.category-filter__button {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.category-filter__button[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.index-page__count {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.pattern-list {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.pattern-card {
+  background: var(--surface);
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.pattern-card__title {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.pattern-card__id {
+  color: var(--accent);
+}
+
+.pattern-card__category {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.pattern-card p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.empty-state {
+  background: var(--surface);
+  border: 1px dashed #334155;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-state__reset {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: var(--accent);
+  color: #0f172a;
+  cursor: pointer;
+  font-weight: 600;
+}
