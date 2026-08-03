@@ -49,7 +49,6 @@ body {
   padding: 2rem 1.25rem 4rem;
 }
 
-<<<<<<< HEAD
 .best-practices-page__count {
   color: var(--muted);
   font-size: 0.9rem;
@@ -93,7 +92,8 @@ body {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.45;
-=======
+}
+
 .database-design-page {
   margin: 0 auto;
   max-width: 900px;
@@ -107,7 +107,6 @@ body {
 .page-link:hover,
 .page-link:focus-visible {
   text-decoration: none;
->>>>>>> origin/main
 }
 
 .header h1 {

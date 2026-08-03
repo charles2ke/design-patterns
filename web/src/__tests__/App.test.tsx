@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 import { render, screen, act } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
-=======
-import { render, screen } from '@testing-library/react';
-import { afterEach, beforeEach } from 'vitest';
-import { describe, expect, it } from 'vitest';
->>>>>>> origin/main
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { App } from '../App';
 
 afterEach(() => {
@@ -32,7 +26,6 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-<<<<<<< HEAD
   it('renders the best practices page when hash is #/best-practices', () => {
     window.location.hash = '#/best-practices';
     render(<App />);
@@ -52,7 +45,9 @@ describe('App', () => {
 
     expect(
       screen.getByRole('heading', { name: 'Front-End Best Practices', level: 1 }),
-=======
+    ).toBeInTheDocument();
+  });
+
   it('renders the database design page on its path', () => {
     window.history.replaceState({}, '', '/database-design-best-practices');
     render(<App />);
@@ -78,7 +73,6 @@ describe('App', () => {
         name: 'Database Design Best Practices',
         level: 1,
       }),
->>>>>>> origin/main
     ).toBeInTheDocument();
   });
 });
