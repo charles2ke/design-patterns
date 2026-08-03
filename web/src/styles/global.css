@@ -14,10 +14,84 @@ body {
   color: var(--text);
 }
 
-.index-page {
+.main-nav {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--surface);
+  border-bottom: 1px solid #334155;
+}
+
+.main-nav__link {
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.main-nav__link:hover,
+.main-nav__link:focus-visible {
+  color: var(--text);
+  background: #334155;
+}
+
+.main-nav__link[aria-current='page'] {
+  color: var(--accent);
+  background: #0c2a3e;
+  font-weight: 600;
+}
+
+.index-page,
+.best-practices-page {
   margin: 0 auto;
   max-width: 1100px;
   padding: 2rem 1.25rem 4rem;
+}
+
+.best-practices-page__count {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.best-practice-list {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.best-practice-card {
+  background: var(--surface);
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  scroll-margin-top: 1rem;
+}
+
+.best-practice-card__title {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.best-practice-card__id {
+  color: var(--accent);
+}
+
+.best-practice-card__category {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.best-practice-card p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .database-design-page {
