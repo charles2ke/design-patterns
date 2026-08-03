@@ -14,10 +14,93 @@ body {
   color: var(--text);
 }
 
+.nav-bar {
+  background: var(--surface);
+  border-bottom: 1px solid #334155;
+  padding: 0 1.25rem;
+}
+
+.nav-bar__list {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 0;
+}
+
+.nav-bar__link {
+  display: inline-block;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.85rem 0.75rem;
+  text-decoration: none;
+}
+
+.nav-bar__link:hover,
+.nav-bar__link:focus-visible {
+  color: var(--accent);
+}
+
+.nav-bar__link[aria-current='page'] {
+  border-bottom: 2px solid var(--accent);
+  color: var(--text);
+}
+
 .index-page {
   margin: 0 auto;
   max-width: 1100px;
   padding: 2rem 1.25rem 4rem;
+}
+
+.best-practices-page {
+  margin: 0 auto;
+  max-width: 1100px;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.best-practices-page__count {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.practice-list {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.practice-card {
+  background: var(--surface);
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  scroll-margin-top: 1rem;
+}
+
+.practice-card__title {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+}
+
+.practice-card__id {
+  color: var(--accent);
+}
+
+.practice-card__category {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.practice-card p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .header h1 {
