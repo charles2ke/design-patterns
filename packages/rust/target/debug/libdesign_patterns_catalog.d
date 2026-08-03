@@ -1,0 +1,1 @@
+/home/runner/work/design-patterns/design-patterns/packages/rust/target/debug/libdesign_patterns_catalog.rlib: /home/runner/work/design-patterns/design-patterns/packages/rust/target/package/design-patterns-catalog-0.1.0/src/lib.rs
