@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IndexPage } from './pages/IndexPage';
 import { BackendBestPracticesPage } from './pages/BackendBestPracticesPage';
-
-const BACKEND_BEST_PRACTICES_HASH = '#backend-best-practices';
+import { BACKEND_BEST_PRACTICES_HASH } from './routes';
 
 export function App() {
   const [hash, setHash] = useState(() => window.location.hash.toLowerCase());

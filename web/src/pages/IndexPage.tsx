@@ -6,6 +6,7 @@ import { SearchBar } from '../components/SearchBar';
 import { TableOfContents } from '../components/TableOfContents';
 import { usePatternFilter } from '../hooks/usePatternFilter';
 import type { Pattern } from '../types/pattern';
+import { BACKEND_BEST_PRACTICES_HASH } from '../routes';
 
 interface IndexPageProps {
   /** Injectable for tests; defaults to the full GoF catalog. */
@@ -23,7 +24,7 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
         subtitle="The 23 Gang of Four patterns every engineer should know."
       />
       <nav className="page-nav" aria-label="Pages">
-        <a className="page-nav__link" href="#backend-best-practices">
+        <a className="page-nav__link" href={BACKEND_BEST_PRACTICES_HASH}>
           Backend code best practices
         </a>
       </nav>
