@@ -5,6 +5,7 @@ import { PatternList } from '../components/PatternList';
 import { SearchBar } from '../components/SearchBar';
 import { TableOfContents } from '../components/TableOfContents';
 import { usePatternFilter } from '../hooks/usePatternFilter';
+import { BACKEND_BEST_PRACTICES_HASH } from '../routes';
 import type { Pattern } from '../types/pattern';
 import { BACKEND_BEST_PRACTICES_HASH } from '../routes';
 
