@@ -20,7 +20,7 @@ describe('BestPracticesPage', () => {
 
     expect(screen.getAllByRole('article')).toHaveLength(bestPractices.length);
     expect(screen.getByRole('status')).toHaveTextContent(
-      `${bestPractices.length} best practices`,
+      `${bestPractices.length} of ${bestPractices.length} best practices`,
     );
   });
 
@@ -28,7 +28,7 @@ describe('BestPracticesPage', () => {
     render(<BestPracticesPage source={bestPractices.slice(0, 3)} />);
 
     expect(screen.getAllByRole('article')).toHaveLength(3);
-    expect(screen.getByRole('status')).toHaveTextContent('3 best practices');
+    expect(screen.getByRole('status')).toHaveTextContent('3 of 3 best practices');
   });
 
   it('renders a card for each best practice', () => {
@@ -40,5 +40,11 @@ describe('BestPracticesPage', () => {
     expect(
       screen.getByTestId(`practice-${bestPractices[1].slug}`),
     ).toBeInTheDocument();
+  });
+
+  it('renders an accessible search bar for practices', () => {
+    render(<BestPracticesPage />);
+
+    expect(screen.getByLabelText('Search practices')).toBeInTheDocument();
   });
 });
