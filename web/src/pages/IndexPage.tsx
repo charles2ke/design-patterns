@@ -24,11 +24,23 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
         title="Design Patterns Index"
         subtitle="The 23 Gang of Four patterns every engineer should know."
       />
+<<<<<<< HEAD
       <nav className="page-nav" aria-label="Pages">
         <a className="page-nav__link" href={BACKEND_BEST_PRACTICES_HASH}>
           Backend code best practices
         </a>
       </nav>
+=======
+      <p>
+        <a
+          className="page-link"
+          href="./database-design-best-practices"
+          aria-label="Open database design best practices page"
+        >
+          Database Design Best Practices
+        </a>
+      </p>
+>>>>>>> origin/main
       <TableOfContents patterns={visiblePatterns} />
       <SearchBar value={query} onChange={setQuery} />
       <CategoryFilterBar value={category} onChange={setCategory} />

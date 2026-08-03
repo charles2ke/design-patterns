@@ -54,3 +54,28 @@ test('empty results can be cleared to restore the catalog', async ({
   await expect(page.getByLabel('Search patterns')).toHaveValue('');
   await expect(page.locator('article')).toHaveCount(23);
 });
+
+test('can navigate to and from database design best practices page', async ({
+  page,
+}) => {
+  await page
+    .getByRole('link', { name: 'Open database design best practices page' })
+    .click();
+
+  await expect(page).toHaveURL(/\/database-design-best-practices$/);
+  await expect(
+    page.getByRole('heading', {
+      name: 'Database Design Best Practices',
+      level: 1,
+    }),
+  ).toBeVisible();
+  await expect(page.getByRole('listitem')).toHaveCount(5);
+
+  await page
+    .getByRole('link', { name: 'Back to design patterns index' })
+    .click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(
+    page.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
+  ).toBeVisible();
+});
