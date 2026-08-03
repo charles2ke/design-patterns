@@ -1,0 +1,26 @@
+name: Packages Go
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - packages/go/**
+      - .github/workflows/packages-go.yml
+
+defaults:
+  run:
+    working-directory: packages/go
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test ./...
