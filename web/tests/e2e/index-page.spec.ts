@@ -22,6 +22,15 @@ test('searching narrows the catalog to matching patterns', async ({ page }) => {
   await expect(page.getByTestId('pattern-memento')).toBeVisible();
 });
 
+test('table of contents links jump to the selected pattern', async ({
+  page,
+}) => {
+  await page.getByRole('link', { name: '19. Observer' }).click();
+
+  await expect(page).toHaveURL(/#pattern-observer$/);
+  await expect(page.getByTestId('pattern-observer')).toBeVisible();
+});
+
 test('category filters restrict the catalog', async ({ page }) => {
   await page.getByRole('button', { name: 'Structural', exact: true }).click();
   await expect(page.locator('article')).toHaveCount(7);

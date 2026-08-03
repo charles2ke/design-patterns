@@ -30,6 +30,53 @@ body {
   margin-top: 0.5rem;
 }
 
+.table-of-contents {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+}
+
+.table-of-contents__title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+}
+
+.table-of-contents__groups {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.table-of-contents__group {
+  min-width: 0;
+}
+
+.table-of-contents__heading {
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.table-of-contents__list {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.table-of-contents__list li + li {
+  margin-top: 0.35rem;
+}
+
+.table-of-contents__link {
+  color: var(--text);
+}
+
+.table-of-contents__link:hover,
+.table-of-contents__link:focus-visible {
+  color: var(--accent);
+}
+
 .search-bar {
   display: flex;
   flex-direction: column;
@@ -89,6 +136,7 @@ body {
   border: 1px solid #334155;
   border-radius: 0.75rem;
   padding: 1rem;
+  scroll-margin-top: 1rem;
 }
 
 .pattern-card__title {

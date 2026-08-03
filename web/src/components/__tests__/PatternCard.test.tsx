@@ -22,6 +22,9 @@ describe('PatternCard', () => {
     expect(screen.getByText('Structural')).toBeInTheDocument();
     expect(screen.getByText(pattern.intent)).toBeInTheDocument();
     expect(screen.getByText(pattern.useWhen)).toBeInTheDocument();
-    expect(screen.getByTestId('pattern-proxy')).toBeInTheDocument();
+    expect(screen.getByTestId('pattern-proxy')).toHaveAttribute(
+      'id',
+      'pattern-proxy',
+    );
   });
 });

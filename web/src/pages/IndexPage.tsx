@@ -3,6 +3,7 @@ import { CategoryFilterBar } from '../components/CategoryFilterBar';
 import { Header } from '../components/Header';
 import { PatternList } from '../components/PatternList';
 import { SearchBar } from '../components/SearchBar';
+import { TableOfContents } from '../components/TableOfContents';
 import { usePatternFilter } from '../hooks/usePatternFilter';
 import type { Pattern } from '../types/pattern';
 
@@ -21,6 +22,7 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
         title="Design Patterns Index"
         subtitle="The 23 Gang of Four patterns every engineer should know."
       />
+      <TableOfContents patterns={visiblePatterns} />
       <SearchBar value={query} onChange={setQuery} />
       <CategoryFilterBar value={category} onChange={setCategory} />
       <p className="index-page__count" role="status">
