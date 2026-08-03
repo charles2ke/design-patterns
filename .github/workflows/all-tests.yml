@@ -7,11 +7,14 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   web-tests:
     name: Web Tests
     runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload-report.outputs.artifact-id }}
     defaults:
       run:
         working-directory: web
@@ -28,12 +31,44 @@ jobs:
       - run: npm run test:coverage
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - id: upload-report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: web/playwright-report
           retention-days: 7
+
+  playwright-pr-comment:
+    name: Playwright PR Comment
+    if: always() && github.event_name == 'pull_request'
+    needs: web-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const result = '${{ needs.web-tests.result }}';
+            const artifactId = '${{ needs.web-tests.outputs.artifact-id }}';
+            const status = result === 'success' ? '✅ Passed' : result === 'failure' ? '❌ Failed' : '⚠️ ' + result;
+            const reportLine = artifactId
+              ? `📥 [Download Playwright Report & Screenshots](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${artifactId})`
+              : '_(report artifact unavailable)_';
+            const body = [
+              '## 🎭 Playwright Test Report',
+              '',
+              `**Status:** ${status}`,
+              '',
+              reportLine,
+              '',
+              '_The artifact contains the HTML report and screenshots for all e2e test runs._',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
 
   npm-package:
     name: npm Package
@@ -51,6 +86,12 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: npm-package
+          path: packages/npm/dist
+          retention-days: 7
 
   nuget-package:
     name: NuGet Package
@@ -65,6 +106,13 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet build
       - run: dotnet test
+      - run: dotnet pack --configuration Release --output ./nupkg
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: nuget-package
+          path: packages/nuget/nupkg/*.nupkg
+          retention-days: 7
 
   python-package:
     name: Python Package
@@ -80,6 +128,14 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -e ".[dev]"
       - run: pytest
+      - run: pip install build
+      - run: python -m build
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: python-package
+          path: packages/python/dist
+          retention-days: 7
 
   go-package:
     name: Go Package
@@ -104,6 +160,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test
+      - run: cargo package
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: rust-crate
+          path: packages/rust/target/package/*.crate
+          retention-days: 7
 
   java-package:
     name: Java Package
@@ -118,6 +181,13 @@ jobs:
           distribution: temurin
           java-version: '11'
       - run: mvn test
+      - run: mvn package -DskipTests
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: java-package
+          path: packages/java/target/*.jar
+          retention-days: 7
 
   all-pass:
     name: All Tests Passed
