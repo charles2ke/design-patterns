@@ -1,0 +1,161 @@
+name: All Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  web-tests:
+    name: Web Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run test:coverage
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: web/playwright-report
+          retention-days: 7
+
+  npm-package:
+    name: npm Package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/npm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/npm/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  nuget-package:
+    name: NuGet Package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/nuget
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet build
+      - run: dotnet test
+
+  python-package:
+    name: Python Package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - run: pytest
+
+  go-package:
+    name: Go Package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/go
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test ./...
+
+  rust-package:
+    name: Rust Package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test
+
+  java-package:
+    name: Java Package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/java
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+      - run: mvn test
+
+  all-pass:
+    name: All Tests Passed
+    runs-on: ubuntu-latest
+    needs:
+      - web-tests
+      - npm-package
+      - nuget-package
+      - python-package
+      - go-package
+      - rust-package
+      - java-package
+    steps:
+      - run: echo "All checks completed successfully."
+
+  deploy-pages:
+    name: Deploy GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [all-pass]
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - uses: actions/configure-pages@v4
+      - run: cd web && npm ci && npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

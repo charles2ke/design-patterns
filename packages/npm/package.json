@@ -1,0 +1,28 @@
+{
+  "name": "design-patterns-catalog",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "6.0.2",
+    "vite": "^7.3.6",
+    "vite-plugin-dts": "5.0.3",
+    "vitest": "4.1.10"
+  }
+}
