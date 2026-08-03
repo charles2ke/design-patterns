@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { bestPractices as allPractices } from '../data/bestPractices';
 import { BestPracticeCard } from '../components/BestPracticeCard';
 import { EmptyState } from '../components/EmptyState';
@@ -9,6 +10,12 @@ import {
   type BestPracticeCategoryFilter,
 } from '../hooks/useBestPracticeFilter';
 import type { BestPractice } from '../types/bestPractice';
+=======
+import { bestPractices as allPractices } from '../data/best-practices';
+import { BestPracticeCard } from '../components/BestPracticeCard';
+import { Header } from '../components/Header';
+import type { BestPractice } from '../types/best-practice';
+>>>>>>> origin/main
 
 interface BestPracticesPageProps {
   /** Injectable for tests; defaults to the full best-practices catalog. */
@@ -16,6 +23,7 @@ interface BestPracticesPageProps {
 }
 
 export function BestPracticesPage({ source = allPractices }: BestPracticesPageProps) {
+<<<<<<< HEAD
   const { query, category, visiblePractices, setQuery, setCategory, reset } =
     useBestPracticeFilter(source);
 
@@ -53,6 +61,24 @@ export function BestPracticesPage({ source = allPractices }: BestPracticesPagePr
       ) : (
         <EmptyState onReset={reset} message="No practices match your filters." />
       )}
+=======
+  return (
+    <main className="best-practices-page">
+      <Header
+        title="Front-End Best Practices"
+        subtitle="Practical guidelines for building accessible, performant, and maintainable web applications."
+      />
+      <p className="best-practices-page__count" role="status">
+        {source.length} best practices
+      </p>
+      <ul className="best-practice-list" aria-label="Best practices">
+        {source.map((practice) => (
+          <li key={practice.slug}>
+            <BestPracticeCard practice={practice} />
+          </li>
+        ))}
+      </ul>
+>>>>>>> origin/main
     </main>
   );
 }

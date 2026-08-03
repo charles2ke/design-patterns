@@ -11,6 +11,9 @@ describe('IndexPage', () => {
     expect(
       screen.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Open database design best practices page' }),
+    ).toHaveAttribute('href', './database-design-best-practices');
     expect(screen.getAllByRole('article')).toHaveLength(patterns.length);
     expect(screen.getByRole('status')).toHaveTextContent(
       'Showing 23 of 23 patterns',
