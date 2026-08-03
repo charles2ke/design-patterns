@@ -12,13 +12,22 @@ on:
       - web/src/data/patterns.ts
       - web/src/types/pattern.ts
       - .github/workflows/readme-sync.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/generate-readme.ts
+      - web/src/data/patterns.ts
+      - web/src/types/pattern.ts
+      - .github/workflows/readme-sync.yml
 
 jobs:
   sync-readme:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref || github.ref }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -34,4 +43,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md
           git commit -m "docs: auto-update README"
-          git push
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}

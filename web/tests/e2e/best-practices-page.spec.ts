@@ -12,7 +12,7 @@ test('shows the best practices heading on load', async ({ page }) => {
 
 test('lists all best practices', async ({ page }) => {
   await expect(page.locator('article')).toHaveCount(15);
-  await expect(page.getByRole('status')).toHaveText('15 best practices');
+  await expect(page.getByRole('status')).toHaveText('15 of 15 best practices');
 });
 
 test('renders cards with category, summary, and why sections', async ({
