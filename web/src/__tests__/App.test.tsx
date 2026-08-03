@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { act, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
-=======
 import { render, screen, act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
->>>>>>> origin/main
 import { App } from '../App';
 
 afterEach(() => {
@@ -12,13 +7,6 @@ afterEach(() => {
 });
 
 describe('App', () => {
-<<<<<<< HEAD
-  afterEach(() => {
-    window.location.hash = '';
-  });
-
-  it('renders the index page', () => {
-=======
   let originalPathname = '/';
 
   beforeEach(() => {
@@ -31,7 +19,6 @@ describe('App', () => {
 
   it('renders the index page on the root path', () => {
     window.history.replaceState({}, '', '/');
->>>>>>> origin/main
     render(<App />);
 
     expect(
@@ -39,33 +26,6 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-<<<<<<< HEAD
-  it('renders the backend best practices page from hash routing', () => {
-    window.location.hash = '#backend-best-practices';
-    render(<App />);
-
-    expect(
-      screen.getByRole('heading', { name: 'Backend Code Best Practices', level: 1 }),
-    ).toBeInTheDocument();
-  });
-
-  it('switches pages after hash changes', async () => {
-    render(<App />);
-
-    act(() => {
-      window.location.hash = '#backend-best-practices';
-      window.dispatchEvent(new Event('hashchange'));
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('heading', {
-          name: 'Backend Code Best Practices',
-          level: 1,
-        }),
-      ).toBeInTheDocument();
-    });
-=======
   it('renders the best practices page when hash is #/best-practices', () => {
     window.location.hash = '#/best-practices';
     render(<App />);
@@ -85,6 +45,31 @@ describe('App', () => {
 
     expect(
       screen.getByRole('heading', { name: 'Front-End Best Practices', level: 1 }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the backend best practices page from hash routing', () => {
+    window.location.hash = '#backend-best-practices';
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Backend Code Best Practices', level: 1 }),
+    ).toBeInTheDocument();
+  });
+
+  it('switches to the backend best practices page on hashchange', () => {
+    render(<App />);
+
+    act(() => {
+      window.location.hash = '#backend-best-practices';
+      window.dispatchEvent(new Event('hashchange'));
+    });
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Backend Code Best Practices',
+        level: 1,
+      }),
     ).toBeInTheDocument();
   });
 
@@ -114,6 +99,5 @@ describe('App', () => {
         level: 1,
       }),
     ).toBeInTheDocument();
->>>>>>> origin/main
   });
 });

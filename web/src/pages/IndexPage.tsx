@@ -7,7 +7,6 @@ import { TableOfContents } from '../components/TableOfContents';
 import { usePatternFilter } from '../hooks/usePatternFilter';
 import { BACKEND_BEST_PRACTICES_HASH } from '../routes';
 import type { Pattern } from '../types/pattern';
-import { BACKEND_BEST_PRACTICES_HASH } from '../routes';
 
 interface IndexPageProps {
   /** Injectable for tests; defaults to the full GoF catalog. */
@@ -24,13 +23,6 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
         title="Design Patterns Index"
         subtitle="The 23 Gang of Four patterns every engineer should know."
       />
-<<<<<<< HEAD
-      <nav className="page-nav" aria-label="Pages">
-        <a className="page-nav__link" href={BACKEND_BEST_PRACTICES_HASH}>
-          Backend code best practices
-        </a>
-      </nav>
-=======
       <p>
         <a
           className="page-link"
@@ -40,7 +32,15 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
           Database Design Best Practices
         </a>
       </p>
->>>>>>> origin/main
+      <p>
+        <a
+          className="page-link"
+          href={BACKEND_BEST_PRACTICES_HASH}
+          aria-label="Open backend code best practices page"
+        >
+          Backend Code Best Practices
+        </a>
+      </p>
       <TableOfContents patterns={visiblePatterns} />
       <SearchBar value={query} onChange={setQuery} />
       <CategoryFilterBar value={category} onChange={setCategory} />

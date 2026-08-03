@@ -1,34 +1,10 @@
 import { useEffect, useState } from 'react';
-<<<<<<< HEAD
-import { IndexPage } from './pages/IndexPage';
-import { BackendBestPracticesPage } from './pages/BackendBestPracticesPage';
-import { BACKEND_BEST_PRACTICES_HASH } from './routes';
-
-export function App() {
-  const [hash, setHash] = useState(() => window.location.hash.toLowerCase());
-
-  useEffect(() => {
-    const onHashChange = () => {
-      setHash(window.location.hash.toLowerCase());
-    };
-
-    window.addEventListener('hashchange', onHashChange);
-
-    return () => {
-      window.removeEventListener('hashchange', onHashChange);
-    };
-  }, []);
-
-  if (hash === BACKEND_BEST_PRACTICES_HASH) {
-    return <BackendBestPracticesPage />;
-  }
-
-  return <IndexPage />;
-=======
 import { BestPracticesPage } from './pages/BestPracticesPage';
+import { BackendBestPracticesPage } from './pages/BackendBestPracticesPage';
 import { DatabaseDesignBestPracticesPage } from './pages/DatabaseDesignBestPracticesPage';
 import { IndexPage } from './pages/IndexPage';
 import { Nav } from './components/Nav';
+import { BACKEND_BEST_PRACTICES_HASH } from './routes';
 
 const DATABASE_DESIGN_PAGE_PATH = '/database-design-best-practices';
 
@@ -56,9 +32,14 @@ export function App() {
     pathname === DATABASE_DESIGN_PAGE_PATH ||
     pathname.endsWith(DATABASE_DESIGN_PAGE_PATH);
   const isBestPractices = hash === '#/best-practices';
+  const isBackendBestPractices = hash === BACKEND_BEST_PRACTICES_HASH;
 
   if (isDatabaseDesignPage) {
     return <DatabaseDesignBestPracticesPage />;
+  }
+
+  if (isBackendBestPractices) {
+    return <BackendBestPracticesPage />;
   }
 
   return (
@@ -67,5 +48,4 @@ export function App() {
       {isBestPractices ? <BestPracticesPage /> : <IndexPage />}
     </>
   );
->>>>>>> origin/main
 }
