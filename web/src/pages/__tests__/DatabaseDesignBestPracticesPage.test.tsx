@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { DatabaseDesignBestPracticesPage } from '../DatabaseDesignBestPracticesPage';
 
 describe('DatabaseDesignBestPracticesPage', () => {
-  it('renders the page title, backlink, and five best practices', () => {
+  it('renders the page title and five best practices', () => {
     render(<DatabaseDesignBestPracticesPage />);
 
     expect(
@@ -12,10 +12,6 @@ describe('DatabaseDesignBestPracticesPage', () => {
         level: 1,
       }),
     ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('link', { name: 'Back to design patterns index' }),
-    ).toHaveAttribute('href', './');
 
     expect(
       screen.getByRole('region', { name: 'Database design best practices' }),

@@ -41,3 +41,30 @@ test('nav shows best practices link as active', async ({ page }) => {
     page.getByRole('link', { name: 'Best Practices' }),
   ).toHaveAttribute('aria-current', 'page');
 });
+
+test('sub-navigation switches between best practices categories', async ({
+  page,
+}) => {
+  await page.getByRole('link', { name: 'Backend' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Backend Code Best Practices', level: 1 }),
+  ).toBeVisible();
+
+  await page.getByRole('link', { name: 'Database Design' }).click();
+  await expect(
+    page.getByRole('heading', {
+      name: 'Database Design Best Practices',
+      level: 1,
+    }),
+  ).toBeVisible();
+
+  await page.getByRole('link', { name: 'AI First' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'AI First Best Practices', level: 1 }),
+  ).toBeVisible();
+
+  await page.getByRole('link', { name: 'Front-End' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Front-End Best Practices', level: 1 }),
+  ).toBeVisible();
+});

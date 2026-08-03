@@ -54,6 +54,35 @@ body {
   font-size: 0.9rem;
 }
 
+.best-practices-subnav {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.best-practices-subnav__link {
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid #334155;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.best-practices-subnav__link:hover,
+.best-practices-subnav__link:focus-visible {
+  color: var(--text);
+  background: #334155;
+}
+
+.best-practices-subnav__link[aria-current='page'] {
+  color: var(--accent);
+  background: #0c2a3e;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
 .best-practice-list {
   display: grid;
   gap: 1rem;
@@ -92,12 +121,6 @@ body {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.45;
-}
-
-.database-design-page {
-  margin: 0 auto;
-  max-width: 900px;
-  padding: 2rem 1.25rem 4rem;
 }
 
 .page-link {
@@ -294,13 +317,15 @@ body {
   line-height: 1.45;
 }
 
-.backend-page {
-  margin: 0 auto;
-  max-width: 900px;
-  padding: 2rem 1.25rem 4rem;
+.backend-page__section {
+  background: var(--surface);
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
 }
 
-.backend-page__section {
+.ai-first-page__section {
   background: var(--surface);
   border: 1px solid #334155;
   border-radius: 0.75rem;

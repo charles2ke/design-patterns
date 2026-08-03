@@ -48,8 +48,8 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders the backend best practices page from hash routing', () => {
-    window.location.hash = '#backend-best-practices';
+  it('renders the backend best practices section from hash routing', () => {
+    window.location.hash = '#/best-practices/backend';
     render(<App />);
 
     expect(
@@ -57,11 +57,11 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('switches to the backend best practices page on hashchange', () => {
+  it('switches to the backend best practices section on hashchange', () => {
     render(<App />);
 
     act(() => {
-      window.location.hash = '#backend-best-practices';
+      window.location.hash = '#/best-practices/backend';
       window.dispatchEvent(new Event('hashchange'));
     });
 
@@ -73,8 +73,8 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders the database design page on its path', () => {
-    window.history.replaceState({}, '', '/database-design-best-practices');
+  it('renders the database design best practices section from hash routing', () => {
+    window.location.hash = '#/best-practices/database-design';
     render(<App />);
 
     expect(
@@ -85,17 +85,13 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders the database design page under a base path', () => {
-    window.history.replaceState(
-      {},
-      '',
-      '/design-patterns/database-design-best-practices',
-    );
+  it('renders the AI first best practices section from hash routing', () => {
+    window.location.hash = '#/best-practices/ai-first';
     render(<App />);
 
     expect(
       screen.getByRole('heading', {
-        name: 'Database Design Best Practices',
+        name: 'AI First Best Practices',
         level: 1,
       }),
     ).toBeInTheDocument();
