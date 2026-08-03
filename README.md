@@ -14,110 +14,37 @@ cd web && npm install && npm run dev
 
 The GoF catalog contains 23 object-oriented patterns grouped into three families:
 
-- **Creational**: how objects are created.
-- **Structural**: how classes/objects are composed.
-- **Behavioral**: how objects collaborate.
+- **Creational**: 5
+- **Structural**: 7
+- **Behavioral**: 11
 
-### 1) Creational Patterns
-
-#### 1. Singleton
-- **Intent**: Ensure a class has only one instance and provide a global access point.
-- **Use when**: You need shared state/configuration with controlled access.
-
-#### 2. Factory Method
-- **Intent**: Define an interface for creating an object, but let subclasses decide which class to instantiate.
-- **Use when**: Creation logic varies by context and you want to avoid tight coupling to concrete classes.
-
-#### 3. Abstract Factory
-- **Intent**: Provide an interface for creating families of related/dependent objects.
-- **Use when**: You must enforce compatible product variants (for example, light/dark UI kits).
-
-#### 4. Builder
-- **Intent**: Separate the construction of a complex object from its representation.
-- **Use when**: Objects have many optional fields/steps and telescoping constructors become messy.
-
-#### 5. Prototype
-- **Intent**: Create new objects by cloning an existing instance.
-- **Use when**: Object setup is expensive and many similar objects are required.
-
-### 2) Structural Patterns
-
-#### 6. Adapter
-- **Intent**: Convert one interface into another clients expect.
-- **Use when**: You need to integrate incompatible interfaces without changing source code.
-
-#### 7. Bridge
-- **Intent**: Decouple abstraction from implementation so both can vary independently.
-- **Use when**: You want to avoid class explosion from combining dimensions (shape x renderer, etc.).
-
-#### 8. Composite
-- **Intent**: Compose objects into tree structures and treat part-whole uniformly.
-- **Use when**: You model hierarchies (file systems, UI trees, org charts).
-
-#### 9. Decorator
-- **Intent**: Add behavior to objects dynamically by wrapping them.
-- **Use when**: You need optional, combinable features without many subclasses.
-
-#### 10. Facade
-- **Intent**: Provide a simplified interface to a complex subsystem.
-- **Use when**: You want to hide subsystem complexity behind a stable API.
-
-#### 11. Flyweight
-- **Intent**: Share intrinsic state across many fine-grained objects to reduce memory.
-- **Use when**: Large numbers of similar objects exist (characters, map tiles, particles).
-
-#### 12. Proxy
-- **Intent**: Provide a surrogate/placeholder to control access to another object.
-- **Use when**: You need lazy loading, access control, caching, or remote indirection.
-
-### 3) Behavioral Patterns
-
-#### 13. Chain of Responsibility
-- **Intent**: Pass requests along a chain until one handler processes it.
-- **Use when**: Multiple handlers may process a request and sender should not know receiver.
-
-#### 14. Command
-- **Intent**: Encapsulate a request as an object.
-- **Use when**: You need undo/redo, queueing, logging, or macro operations.
-
-#### 15. Interpreter
-- **Intent**: Define grammar and interpreter for a small language.
-- **Use when**: You need to evaluate domain-specific expressions.
-
-#### 16. Iterator
-- **Intent**: Access elements of an aggregate sequentially without exposing internals.
-- **Use when**: You need uniform traversal over different collections.
-
-#### 17. Mediator
-- **Intent**: Encapsulate how objects interact to reduce direct coupling.
-- **Use when**: Many-to-many object communication becomes hard to maintain.
-
-#### 18. Memento
-- **Intent**: Capture and restore an object's internal state without violating encapsulation.
-- **Use when**: You need snapshots/checkpoints (undo history, rollback).
-
-#### 19. Observer
-- **Intent**: Define one-to-many dependency so observers are notified of state changes.
-- **Use when**: Event-driven updates are needed (UI updates, pub/sub).
-
-#### 20. State
-- **Intent**: Let an object alter behavior when its internal state changes.
-- **Use when**: Behavior branches heavily on state and conditionals become large.
-
-#### 21. Strategy
-- **Intent**: Define a family of algorithms, encapsulate each, and make them interchangeable.
-- **Use when**: You need runtime selection of behavior (sorting, pricing, validation rules).
-
-#### 22. Template Method
-- **Intent**: Define algorithm skeleton in a base class and defer steps to subclasses.
-- **Use when**: Workflows are similar but some steps differ by variant.
-
-#### 23. Visitor
-- **Intent**: Separate operations from object structure by moving behavior into visitor objects.
-- **Use when**: You frequently add operations over a stable object structure.
+| ID | Pattern | Category | Intent | Use when |
+| --- | --- | --- | --- | --- |
+| 1 | Singleton | Creational | Ensure a class has only one instance and provide a global access point. | You need shared state/configuration with controlled access. |
+| 2 | Factory Method | Creational | Define an interface for creating an object, but let subclasses decide which class to instantiate. | Creation logic varies by context and you want to avoid tight coupling to concrete classes. |
+| 3 | Abstract Factory | Creational | Provide an interface for creating families of related/dependent objects. | You must enforce compatible product variants (for example, light/dark UI kits). |
+| 4 | Builder | Creational | Separate the construction of a complex object from its representation. | Objects have many optional fields/steps and telescoping constructors become messy. |
+| 5 | Prototype | Creational | Create new objects by cloning an existing instance. | Object setup is expensive and many similar objects are required. |
+| 6 | Adapter | Structural | Convert one interface into another clients expect. | You need to integrate incompatible interfaces without changing source code. |
+| 7 | Bridge | Structural | Decouple abstraction from implementation so both can vary independently. | You want to avoid class explosion from combining dimensions (shape x renderer, etc.). |
+| 8 | Composite | Structural | Compose objects into tree structures and treat part-whole uniformly. | You model hierarchies (file systems, UI trees, org charts). |
+| 9 | Decorator | Structural | Add behavior to objects dynamically by wrapping them. | You need optional, combinable features without many subclasses. |
+| 10 | Facade | Structural | Provide a simplified interface to a complex subsystem. | You want to hide subsystem complexity behind a stable API. |
+| 11 | Flyweight | Structural | Share intrinsic state across many fine-grained objects to reduce memory. | Large numbers of similar objects exist (characters, map tiles, particles). |
+| 12 | Proxy | Structural | Provide a surrogate/placeholder to control access to another object. | You need lazy loading, access control, caching, or remote indirection. |
+| 13 | Chain of Responsibility | Behavioral | Pass requests along a chain until one handler processes it. | Multiple handlers may process a request and sender should not know receiver. |
+| 14 | Command | Behavioral | Encapsulate a request as an object. | You need undo/redo, queueing, logging, or macro operations. |
+| 15 | Interpreter | Behavioral | Define grammar and interpreter for a small language. | You need to evaluate domain-specific expressions. |
+| 16 | Iterator | Behavioral | Access elements of an aggregate sequentially without exposing internals. | You need uniform traversal over different collections. |
+| 17 | Mediator | Behavioral | Encapsulate how objects interact to reduce direct coupling. | Many-to-many object communication becomes hard to maintain. |
+| 18 | Memento | Behavioral | Capture and restore an object's internal state without violating encapsulation. | You need snapshots/checkpoints (undo history, rollback). |
+| 19 | Observer | Behavioral | Define one-to-many dependency so observers are notified of state changes. | Event-driven updates are needed (UI updates, pub/sub). |
+| 20 | State | Behavioral | Let an object alter behavior when its internal state changes. | Behavior branches heavily on state and conditionals become large. |
+| 21 | Strategy | Behavioral | Define a family of algorithms, encapsulate each, and make them interchangeable. | You need runtime selection of behavior (sorting, pricing, validation rules). |
+| 22 | Template Method | Behavioral | Define algorithm skeleton in a base class and defer steps to subclasses. | Workflows are similar but some steps differ by variant. |
+| 23 | Visitor | Behavioral | Separate operations from object structure by moving behavior into visitor objects. | You frequently add operations over a stable object structure. |
 
 ---
-
 ## Example Code (C#, Java, React, Python, Go, Rust)
 
 Below are practical GoF examples across all requested languages.
