@@ -42,12 +42,7 @@ body {
   font-weight: 600;
 }
 
-.index-page {
-  margin: 0 auto;
-  max-width: 1100px;
-  padding: 2rem 1.25rem 4rem;
-}
-
+.index-page,
 .best-practices-page {
   margin: 0 auto;
   max-width: 1100px;
