@@ -1,17 +1,8 @@
 import { useEffect, useState } from 'react';
 import { BestPracticesPage } from './pages/BestPracticesPage';
-import { BackendBestPracticesPage } from './pages/BackendBestPracticesPage';
-import { DatabaseDesignBestPracticesPage } from './pages/DatabaseDesignBestPracticesPage';
 import { IndexPage } from './pages/IndexPage';
 import { Nav } from './components/Nav';
-import { BACKEND_BEST_PRACTICES_HASH } from './routes';
-
-const DATABASE_DESIGN_PAGE_PATH = '/database-design-best-practices';
-
-function normalizePathname(pathname: string) {
-  const normalizedPath = pathname.replace(/\/+$/, '');
-  return normalizedPath === '' ? '/' : normalizedPath;
-}
+import { BEST_PRACTICES_HASH } from './routes';
 
 function useHashRoute() {
   const [hash, setHash] = useState(() => window.location.hash);
@@ -27,20 +18,8 @@ function useHashRoute() {
 
 export function App() {
   const hash = useHashRoute();
-  const pathname = normalizePathname(window.location.pathname);
-  const isDatabaseDesignPage =
-    pathname === DATABASE_DESIGN_PAGE_PATH ||
-    pathname.endsWith(DATABASE_DESIGN_PAGE_PATH);
-  const isBestPractices = hash === '#/best-practices';
-  const isBackendBestPractices = hash === BACKEND_BEST_PRACTICES_HASH;
-
-  if (isDatabaseDesignPage) {
-    return <DatabaseDesignBestPracticesPage />;
-  }
-
-  if (isBackendBestPractices) {
-    return <BackendBestPracticesPage />;
-  }
+  const isBestPractices =
+    hash === BEST_PRACTICES_HASH || hash.startsWith(`${BEST_PRACTICES_HASH}/`);
 
   return (
     <>

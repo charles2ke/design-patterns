@@ -30,20 +30,11 @@ const bestPractices = [
 
 export function DatabaseDesignBestPracticesPage() {
   return (
-    <main className="database-design-page">
+    <div className="database-design-page">
       <Header
         title="Database Design Best Practices"
         subtitle="Practical guidelines for building scalable, maintainable, and reliable data models."
       />
-      <p>
-        <a
-          className="page-link"
-          href="./"
-          aria-label="Back to design patterns index"
-        >
-          Back to Design Patterns Index
-        </a>
-      </p>
       <section aria-label="Database design best practices">
         <ol className="database-design-page__list">
           {bestPractices.map((practice) => (
@@ -54,6 +45,6 @@ export function DatabaseDesignBestPracticesPage() {
           ))}
         </ol>
       </section>
-    </main>
+    </div>
   );
 }

@@ -2,16 +2,11 @@ import { Header } from '../components/Header';
 
 export function BackendBestPracticesPage() {
   return (
-    <main className="backend-page">
+    <div className="backend-page">
       <Header
         title="Backend Code Best Practices"
         subtitle="Reliable, secure, and maintainable patterns for backend systems."
       />
-      <nav className="page-nav" aria-label="Pages">
-        <a className="page-nav__link" href="#">
-          Design patterns index
-        </a>
-      </nav>
       <section className="backend-page__section">
         <h2>Architecture and boundaries</h2>
         <ul>
@@ -44,6 +39,6 @@ export function BackendBestPracticesPage() {
           <li>Define runbooks for common incidents and rollback procedures.</li>
         </ul>
       </section>
-    </main>
+    </div>
   );
 }

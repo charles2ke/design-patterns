@@ -5,7 +5,6 @@ import { PatternList } from '../components/PatternList';
 import { SearchBar } from '../components/SearchBar';
 import { TableOfContents } from '../components/TableOfContents';
 import { usePatternFilter } from '../hooks/usePatternFilter';
-import { BACKEND_BEST_PRACTICES_HASH } from '../routes';
 import type { Pattern } from '../types/pattern';
 
 interface IndexPageProps {
@@ -26,19 +25,10 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
       <p>
         <a
           className="page-link"
-          href="./database-design-best-practices"
-          aria-label="Open database design best practices page"
+          href="#/best-practices"
+          aria-label="Open best practices tab"
         >
-          Database Design Best Practices
-        </a>
-      </p>
-      <p>
-        <a
-          className="page-link"
-          href={BACKEND_BEST_PRACTICES_HASH}
-          aria-label="Open backend code best practices page"
-        >
-          Backend Code Best Practices
+          Best Practices
         </a>
       </p>
       <TableOfContents patterns={visiblePatterns} />

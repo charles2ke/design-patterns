@@ -10,9 +10,6 @@ describe('BackendBestPracticesPage', () => {
       screen.getByRole('heading', { name: 'Backend Code Best Practices', level: 1 }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Design patterns index' }),
-    ).toHaveAttribute('href', '#');
-    expect(
       screen.getByRole('heading', { name: 'Architecture and boundaries', level: 2 }),
     ).toBeInTheDocument();
     expect(

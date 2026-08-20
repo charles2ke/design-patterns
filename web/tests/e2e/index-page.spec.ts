@@ -55,14 +55,17 @@ test('empty results can be cleared to restore the catalog', async ({
   await expect(page.locator('article')).toHaveCount(23);
 });
 
-test('can navigate to and from database design best practices page', async ({
+test('can navigate to database design best practices under the best practices tab', async ({
   page,
 }) => {
-  await page
-    .getByRole('link', { name: 'Open database design best practices page' })
-    .click();
+  await page.getByRole('link', { name: 'Open best practices tab' }).click();
 
-  await expect(page).toHaveURL(/\/database-design-best-practices$/);
+  await expect(page).toHaveURL(/#\/best-practices$/);
+  await expect(
+    page.getByRole('heading', { name: 'Front-End Best Practices', level: 1 }),
+  ).toBeVisible();
+
+  await page.getByRole('link', { name: 'Database Design' }).click();
   await expect(
     page.getByRole('heading', {
       name: 'Database Design Best Practices',
@@ -71,10 +74,7 @@ test('can navigate to and from database design best practices page', async ({
   ).toBeVisible();
   await expect(page.getByRole('listitem')).toHaveCount(5);
 
-  await page
-    .getByRole('link', { name: 'Back to design patterns index' })
-    .click();
-  await expect(page).toHaveURL(/\/$/);
+  await page.getByRole('link', { name: 'Design Patterns' }).click();
   await expect(
     page.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
   ).toBeVisible();

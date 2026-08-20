@@ -1,9 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { BestPracticesPage } from '../BestPracticesPage';
 import { bestPractices } from '../../data/best-practices';
 import type { BestPractice } from '../../types/best-practice';
+
+afterEach(() => {
+  window.location.hash = '';
+});
 
 describe('BestPracticesPage', () => {
   it('renders the heading and subtitle', () => {
@@ -106,5 +110,55 @@ describe('BestPracticesPage', () => {
     await user.click(screen.getByRole('button', { name: /clear filters/i }));
 
     expect(screen.getAllByRole('article')).toHaveLength(3);
+  });
+
+  it('renders sub-navigation tabs for all best practices categories', () => {
+    render(<BestPracticesPage />);
+
+    expect(screen.getByRole('link', { name: 'Front-End' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByRole('link', { name: 'Backend' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Database Design' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'AI First' })).toBeInTheDocument();
+  });
+
+  it('switches to the backend section when its tab is clicked', async () => {
+    const user = userEvent.setup();
+    render(<BestPracticesPage />);
+
+    await user.click(screen.getByRole('link', { name: 'Backend' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Backend Code Best Practices', level: 1 }),
+    ).toBeInTheDocument();
+  });
+
+  it('switches to the database design section when its tab is clicked', async () => {
+    const user = userEvent.setup();
+    render(<BestPracticesPage />);
+
+    await user.click(screen.getByRole('link', { name: 'Database Design' }));
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Database Design Best Practices',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('switches to the AI first section when its tab is clicked', async () => {
+    const user = userEvent.setup();
+    render(<BestPracticesPage />);
+
+    await user.click(screen.getByRole('link', { name: 'AI First' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'AI First Best Practices', level: 1 }),
+    ).toBeInTheDocument();
   });
 });
