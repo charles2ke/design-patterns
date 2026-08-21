@@ -289,7 +289,6 @@ body {
 .pattern-flow {
   display: grid;
   gap: 0.5rem;
-  list-style: decimal;
   margin: 0;
   padding: 0;
 }
