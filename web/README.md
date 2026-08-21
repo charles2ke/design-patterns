@@ -1,11 +1,12 @@
 # Design Patterns Index (React)
 
-A React + TypeScript single-page index of the 23 Gang of Four design patterns
-documented in the [repository README](../README.md). Patterns can be searched by
-name/intent/usage, filtered by category, and browsed with a clickable table of
-contents.
+A React + TypeScript single-page app for learning design patterns. It includes a
+searchable index of the 23 Gang of Four patterns, a best-practices knowledge
+hub, and a modern Who Wants to Be a Millionaire-style quiz focused on design
+pattern knowledge.
 
 ![Index page](docs/screenshots/index-page.png)
+![Quiz page](docs/screenshots/quiz-page.png)
 
 ## Getting started
 
@@ -62,6 +63,6 @@ web/
 - **Unit tests** (`src/**/__tests__`) cover every component, hook, util, the
   data set and the app entry point. Coverage thresholds are set to 100% for
   statements, branches, functions and lines.
-- **Scenario tests** cover complete user journeys (search, filter, empty state
-  recovery) both at the component level with Testing Library and end-to-end in a
-  real browser with Playwright.
+- **Scenario tests** cover complete user journeys across index, best-practices,
+  and quiz flows both at the component level with Testing Library and end-to-end
+  in a real browser with Playwright.

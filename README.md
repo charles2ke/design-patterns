@@ -2,9 +2,13 @@
 
 Design patterns every engineer should be aware of.
 
-## Web index page
+## Web experience
 
-A browsable React index of all 23 patterns lives in [`web/`](web/README.md). It includes search, category filters, and a clickable table of contents for jumping directly to any visible pattern.
+A browsable React site for design patterns lives in [`web/`](web/README.md). It includes:
+
+- a searchable index of all 23 GoF patterns
+- a best-practices hub (front-end, backend, database design, AI-first)
+- a modern **Who Wants to Be a Millionaire?-style** design-pattern quiz
 
 Live site: https://charles2ke.github.io/design-patterns/
 
