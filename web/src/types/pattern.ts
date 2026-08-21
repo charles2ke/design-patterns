@@ -9,6 +9,8 @@ export interface Pattern {
   category: PatternCategory;
   intent: string;
   useWhen: string;
+  /** Ordered steps showing the pattern's typical collaboration flow. */
+  flow: string[];
 }
 
 export const PATTERN_CATEGORIES: PatternCategory[] = [

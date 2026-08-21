@@ -275,6 +275,62 @@ body {
   line-height: 1.45;
 }
 
+.pattern-card__flow {
+  margin-top: 1rem;
+}
+
+.pattern-card__flow-title {
+  margin: 0 0 0.65rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.pattern-flow {
+  counter-reset: flow-step;
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pattern-flow__step {
+  counter-increment: flow-step;
+  position: relative;
+  padding: 0.55rem 0.75rem 0.55rem 2rem;
+  border: 1px solid #334155;
+  border-radius: 0.55rem;
+  background: #0f172a;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.pattern-flow__step::before {
+  content: counter(flow-step);
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  display: grid;
+  width: 1rem;
+  height: 1rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #0f172a;
+  font-size: 0.65rem;
+  font-weight: 700;
+  transform: translateY(-50%);
+}
+
+.pattern-flow__step + .pattern-flow__step::after {
+  content: '↓';
+  position: absolute;
+  left: 0.72rem;
+  top: -0.68rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
 .empty-state {
   background: var(--surface);
   border: 1px dashed #334155;

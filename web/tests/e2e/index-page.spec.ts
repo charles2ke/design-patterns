@@ -14,6 +14,15 @@ test('shows the full Gang of Four catalog on first load', async ({ page }) => {
   await expect(page.locator('article')).toHaveCount(23);
 });
 
+test('shows a visual flow for each pattern', async ({ page }) => {
+  await expect(page.getByText('Visual flow')).toHaveCount(23);
+  await expect(page.getByText('Client requests instance')).toBeVisible();
+  await expect(
+    page.getByText('Singleton creates or returns cached instance'),
+  ).toBeVisible();
+  await expect(page.getByText('Client uses shared object')).toBeVisible();
+});
+
 test('searching narrows the catalog to matching patterns', async ({ page }) => {
   await page.getByLabel('Search patterns').fill('undo');
 

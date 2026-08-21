@@ -33,4 +33,13 @@ describe('patterns dataset', () => {
       expect(pattern.useWhen.length).toBeGreaterThan(0);
     }
   });
+
+  it('provides visual flow steps for every pattern', () => {
+    for (const pattern of patterns) {
+      expect(pattern.flow).toHaveLength(3);
+      for (const step of pattern.flow) {
+        expect(step.length).toBeGreaterThan(0);
+      }
+    }
+  });
 });
