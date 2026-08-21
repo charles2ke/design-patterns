@@ -289,22 +289,30 @@ body {
 .pattern-flow {
   display: grid;
   gap: 0.5rem;
-  list-style: none;
+  list-style: decimal;
   margin: 0;
   padding: 0;
 }
 
 .pattern-flow__step {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: 0.55rem;
   background: var(--bg);
   color: var(--text);
   font-size: 0.85rem;
+}
+
+.pattern-flow__step::marker {
+  color: transparent;
+  font-size: 0;
+}
+
+.pattern-flow__content {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 
 .pattern-flow__marker {

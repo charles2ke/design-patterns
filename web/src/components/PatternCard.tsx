@@ -28,18 +28,18 @@ export function PatternCard({ pattern }: PatternCardProps) {
         >
           Visual flow
         </h3>
-        {/* Preserve VoiceOver/Safari list semantics when list-style is removed. */}
         <ol
           className="pattern-flow"
           aria-labelledby={`${pattern.slug}-flow-title`}
-          role="list"
         >
           {pattern.flow.map((step, index) => (
             <li className="pattern-flow__step" key={`${pattern.slug}-${index}`}>
-              <span className="pattern-flow__marker" aria-hidden="true">
-                {index + 1}
-              </span>
-              <span>{step}</span>
+              <div className="pattern-flow__content">
+                <span className="pattern-flow__marker" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <span>{step}</span>
+              </div>
             </li>
           ))}
         </ol>
