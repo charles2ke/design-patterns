@@ -319,8 +319,7 @@ body {
   font-weight: 700;
 }
 
-.pattern-flow__step + .pattern-flow__step::after {
-  content: '↓';
+.pattern-flow__connector {
   position: absolute;
   left: 0.72rem;
   top: -0.68rem;
