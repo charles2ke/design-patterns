@@ -15,7 +15,7 @@ test('shows the full Gang of Four catalog on first load', async ({ page }) => {
 });
 
 test('shows a visual flow for each pattern', async ({ page }) => {
-  await expect(page.getByText('Visual flow')).toHaveCount(23);
+  await expect(page.getByRole('list', { name: 'Visual flow' })).toHaveCount(23);
   await expect(page.getByText('Client requests instance')).toBeVisible();
   await expect(
     page.getByText('Singleton creates or returns cached instance'),

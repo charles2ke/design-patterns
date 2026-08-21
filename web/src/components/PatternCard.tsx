@@ -22,12 +22,12 @@ export function PatternCard({ pattern }: PatternCardProps) {
         <strong>Use when:</strong> {pattern.useWhen}
       </p>
       <div className="pattern-card__flow">
-        <p
+        <h3
           className="pattern-card__flow-title"
           id={`${pattern.slug}-flow-title`}
         >
           Visual flow
-        </p>
+        </h3>
         <ol
           className="pattern-flow"
           aria-labelledby={`${pattern.slug}-flow-title`}
