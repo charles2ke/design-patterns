@@ -320,7 +320,7 @@ body {
   font-weight: 700;
 }
 
-.pattern-flow__step + .pattern-flow__step::after {
+.pattern-flow__step + .pattern-flow__step::before {
   content: '';
   position: absolute;
   left: 1.23rem;

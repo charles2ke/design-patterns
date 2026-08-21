@@ -28,7 +28,7 @@ export function PatternCard({ pattern }: PatternCardProps) {
         >
           Visual flow
         </h3>
-        {/* Preserve list semantics for assistive tech when CSS hides native markers. */}
+        {/* Preserve VoiceOver/Safari list semantics when list-style is removed. */}
         <ol
           className="pattern-flow"
           aria-labelledby={`${pattern.slug}-flow-title`}
