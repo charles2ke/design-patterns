@@ -28,6 +28,7 @@ export function PatternCard({ pattern }: PatternCardProps) {
         >
           Visual flow
         </h3>
+        {/* Preserve list semantics for assistive tech when CSS hides native markers. */}
         <ol
           className="pattern-flow"
           aria-labelledby={`${pattern.slug}-flow-title`}
@@ -35,11 +36,6 @@ export function PatternCard({ pattern }: PatternCardProps) {
         >
           {pattern.flow.map((step, index) => (
             <li className="pattern-flow__step" key={`${pattern.slug}-${index}`}>
-              {index > 0 ? (
-                <span className="pattern-flow__connector" aria-hidden="true">
-                  ↓
-                </span>
-              ) : null}
               <span className="pattern-flow__marker" aria-hidden="true">
                 {index + 1}
               </span>
