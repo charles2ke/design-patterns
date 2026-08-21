@@ -33,7 +33,7 @@ export function PatternCard({ pattern }: PatternCardProps) {
           aria-labelledby={`${pattern.slug}-flow-title`}
         >
           {pattern.flow.map((step, index) => (
-            <li className="pattern-flow__step" key={index}>
+            <li className="pattern-flow__step" key={`${index}-${step}`}>
               <div className="pattern-flow__content">
                 <span className="pattern-flow__marker" aria-hidden="true">
                   {index + 1}
