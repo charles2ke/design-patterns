@@ -16,9 +16,16 @@ test('loads the quiz and shows the first question', async ({ page }) => {
 });
 
 test('can win the top prize by answering all questions correctly', async ({ page }) => {
-  for (let i = 0; i < 5; i += 1) {
-    await page.getByRole('button', { name: 'Lock answer' }).click();
-  }
+  await page.getByRole('button', { name: /singleton/i }).click();
+  await page.getByRole('button', { name: 'Lock answer' }).click();
+  await page.getByRole('button', { name: /decorator/i }).click();
+  await page.getByRole('button', { name: 'Lock answer' }).click();
+  await page.getByRole('button', { name: /chain of responsibility/i }).click();
+  await page.getByRole('button', { name: 'Lock answer' }).click();
+  await page.getByRole('button', { name: /strategy/i }).click();
+  await page.getByRole('button', { name: 'Lock answer' }).click();
+  await page.getByRole('button', { name: /memento/i }).click();
+  await page.getByRole('button', { name: 'Lock answer' }).click();
 
   await expect(
     page.getByRole('heading', { name: 'You won the top prize!', level: 2 }),
@@ -27,7 +34,7 @@ test('can win the top prize by answering all questions correctly', async ({ page
 });
 
 test('shows game over on a wrong answer and supports restart', async ({ page }) => {
-  await page.getByRole('button', { name: /b builder/i }).click();
+  await page.getByRole('button', { name: /builder/i }).click();
   await page.getByRole('button', { name: 'Lock answer' }).click();
 
   await expect(page.getByRole('heading', { name: 'Game over!', level: 2 })).toBeVisible();

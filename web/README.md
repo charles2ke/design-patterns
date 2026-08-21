@@ -6,6 +6,7 @@ hub, and a modern Who Wants to Be a Millionaire-style quiz focused on design
 pattern knowledge.
 
 ![Index page](docs/screenshots/index-page.png)
+![Quiz page](docs/screenshots/quiz-page.png)
 
 ## Getting started
 

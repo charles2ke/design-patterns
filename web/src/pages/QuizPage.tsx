@@ -132,7 +132,9 @@ export function QuizPage() {
       />
       <section className="quiz-layout" aria-label="Design patterns quiz">
         <article className="quiz-card" aria-live="polite">
-          <p className="quiz-card__meta">{questionLabel}</p>
+          <p className="quiz-card__meta">
+            {gameState === 'playing' ? questionLabel : 'Final result'}
+          </p>
           {gameState === 'playing' ? (
             <>
               <h2 className="quiz-card__question">{question.prompt}</h2>
