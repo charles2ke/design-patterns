@@ -4,6 +4,7 @@
   --text: #e2e8f0;
   --muted: #94a3b8;
   --accent: #38bdf8;
+  --border: #334155;
   color-scheme: dark;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
@@ -299,9 +300,9 @@ body {
   align-items: center;
   gap: 0.65rem;
   padding: 0.55rem 0.75rem;
-  border: 1px solid #334155;
+  border: 1px solid var(--border);
   border-radius: 0.55rem;
-  background: #0f172a;
+  background: var(--bg);
   color: var(--text);
   font-size: 0.85rem;
 }
