@@ -14,6 +14,7 @@ const sample: Pattern[] = [
     category: 'Creational',
     intent: 'Ensure a class has only one instance.',
     useWhen: 'You need shared configuration.',
+    flow: ['Request instance', 'Return shared instance', 'Use shared instance'],
   },
   {
     id: 2,
@@ -22,6 +23,7 @@ const sample: Pattern[] = [
     category: 'Structural',
     intent: 'Convert one interface into another.',
     useWhen: 'Integrating incompatible interfaces.',
+    flow: ['Call target API', 'Translate request', 'Use adaptee'],
   },
   {
     id: 3,
@@ -30,6 +32,7 @@ const sample: Pattern[] = [
     category: 'Behavioral',
     intent: 'Notify observers of state changes.',
     useWhen: 'Event-driven updates are needed.',
+    flow: ['Change subject', 'Notify observers', 'Update observers'],
   },
 ];
 
