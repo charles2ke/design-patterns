@@ -3,3 +3,8 @@ packages/rust/target/
 packages/nuget/obj/
 packages/nuget/bin/
 packages/nuget/nupkg/
+packages/java/target/
+packages/npm/node_modules/
+packages/npm/dist/
+__pycache__/
+*.pyc
