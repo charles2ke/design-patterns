@@ -12,6 +12,7 @@ describe('Nav', () => {
     expect(
       screen.getByRole('link', { name: 'Best Practices' }),
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Quiz' })).toBeInTheDocument();
   });
 
   it('marks the index link as current when on the index page', () => {
@@ -31,6 +32,18 @@ describe('Nav', () => {
     expect(
       screen.getByRole('link', { name: 'Best Practices' }),
     ).toHaveAttribute('aria-current', 'page');
+    expect(
+      screen.getByRole('link', { name: 'Design Patterns' }),
+    ).not.toHaveAttribute('aria-current');
+  });
+
+  it('marks the quiz link as current when on the quiz page', () => {
+    render(<Nav currentPage="quiz" />);
+
+    expect(screen.getByRole('link', { name: 'Quiz' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
     expect(
       screen.getByRole('link', { name: 'Design Patterns' }),
     ).not.toHaveAttribute('aria-current');

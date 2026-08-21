@@ -35,6 +35,18 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the quiz page when hash is #/quiz', () => {
+    window.location.hash = '#/quiz';
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Who Wants to Be a Pattern Architect?',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
   it('switches to the best practices page on hashchange', () => {
     render(<App />);
 
@@ -92,6 +104,22 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', {
         name: 'AI First Best Practices',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('switches to the quiz page on hashchange', () => {
+    render(<App />);
+
+    act(() => {
+      window.location.hash = '#/quiz';
+      window.dispatchEvent(new Event('hashchange'));
+    });
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Who Wants to Be a Pattern Architect?',
         level: 1,
       }),
     ).toBeInTheDocument();
