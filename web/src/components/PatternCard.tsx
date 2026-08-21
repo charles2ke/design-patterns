@@ -31,10 +31,14 @@ export function PatternCard({ pattern }: PatternCardProps) {
         <ol
           className="pattern-flow"
           aria-labelledby={`${pattern.slug}-flow-title`}
+          role="list"
         >
           {pattern.flow.map((step, index) => (
             <li className="pattern-flow__step" key={`${pattern.slug}-${index}`}>
-              {step}
+              <span className="pattern-flow__marker" aria-hidden="true">
+                {index + 1}
+              </span>
+              <span>{step}</span>
             </li>
           ))}
         </ol>

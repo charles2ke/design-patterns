@@ -286,7 +286,6 @@ body {
 }
 
 .pattern-flow {
-  counter-reset: flow-step;
   display: grid;
   gap: 0.5rem;
   list-style: none;
@@ -295,9 +294,11 @@ body {
 }
 
 .pattern-flow__step {
-  counter-increment: flow-step;
   position: relative;
-  padding: 0.55rem 0.75rem 0.55rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid #334155;
   border-radius: 0.55rem;
   background: #0f172a;
@@ -305,12 +306,9 @@ body {
   font-size: 0.85rem;
 }
 
-.pattern-flow__step::before {
-  content: counter(flow-step);
-  position: absolute;
-  left: 0.6rem;
-  top: 50%;
+.pattern-flow__marker {
   display: grid;
+  flex: 0 0 auto;
   width: 1rem;
   height: 1rem;
   place-items: center;
@@ -319,7 +317,6 @@ body {
   color: #0f172a;
   font-size: 0.65rem;
   font-weight: 700;
-  transform: translateY(-50%);
 }
 
 .pattern-flow__step + .pattern-flow__step::after {
