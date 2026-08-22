@@ -3,9 +3,6 @@ name: Deploy Web to GitHub Pages
 on:
   push:
     branches: [main]
-    paths:
-      - 'web/**'
-      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -59,3 +56,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify deployed site
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: curl --fail --silent --show-error --retry 12 --retry-delay 5 "$PAGE_URL"
