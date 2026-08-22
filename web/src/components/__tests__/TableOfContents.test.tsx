@@ -11,6 +11,7 @@ const patterns: Pattern[] = [
     category: 'Creational',
     intent: 'Ensure a class has only one instance.',
     useWhen: 'You need a shared instance.',
+    flow: ['Request instance', 'Return shared instance', 'Use shared instance'],
   },
   {
     id: 2,
@@ -19,6 +20,7 @@ const patterns: Pattern[] = [
     category: 'Structural',
     intent: 'Convert one interface into another.',
     useWhen: 'You need to connect incompatible APIs.',
+    flow: ['Call target API', 'Translate request', 'Use adaptee'],
   },
   {
     id: 3,
@@ -27,6 +29,7 @@ const patterns: Pattern[] = [
     category: 'Creational',
     intent: 'Separate construction from representation.',
     useWhen: 'You have many optional configuration steps.',
+    flow: ['Choose steps', 'Build parts', 'Return product'],
   },
 ];
 

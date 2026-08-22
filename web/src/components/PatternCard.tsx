@@ -21,6 +21,29 @@ export function PatternCard({ pattern }: PatternCardProps) {
       <p className="pattern-card__use-when">
         <strong>Use when:</strong> {pattern.useWhen}
       </p>
+      <div className="pattern-card__flow">
+        <h3
+          className="pattern-card__flow-title"
+          id={`${pattern.slug}-flow-title`}
+        >
+          Visual flow
+        </h3>
+        <ol
+          className="pattern-flow"
+          aria-labelledby={`${pattern.slug}-flow-title`}
+        >
+          {pattern.flow.map((step, index) => (
+            <li className="pattern-flow__step" key={`${index}-${step}`}>
+              <div className="pattern-flow__content">
+                <span className="pattern-flow__marker" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <span>{step}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
     </article>
   );
 }

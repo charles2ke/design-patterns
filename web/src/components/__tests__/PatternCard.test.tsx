@@ -10,6 +10,11 @@ const pattern: Pattern = {
   category: 'Structural',
   intent: 'Provide a surrogate to control access to another object.',
   useWhen: 'You need lazy loading or access control.',
+  flow: [
+    'Client calls proxy',
+    'Proxy controls access or lifecycle',
+    'Real subject handles allowed request',
+  ],
 };
 
 describe('PatternCard', () => {
@@ -22,6 +27,12 @@ describe('PatternCard', () => {
     expect(screen.getByText('Structural')).toBeInTheDocument();
     expect(screen.getByText(pattern.intent)).toBeInTheDocument();
     expect(screen.getByText(pattern.useWhen)).toBeInTheDocument();
+    expect(
+      screen.getByRole('list', { name: 'Visual flow' }),
+    ).toBeInTheDocument();
+    for (const step of pattern.flow) {
+      expect(screen.getByText(step)).toBeInTheDocument();
+    }
     expect(screen.getByTestId('pattern-proxy')).toHaveAttribute(
       'id',
       'pattern-proxy',

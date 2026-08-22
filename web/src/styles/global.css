@@ -4,6 +4,7 @@
   --text: #e2e8f0;
   --muted: #94a3b8;
   --accent: #38bdf8;
+  --border: #334155;
   color-scheme: dark;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
@@ -273,6 +274,63 @@ body {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+.pattern-card__flow {
+  margin-top: 1rem;
+}
+
+.pattern-card__flow-title {
+  margin: 0 0 0.65rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.pattern-flow {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pattern-flow__step {
+  position: relative;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.pattern-flow__content {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.pattern-flow__marker {
+  display: grid;
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #0f172a;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.pattern-flow__step + .pattern-flow__step::before {
+  content: '';
+  position: absolute;
+  left: 1.23rem;
+  top: -0.5rem;
+  width: 2px;
+  height: 0.5rem;
+  background: var(--accent);
 }
 
 .empty-state {
