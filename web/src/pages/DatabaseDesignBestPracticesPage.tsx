@@ -1,4 +1,5 @@
 import { Header } from '../components/Header';
+import { SkillLink } from '../components/SkillLink';
 
 const bestPractices = [
   {
@@ -35,6 +36,7 @@ export function DatabaseDesignBestPracticesPage() {
         title="Database Design Best Practices"
         subtitle="Practical guidelines for building scalable, maintainable, and reliable data models."
       />
+      <SkillLink skill="database-design-best-practices" />
       <section aria-label="Database design best practices">
         <ol className="database-design-page__list">
           {bestPractices.map((practice) => (

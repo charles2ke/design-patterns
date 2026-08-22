@@ -18,10 +18,23 @@ cd web && npm install && npm run dev
 
 Production deploys are published automatically to GitHub Pages from `main`.
 
+## Best-practice skills
+
+Each best-practice area is also packaged as an [agent skill](.github/skills) so Copilot can apply the same
+guidance while writing or reviewing code. Every skill mirrors the matching page on the live site.
+
+| Skill | Guidance | Live page |
+| --- | --- | --- |
+| [`frontend-best-practices`](.github/skills/frontend-best-practices/SKILL.md) | Accessibility, performance, code quality, security, architecture | [Front-End](https://charles2ke.github.io/design-patterns/#/best-practices) |
+| [`backend-best-practices`](.github/skills/backend-best-practices/SKILL.md) | Boundaries, data and persistence, security and resilience, operations | [Backend](https://charles2ke.github.io/design-patterns/#/best-practices/backend) |
+| [`database-design-best-practices`](.github/skills/database-design-best-practices/SKILL.md) | Modeling, normalization, constraints, indexing, schema lifecycle | [Database Design](https://charles2ke.github.io/design-patterns/#/best-practices/database-design) |
+| [`ai-first-best-practices`](.github/skills/ai-first-best-practices/SKILL.md) | Product design, reliability, security and trust, cost and operations | [AI First](https://charles2ke.github.io/design-patterns/#/best-practices/ai-first) |
+
 ## Repository quick links
 
 - [Web app documentation](web/README.md)
 - [GitHub Pages deployment](https://charles2ke.github.io/design-patterns/)
+- [Best-practice skills](.github/skills)
 - [Gang of Four catalog](#gang-of-four-gof-design-patterns)
 
 ## Gang of Four (GoF) Design Patterns

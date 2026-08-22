@@ -8,6 +8,19 @@ pattern knowledge.
 ![Index page](docs/screenshots/index-page.png)
 ![Quiz page](docs/screenshots/quiz-page.png)
 
+## Best-practice skills
+
+Each best-practices section links to a matching Copilot agent skill in
+[`.github/skills`](../.github/skills), so the same guidance can be applied while
+writing or reviewing code:
+
+- [Front-End](../.github/skills/frontend-best-practices/SKILL.md)
+- [Backend](../.github/skills/backend-best-practices/SKILL.md)
+- [Database Design](../.github/skills/database-design-best-practices/SKILL.md)
+- [AI First](../.github/skills/ai-first-best-practices/SKILL.md)
+
+![Backend best practices with skill link](docs/screenshots/best-practices-backend.png)
+
 ## Getting started
 
 ```bash
