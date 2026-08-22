@@ -7,6 +7,7 @@ import { DatabaseDesignBestPracticesPage } from './DatabaseDesignBestPracticesPa
 import { EmptyState } from '../components/EmptyState';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
+import { SkillLink } from '../components/SkillLink';
 import {
   AI_FIRST_BEST_PRACTICES_HASH,
   BACKEND_BEST_PRACTICES_HASH,
@@ -60,6 +61,7 @@ function FrontEndBestPractices({ source }: { source: BestPractice[] }) {
         title="Front-End Best Practices"
         subtitle="Practical guidelines for building accessible, performant, and maintainable web applications."
       />
+      <SkillLink skill="frontend-best-practices" />
       <SearchBar
         value={query}
         onChange={setQuery}

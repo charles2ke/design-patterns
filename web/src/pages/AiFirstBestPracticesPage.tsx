@@ -1,4 +1,5 @@
 import { Header } from '../components/Header';
+import { SkillLink } from '../components/SkillLink';
 
 export function AiFirstBestPracticesPage() {
   return (
@@ -7,6 +8,7 @@ export function AiFirstBestPracticesPage() {
         title="AI First Best Practices"
         subtitle="Practical guidelines for designing products and systems that responsibly build on AI."
       />
+      <SkillLink skill="ai-first-best-practices" />
       <section className="ai-first-page__section">
         <h2>Design and product</h2>
         <ul>

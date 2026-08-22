@@ -1,4 +1,5 @@
 import { Header } from '../components/Header';
+import { SkillLink } from '../components/SkillLink';
 
 export function BackendBestPracticesPage() {
   return (
@@ -7,6 +8,7 @@ export function BackendBestPracticesPage() {
         title="Backend Code Best Practices"
         subtitle="Reliable, secure, and maintainable patterns for backend systems."
       />
+      <SkillLink skill="backend-best-practices" />
       <section className="backend-page__section">
         <h2>Architecture and boundaries</h2>
         <ul>

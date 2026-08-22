@@ -68,3 +68,32 @@ test('sub-navigation switches between best practices categories', async ({
     page.getByRole('heading', { name: 'Front-End Best Practices', level: 1 }),
   ).toBeVisible();
 });
+
+test('each best practices section links to its Copilot skill', async ({
+  page,
+}) => {
+  const skillsBase =
+    'https://github.com/charles2ke/design-patterns/blob/main/.github/skills';
+
+  await expect(page.getByTestId('skill-link-frontend-best-practices')).toHaveAttribute(
+    'href',
+    `${skillsBase}/frontend-best-practices/SKILL.md`,
+  );
+
+  await page.getByRole('link', { name: 'Backend' }).click();
+  await expect(page.getByTestId('skill-link-backend-best-practices')).toHaveAttribute(
+    'href',
+    `${skillsBase}/backend-best-practices/SKILL.md`,
+  );
+
+  await page.getByRole('link', { name: 'Database Design' }).click();
+  await expect(
+    page.getByTestId('skill-link-database-design-best-practices'),
+  ).toHaveAttribute('href', `${skillsBase}/database-design-best-practices/SKILL.md`);
+
+  await page.getByRole('link', { name: 'AI First' }).click();
+  await expect(page.getByTestId('skill-link-ai-first-best-practices')).toHaveAttribute(
+    'href',
+    `${skillsBase}/ai-first-best-practices/SKILL.md`,
+  );
+});
