@@ -60,4 +60,7 @@ jobs:
       - name: Verify deployed site
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        run: curl --fail --silent --show-error --retry 12 --retry-delay 5 "$PAGE_URL"
+        run: >-
+          curl --fail --show-error --output /dev/null
+          --retry 12 --retry-delay 5 --retry-all-errors
+          "$PAGE_URL"
