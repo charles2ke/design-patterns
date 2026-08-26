@@ -309,20 +309,18 @@ export function QuizPage() {
   }, [gameState, questionIndex, secondsLeft]);
 
   function handleFiftyFifty() {
-    if (fiftyFiftyUsed) return;
     const removed = removedByFiftyFifty(question);
+    const remaining = question.options.filter(
+      (option) => !removed.includes(option.id),
+    );
     setRemovedOptionIds(removed);
     setFiftyFiftyUsed(true);
     if (removed.includes(selectedOptionId)) {
-      const firstRemaining = question.options.find(
-        (option) => !removed.includes(option.id),
-      );
-      if (firstRemaining) setSelectedOptionId(firstRemaining.id);
+      setSelectedOptionId(remaining[0].id);
     }
   }
 
   function handleHint() {
-    if (hintUsed) return;
     setHintUsed(true);
     setHintVisible(true);
   }
