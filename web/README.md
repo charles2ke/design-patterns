@@ -7,6 +7,7 @@ pattern knowledge.
 
 ![Index page](docs/screenshots/index-page.png)
 ![Quiz page](docs/screenshots/quiz-page.png)
+![Quiz win celebration](docs/screenshots/quiz-win.png)
 
 ## Best-practice skills
 

@@ -74,9 +74,147 @@ const QUESTIONS: QuizQuestion[] = [
     ],
     correctOptionId: 'a',
   },
+  {
+    id: 6,
+    prompt:
+      'Which creational pattern separates the construction of a complex object from its representation?',
+    options: [
+      { id: 'a', label: 'Builder' },
+      { id: 'b', label: 'Singleton' },
+      { id: 'c', label: 'Observer' },
+      { id: 'd', label: 'Composite' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 7,
+    prompt:
+      'Which pattern converts the interface of a class into another interface clients expect?',
+    options: [
+      { id: 'a', label: 'Proxy' },
+      { id: 'b', label: 'Adapter' },
+      { id: 'c', label: 'Command' },
+      { id: 'd', label: 'State' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 8,
+    prompt:
+      'Which pattern notifies dependent objects automatically whenever the subject changes state?',
+    options: [
+      { id: 'a', label: 'Iterator' },
+      { id: 'b', label: 'Abstract Factory' },
+      { id: 'c', label: 'Observer' },
+      { id: 'd', label: 'Facade' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 9,
+    prompt:
+      'Which structural pattern offers a simplified entry point to a complex subsystem?',
+    options: [
+      { id: 'a', label: 'Bridge' },
+      { id: 'b', label: 'Facade' },
+      { id: 'c', label: 'Mediator' },
+      { id: 'd', label: 'Prototype' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 10,
+    prompt:
+      'Which creational pattern builds new objects by cloning an existing instance?',
+    options: [
+      { id: 'a', label: 'Prototype' },
+      { id: 'b', label: 'Factory Method' },
+      { id: 'c', label: 'Flyweight' },
+      { id: 'd', label: 'Strategy' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 11,
+    prompt:
+      'Which structural pattern decouples an abstraction from its implementation so both can vary independently?',
+    options: [
+      { id: 'a', label: 'Decorator' },
+      { id: 'b', label: 'Composite' },
+      { id: 'c', label: 'Bridge' },
+      { id: 'd', label: 'Memento' },
+    ],
+    correctOptionId: 'c',
+  },
+  {
+    id: 12,
+    prompt:
+      'Which pattern supplies a placeholder that controls access to another object?',
+    options: [
+      { id: 'a', label: 'Proxy' },
+      { id: 'b', label: 'Adapter' },
+      { id: 'c', label: 'Builder' },
+      { id: 'd', label: 'Interpreter' },
+    ],
+    correctOptionId: 'a',
+  },
+  {
+    id: 13,
+    prompt:
+      'Which pattern reduces memory use by sharing intrinsic state across many similar objects?',
+    options: [
+      { id: 'a', label: 'Singleton' },
+      { id: 'b', label: 'Flyweight' },
+      { id: 'c', label: 'Command' },
+      { id: 'd', label: 'Visitor' },
+    ],
+    correctOptionId: 'b',
+  },
+  {
+    id: 14,
+    prompt:
+      'Which behavioral pattern defines an algorithm skeleton in a base class and defers steps to subclasses?',
+    options: [
+      { id: 'a', label: 'State' },
+      { id: 'b', label: 'Iterator' },
+      { id: 'c', label: 'Mediator' },
+      { id: 'd', label: 'Template Method' },
+    ],
+    correctOptionId: 'd',
+  },
+  {
+    id: 15,
+    prompt:
+      'Which behavioral pattern adds new operations to an object structure without modifying its classes?',
+    options: [
+      { id: 'a', label: 'Visitor' },
+      { id: 'b', label: 'Observer' },
+      { id: 'c', label: 'Chain of Responsibility' },
+      { id: 'd', label: 'Decorator' },
+    ],
+    correctOptionId: 'a',
+  },
 ];
 
-const PRIZES = ['$100', '$500', '$1,000', '$5,000', '$10,000'];
+const PRIZES = [
+  '$100',
+  '$200',
+  '$300',
+  '$500',
+  '$1,000',
+  '$2,000',
+  '$4,000',
+  '$8,000',
+  '$16,000',
+  '$32,000',
+  '$64,000',
+  '$125,000',
+  '$250,000',
+  '$500,000',
+  '$1,000,000',
+];
+
+const CONFETTI_PIECES = Array.from({ length: 20 }, (_, index) => index);
 
 function winningsForLoss(questionIndex: number): string {
   if (questionIndex === 0) return '$0';
@@ -162,8 +300,29 @@ export function QuizPage() {
               </button>
             </>
           ) : (
-            <div className="quiz-result">
+            <div
+              className={
+                gameState === 'won' ? 'quiz-result quiz-result--won' : 'quiz-result'
+              }
+            >
+              {gameState === 'won' ? (
+                <div className="quiz-celebration" aria-hidden="true">
+                  {CONFETTI_PIECES.map((piece) => (
+                    <span
+                      key={piece}
+                      className="quiz-celebration__piece"
+                      style={{
+                        left: `${(piece * 100) / CONFETTI_PIECES.length}%`,
+                        animationDelay: `${(piece % 5) * 0.15}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : null}
               <h2>{gameState === 'won' ? 'You won the top prize!' : 'Game over!'}</h2>
+              {gameState === 'won' ? (
+                <p className="quiz-result__cheer">Congratulations, Pattern Architect!</p>
+              ) : null}
               <p>You leave with {winnings}.</p>
               <button type="button" className="quiz-lock-button" onClick={restartGame}>
                 Play again

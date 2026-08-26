@@ -14,7 +14,7 @@ describe('QuizPage', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Prize Ladder', level: 2 })).toBeInTheDocument();
-    expect(screen.getByText('Question 1 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Question 1 of 15')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Lock answer' })).toBeInTheDocument();
   });
 
@@ -24,7 +24,7 @@ describe('QuizPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Lock answer' }));
 
-    expect(screen.getByText('Question 2 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Question 2 of 15')).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
         name: /decorator/i,
@@ -43,7 +43,7 @@ describe('QuizPage', () => {
     expect(screen.getByText('You leave with $0.')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Play again' }));
-    expect(screen.getByText('Question 1 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Question 1 of 15')).toBeInTheDocument();
   });
 
   it('keeps previously won money when losing after a correct answer', async () => {
@@ -64,18 +64,40 @@ describe('QuizPage', () => {
     await user.click(screen.getByRole('button', { name: 'Lock answer' }));
     await user.click(screen.getByRole('button', { name: /decorator/i }));
     await user.click(screen.getByRole('button', { name: 'Lock answer' }));
-    await user.click(
-      screen.getByRole('button', { name: /chain of responsibility/i }),
-    );
+    await user.click(screen.getByRole('button', { name: /chain of responsibility/i }));
     await user.click(screen.getByRole('button', { name: 'Lock answer' }));
     await user.click(screen.getByRole('button', { name: /strategy/i }));
     await user.click(screen.getByRole('button', { name: 'Lock answer' }));
     await user.click(screen.getByRole('button', { name: /memento/i }));
     await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /builder/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /adapter/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /observer/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /facade/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /prototype/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /bridge/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /proxy/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /flyweight/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /template method/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: /visitor/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
 
     expect(
       screen.getByRole('heading', { name: 'You won the top prize!', level: 2 }),
     ).toBeInTheDocument();
-    expect(screen.getByText('You leave with $10,000.')).toBeInTheDocument();
+    expect(screen.getByText('You leave with $1,000,000.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Congratulations, Pattern Architect!'),
+    ).toBeInTheDocument();
+    expect(document.querySelector('.quiz-celebration')).not.toBeNull();
   });
 });
