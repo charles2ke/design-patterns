@@ -12,6 +12,9 @@ describe('Nav', () => {
     expect(
       screen.getByRole('link', { name: 'Best Practices' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Algorithms & Data Structures' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Quiz' })).toBeInTheDocument();
   });
 
@@ -44,6 +47,17 @@ describe('Nav', () => {
       'aria-current',
       'page',
     );
+    expect(
+      screen.getByRole('link', { name: 'Design Patterns' }),
+    ).not.toHaveAttribute('aria-current');
+  });
+
+  it('marks the algorithms & data structures link as current when on that page', () => {
+    render(<Nav currentPage="algorithms-data-structures" />);
+
+    expect(
+      screen.getByRole('link', { name: 'Algorithms & Data Structures' }),
+    ).toHaveAttribute('aria-current', 'page');
     expect(
       screen.getByRole('link', { name: 'Design Patterns' }),
     ).not.toHaveAttribute('aria-current');

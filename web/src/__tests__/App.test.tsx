@@ -124,4 +124,32 @@ describe('App', () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it('renders the algorithms and data structures page when hash is #/algorithms-data-structures', () => {
+    window.location.hash = '#/algorithms-data-structures';
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Algorithms and Data Structures',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('switches to the algorithms and data structures page on hashchange', () => {
+    render(<App />);
+
+    act(() => {
+      window.location.hash = '#/algorithms-data-structures';
+      window.dispatchEvent(new Event('hashchange'));
+    });
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Algorithms and Data Structures',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
 });

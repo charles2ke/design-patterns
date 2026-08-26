@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { BestPracticesPage } from './pages/BestPracticesPage';
+import { AlgorithmsDataStructuresPage } from './pages/AlgorithmsDataStructuresPage';
 import { IndexPage } from './pages/IndexPage';
 import { Nav } from './components/Nav';
-import { BEST_PRACTICES_HASH, QUIZ_HASH } from './routes';
+import { ALGORITHMS_DATA_STRUCTURES_HASH, BEST_PRACTICES_HASH, QUIZ_HASH } from './routes';
 import { QuizPage } from './pages/QuizPage';
 
 function useHashRoute() {
@@ -22,15 +23,32 @@ export function App() {
   const isQuiz = hash === QUIZ_HASH || hash.startsWith(`${QUIZ_HASH}/`);
   const isBestPractices =
     hash === BEST_PRACTICES_HASH || hash.startsWith(`${BEST_PRACTICES_HASH}/`);
+  const isAlgorithmsDataStructures =
+    hash === ALGORITHMS_DATA_STRUCTURES_HASH ||
+    hash.startsWith(`${ALGORITHMS_DATA_STRUCTURES_HASH}/`);
 
   return (
     <>
       <Nav
         currentPage={
-          isQuiz ? 'quiz' : isBestPractices ? 'best-practices' : 'index'
+          isQuiz
+            ? 'quiz'
+            : isBestPractices
+              ? 'best-practices'
+              : isAlgorithmsDataStructures
+                ? 'algorithms-data-structures'
+                : 'index'
         }
       />
-      {isQuiz ? <QuizPage /> : isBestPractices ? <BestPracticesPage /> : <IndexPage />}
+      {isQuiz ? (
+        <QuizPage />
+      ) : isBestPractices ? (
+        <BestPracticesPage />
+      ) : isAlgorithmsDataStructures ? (
+        <AlgorithmsDataStructuresPage />
+      ) : (
+        <IndexPage />
+      )}
     </>
   );
 }

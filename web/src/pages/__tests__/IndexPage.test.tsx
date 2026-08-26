@@ -14,6 +14,9 @@ describe('IndexPage', () => {
     expect(
       screen.getByRole('link', { name: 'Open best practices tab' }),
     ).toHaveAttribute('href', '#/best-practices');
+    expect(
+      screen.getByRole('link', { name: 'Open algorithms and data structures tab' }),
+    ).toHaveAttribute('href', '#/algorithms-data-structures');
     expect(screen.getAllByRole('article')).toHaveLength(patterns.length);
     expect(screen.getByRole('status')).toHaveTextContent(
       'Showing 23 of 23 patterns',
