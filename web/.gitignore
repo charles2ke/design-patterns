@@ -29,3 +29,6 @@ playwright-report
 test-results
 blob-report
 .playwright
+
+# Generated at deploy time
+public/build-info.json
