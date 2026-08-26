@@ -27,16 +27,21 @@ Mirrors the front-end section of the site: https://charles2ke.github.io/design-p
 - Keep components small and single-purpose; extract logic into hooks or pure helpers that can be unit tested.
 - Prefer explicit, typed props over loose objects; avoid `any` in TypeScript.
 - Co-locate tests with the code they cover and test behavior through the accessible DOM, not implementation details.
+- Design mobile-first: start with the smallest viewport and layer on `min-width` media queries.
 
 ## Security
 
 - Never inject unsanitized user content into the DOM; avoid `dangerouslySetInnerHTML` unless the value is sanitized.
+- Serve a Content-Security-Policy header that restricts script, style, and resource origins to trusted sources.
+- Enforce HTTPS everywhere and send `Strict-Transport-Security` with a long `max-age`.
 - Keep secrets out of client bundles — anything shipped to the browser is public.
 - Validate and encode data coming from APIs before rendering it.
 
 ## Architecture
 
-- Keep state as close to where it is used as possible; lift it only when shared.
+- Keep state as close to where it is used as possible; lift it only when shared, and derive views from a single source of truth.
+- Avoid drilling props through more than two or three levels; use context, a store, or composition instead.
+- Wrap sections in error boundaries so one failing widget cannot crash the whole page.
 - Separate data fetching from presentation so views stay easy to test.
 - Define routing and navigation in one place so links stay consistent.
 
@@ -45,5 +50,9 @@ Mirrors the front-end section of the site: https://charles2ke.github.io/design-p
 - [ ] Semantic markup and keyboard operability verified
 - [ ] Contrast and focus styles checked
 - [ ] Bundle impact considered (lazy loading / code splitting)
-- [ ] No unsanitized HTML or leaked secrets
+- [ ] Responsive from the smallest viewport up
+- [ ] No unsanitized HTML, weak CSP/HTTPS headers, or leaked secrets
+- [ ] Failures contained by an error boundary
 - [ ] Tests cover the new behavior
+
+<!-- covers: semantic-html, keyboard-navigation, color-contrast, lazy-loading, code-splitting, image-formats, content-security-policy, sanitise-user-input, https-only, small-components, colocate-tests, avoid-prop-drilling, single-source-of-truth, error-boundaries, responsive-mobile-first -->
