@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Which part of the last release version to increment
+        type: choice
+        default: minor
+        options:
+          - major
+          - minor
+          - patch
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve next version from last release
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUMP: ${{ inputs.bump }}
+        run: |
+          set -euo pipefail
+          previous=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // ""')
+          if [ -z "$previous" ]; then
+            next="v0.1.0"
+          else
+            version=${previous#v}
+            # Keep the same number of version segments as the previous release,
+            # so "v1" bumps to "v1.1" while "v1.2.3" bumps to "v1.3.0".
+            segments=$(echo "$version" | awk -F. '{print NF}')
+            major=$(echo "$version" | cut -d. -f1)
+            minor=$(echo "$version" | cut -d. -s -f2)
+            patch=$(echo "$version" | cut -d. -s -f3)
+            major=${major:-0}
+            minor=${minor:-0}
+            patch=${patch:-0}
+            case "$BUMP" in
+              major) major=$((major + 1)); minor=0; patch=0 ;;
+              minor) minor=$((minor + 1)); patch=0 ;;
+              patch) patch=$((patch + 1)) ;;
+            esac
+            # A bump must be representable, so widen "v1" to "v1.1" for a minor bump.
+            if [ "$BUMP" = "minor" ] && [ "$segments" -lt 2 ]; then
+              segments=2
+            fi
+            if [ "$BUMP" = "patch" ] && [ "$segments" -lt 3 ]; then
+              segments=3
+            fi
+            case "$segments" in
+              1) next="v${major}" ;;
+              2) next="v${major}.${minor}" ;;
+              *) next="v${major}.${minor}.${patch}" ;;
+            esac
+          fi
+          echo "previous=$previous" >> "$GITHUB_OUTPUT"
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEXT: ${{ steps.version.outputs.next }}
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+        run: |
+          set -euo pipefail
+          if [ -n "$PREVIOUS" ]; then
+            gh release create "$NEXT" \
+              --target "$GITHUB_SHA" \
+              --title "$NEXT" \
+              --generate-notes \
+              --notes-start-tag "$PREVIOUS"
+          else
+            gh release create "$NEXT" \
+              --target "$GITHUB_SHA" \
+              --title "$NEXT" \
+              --generate-notes
+          fi
