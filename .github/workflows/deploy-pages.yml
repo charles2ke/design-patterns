@@ -81,13 +81,13 @@ jobs:
           for attempt in $(seq 1 12); do
             if curl --fail --show-error --silent -H 'Cache-Control: no-cache' \
                  "${PAGE_URL}build-info.json?cb=${GITHUB_RUN_ID}-${attempt}" \
-                 -o build-info.json \
-               && grep -q "\"commit\":\"${GITHUB_SHA}\"" build-info.json; then
+                 -o /tmp/live-build-info.json \
+               && grep -q "\"commit\":\"${GITHUB_SHA}\"" /tmp/live-build-info.json; then
               echo "Deployed site serves commit ${GITHUB_SHA}."
               exit 0
             fi
             sleep 5
           done
           echo "::error::Deployed site is stale; expected commit ${GITHUB_SHA}."
-          cat build-info.json || true
+          cat /tmp/live-build-info.json || true
           exit 1
