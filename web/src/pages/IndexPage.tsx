@@ -29,6 +29,13 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
           aria-label="Open best practices tab"
         >
           Best Practices
+        </a>{' '}
+        <a
+          className="page-link"
+          href="#/algorithms-data-structures"
+          aria-label="Open algorithms and data structures tab"
+        >
+          Algorithms &amp; Data Structures
         </a>
       </p>
       <TableOfContents patterns={visiblePatterns} />

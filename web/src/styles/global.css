@@ -384,7 +384,8 @@ body {
   padding: 1rem 1.25rem;
 }
 
-.ai-first-page__section {
+.ai-first-page__section,
+.algorithms-page__section {
   background: var(--surface);
   border: 1px solid #334155;
   border-radius: 0.75rem;
@@ -392,11 +393,13 @@ body {
   padding: 1rem 1.25rem;
 }
 
-.backend-page__section h2 {
+.backend-page__section h2,
+.algorithms-page__section h2 {
   margin-top: 0;
 }
 
-.backend-page__section ul {
+.backend-page__section ul,
+.algorithms-page__section ul {
   margin-bottom: 0;
   padding-left: 1.25rem;
 }
