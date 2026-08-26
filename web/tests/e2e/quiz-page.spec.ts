@@ -55,8 +55,7 @@ test('can win the top prize by answering all questions correctly', async ({ page
   await expect(page.locator('.quiz-celebration__piece').first()).toBeVisible();
 });
 
-test('shows game over on a wrong answer and supports restart', async ({ page }) => {
-  await page.getByRole('button', { name: /builder/i }).click();
+test('shows game over on a wrong answer and supports restart', async ({ page }) => {  await page.getByRole('button', { name: /builder/i }).click();
   await page.getByRole('button', { name: 'Lock answer' }).click();
 
   await expect(page.getByRole('heading', { name: 'Game over!', level: 2 })).toBeVisible();
@@ -64,4 +63,26 @@ test('shows game over on a wrong answer and supports restart', async ({ page }) 
 
   await page.getByRole('button', { name: 'Play again' }).click();
   await expect(page.getByText('Question 1 of 15')).toBeVisible();
+});
+
+test('50:50 lifeline removes two wrong answers and can only be used once', async ({ page }) => {
+  await page.getByRole('button', { name: '50:50' }).click();
+
+  await expect(page.getByRole('button', { name: /singleton/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /mediator/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /builder/i })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /decorator/i })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '50:50' })).toBeDisabled();
+});
+
+test('hint lifeline reveals a hint once per game', async ({ page }) => {
+  await page.getByRole('button', { name: 'Hint' }).click();
+
+  await expect(page.getByText(/guards its own single instance/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Hint' })).toBeDisabled();
+
+  await page.getByRole('button', { name: 'Lock answer' }).click();
+  await expect(page.getByText('Question 2 of 15')).toBeVisible();
+  await expect(page.getByText(/guards its own single instance/i)).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Hint' })).toBeDisabled();
 });

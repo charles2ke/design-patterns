@@ -10,6 +10,7 @@ interface QuizQuestion {
   id: number;
   prompt: string;
   options: QuizOption[];
+  hint: string;
   correctOptionId: string;
 }
 
@@ -24,6 +25,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Decorator' },
       { id: 'd', label: 'Mediator' },
     ],
+    hint:
+      'Think about a class that guards its own single instance behind a static accessor.',
     correctOptionId: 'a',
   },
   {
@@ -36,6 +39,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Flyweight' },
       { id: 'd', label: 'Bridge' },
     ],
+    hint:
+      'It wraps the original object and shares its interface, layering behavior on top.',
     correctOptionId: 'b',
   },
   {
@@ -48,6 +53,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Chain of Responsibility' },
       { id: 'd', label: 'Template Method' },
     ],
+    hint:
+      'Each handler either handles the request or passes it to the next link.',
     correctOptionId: 'c',
   },
   {
@@ -60,6 +67,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Proxy' },
       { id: 'd', label: 'Visitor' },
     ],
+    hint:
+      'The algorithm is swapped by composing a different implementation object.',
     correctOptionId: 'b',
   },
   {
@@ -72,6 +81,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Adapter' },
       { id: 'd', label: 'Factory Method' },
     ],
+    hint:
+      'Its name comes from the idea of keeping a souvenir of a past state.',
     correctOptionId: 'a',
   },
   {
@@ -84,6 +95,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Observer' },
       { id: 'd', label: 'Composite' },
     ],
+    hint:
+      'It uses a step-by-step director to assemble parts of an object.',
     correctOptionId: 'a',
   },
   {
@@ -96,6 +109,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Command' },
       { id: 'd', label: 'State' },
     ],
+    hint:
+      'Think of a power plug converter between incompatible sockets.',
     correctOptionId: 'b',
   },
   {
@@ -108,6 +123,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Observer' },
       { id: 'd', label: 'Facade' },
     ],
+    hint:
+      'Subscribers register with a subject and are notified on change.',
     correctOptionId: 'c',
   },
   {
@@ -120,6 +137,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Mediator' },
       { id: 'd', label: 'Prototype' },
     ],
+    hint:
+      'It hides subsystem complexity behind one friendly interface.',
     correctOptionId: 'b',
   },
   {
@@ -132,6 +151,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Flyweight' },
       { id: 'd', label: 'Strategy' },
     ],
+    hint:
+      'It copies an existing object instead of constructing one from scratch.',
     correctOptionId: 'a',
   },
   {
@@ -144,6 +165,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Bridge' },
       { id: 'd', label: 'Memento' },
     ],
+    hint:
+      'It uses composition, not inheritance, to pair two class hierarchies.',
     correctOptionId: 'c',
   },
   {
@@ -156,6 +179,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Builder' },
       { id: 'd', label: 'Interpreter' },
     ],
+    hint:
+      'It stands in for the real object and can add lazy loading or access checks.',
     correctOptionId: 'a',
   },
   {
@@ -168,6 +193,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Command' },
       { id: 'd', label: 'Visitor' },
     ],
+    hint:
+      'It shares immutable state between many fine-grained objects.',
     correctOptionId: 'b',
   },
   {
@@ -180,6 +207,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Mediator' },
       { id: 'd', label: 'Template Method' },
     ],
+    hint:
+      'The base class fixes the order of steps; subclasses fill in the blanks.',
     correctOptionId: 'd',
   },
   {
@@ -192,6 +221,8 @@ const QUESTIONS: QuizQuestion[] = [
       { id: 'c', label: 'Chain of Responsibility' },
       { id: 'd', label: 'Decorator' },
     ],
+    hint:
+      'Operations move out of the element classes into a separate traversing class.',
     correctOptionId: 'a',
   },
 ];
@@ -221,6 +252,13 @@ function winningsForLoss(questionIndex: number): string {
   return PRIZES[questionIndex - 1];
 }
 
+function removedByFiftyFifty(question: QuizQuestion): string[] {
+  return question.options
+    .filter((option) => option.id !== question.correctOptionId)
+    .slice(0, 2)
+    .map((option) => option.id);
+}
+
 export function QuizPage() {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string>(
@@ -228,12 +266,38 @@ export function QuizPage() {
   );
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
   const [winnings, setWinnings] = useState('$0');
+  const [fiftyFiftyUsed, setFiftyFiftyUsed] = useState(false);
+  const [hintUsed, setHintUsed] = useState(false);
+  const [removedOptionIds, setRemovedOptionIds] = useState<string[]>([]);
+  const [hintVisible, setHintVisible] = useState(false);
 
   const question = QUESTIONS[questionIndex];
   const questionLabel = useMemo(
     () => `Question ${questionIndex + 1} of ${QUESTIONS.length}`,
     [questionIndex],
   );
+  const visibleOptions = question.options.filter(
+    (option) => !removedOptionIds.includes(option.id),
+  );
+
+  function handleFiftyFifty() {
+    if (fiftyFiftyUsed) return;
+    const removed = removedByFiftyFifty(question);
+    setRemovedOptionIds(removed);
+    setFiftyFiftyUsed(true);
+    if (removed.includes(selectedOptionId)) {
+      const firstRemaining = question.options.find(
+        (option) => !removed.includes(option.id),
+      );
+      if (firstRemaining) setSelectedOptionId(firstRemaining.id);
+    }
+  }
+
+  function handleHint() {
+    if (hintUsed) return;
+    setHintUsed(true);
+    setHintVisible(true);
+  }
 
   function handleLockAnswer() {
     const isCorrect = selectedOptionId === question.correctOptionId;
@@ -248,6 +312,8 @@ export function QuizPage() {
       setQuestionIndex(nextQuestionIndex);
       setSelectedOptionId(QUESTIONS[nextQuestionIndex].options[0].id);
       setWinnings(PRIZES[questionIndex]);
+      setRemovedOptionIds([]);
+      setHintVisible(false);
       return;
     }
 
@@ -260,6 +326,10 @@ export function QuizPage() {
     setSelectedOptionId(QUESTIONS[0].options[0].id);
     setGameState('playing');
     setWinnings('$0');
+    setFiftyFiftyUsed(false);
+    setHintUsed(false);
+    setRemovedOptionIds([]);
+    setHintVisible(false);
   }
 
   return (
@@ -276,8 +346,29 @@ export function QuizPage() {
           {gameState === 'playing' ? (
             <>
               <h2 className="quiz-card__question">{question.prompt}</h2>
+              <div className="quiz-lifelines" aria-label="Lifelines">
+                <button
+                  type="button"
+                  className="quiz-lifeline"
+                  onClick={handleFiftyFifty}
+                  disabled={fiftyFiftyUsed}
+                >
+                  50:50
+                </button>
+                <button
+                  type="button"
+                  className="quiz-lifeline"
+                  onClick={handleHint}
+                  disabled={hintUsed}
+                >
+                  Hint
+                </button>
+              </div>
+              {hintVisible ? (
+                <p className="quiz-hint">Hint: {question.hint}</p>
+              ) : null}
               <ul className="quiz-options" aria-label="Answer options">
-                {question.options.map((option) => (
+                {visibleOptions.map((option) => (
                   <li key={option.id}>
                     <button
                       type="button"

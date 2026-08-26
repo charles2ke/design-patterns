@@ -427,6 +427,42 @@ body {
   font-size: 1.2rem;
 }
 
+.quiz-lifelines {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.quiz-lifeline {
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.quiz-lifeline:hover:not(:disabled),
+.quiz-lifeline:focus-visible:not(:disabled) {
+  background: #0c2a3e;
+}
+
+.quiz-lifeline:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.quiz-hint {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border-left: 3px solid var(--accent);
+  padding-left: 0.7rem;
+}
+
 .quiz-options {
   list-style: none;
   margin: 1rem 0;

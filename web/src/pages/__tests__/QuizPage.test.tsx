@@ -57,8 +57,7 @@ describe('QuizPage', () => {
     expect(screen.getByText('You leave with $100.')).toBeInTheDocument();
   });
 
-  it('awards the top prize when all answers are correct', async () => {
-    const user = userEvent.setup();
+  it('awards the top prize when all answers are correct', async () => {    const user = userEvent.setup();
     render(<QuizPage />);
 
     await user.click(screen.getByRole('button', { name: 'Lock answer' }));
@@ -99,5 +98,64 @@ describe('QuizPage', () => {
       screen.getByText('Congratulations, Pattern Architect!'),
     ).toBeInTheDocument();
     expect(document.querySelector('.quiz-celebration')).not.toBeNull();
+  });
+
+  it('removes two wrong answers when the 50:50 lifeline is used', async () => {
+    const user = userEvent.setup();
+    render(<QuizPage />);
+
+    await user.click(screen.getByRole('button', { name: '50:50' }));
+
+    expect(screen.getByRole('button', { name: /singleton/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /builder/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /decorator/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /mediator/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '50:50' })).toBeDisabled();
+  });
+
+  it('keeps a valid selection when 50:50 removes the selected option', async () => {
+    const user = userEvent.setup();
+    render(<QuizPage />);
+
+    await user.click(screen.getByRole('button', { name: /builder/i }));
+    await user.click(screen.getByRole('button', { name: '50:50' }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+
+    expect(screen.getByText('Question 2 of 15')).toBeInTheDocument();
+  });
+
+  it('reveals a hint once per game and resets 50:50 removals per question', async () => {
+    const user = userEvent.setup();
+    render(<QuizPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Hint' }));
+
+    expect(
+      screen.getByText(/guards its own single instance/i),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Hint' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+
+    expect(
+      screen.queryByText(/guards its own single instance/i),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Hint' })).toBeDisabled();
+    expect(screen.getAllByRole('button', { name: /facade|decorator|flyweight|bridge/i })).toHaveLength(4);
+  });
+
+  it('restores both lifelines after restarting the game', async () => {
+    const user = userEvent.setup();
+    render(<QuizPage />);
+
+    await user.click(screen.getByRole('button', { name: '50:50' }));
+    await user.click(screen.getByRole('button', { name: 'Hint' }));
+    await user.click(screen.getByRole('button', { name: /mediator/i }));
+    await user.click(screen.getByRole('button', { name: 'Lock answer' }));
+    await user.click(screen.getByRole('button', { name: 'Play again' }));
+
+    expect(screen.getByRole('button', { name: '50:50' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Hint' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /builder/i })).toBeInTheDocument();
   });
 });
