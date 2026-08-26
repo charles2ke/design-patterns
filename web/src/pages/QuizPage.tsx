@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Header } from '../components/Header';
+import { shuffle } from '../utils/shuffle';
 
 interface QuizOption {
   id: string;
@@ -245,6 +246,10 @@ const PRIZES = [
   '$1,000,000',
 ];
 
+const QUESTION_SECONDS = 30;
+
+const TIMER_CIRCUMFERENCE = 2 * Math.PI * 17;
+
 const CONFETTI_PIECES = Array.from({ length: 20 }, (_, index) => index);
 
 function winningsForLoss(questionIndex: number): string {
@@ -261,8 +266,11 @@ function removedByFiftyFifty(question: QuizQuestion): string[] {
 
 export function QuizPage() {
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [questions, setQuestions] = useState<QuizQuestion[]>(() =>
+    shuffle(QUESTIONS),
+  );
   const [selectedOptionId, setSelectedOptionId] = useState<string>(
-    QUESTIONS[0].options[0].id,
+    () => questions[0].options[0].id,
   );
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
   const [winnings, setWinnings] = useState('$0');
@@ -270,15 +278,35 @@ export function QuizPage() {
   const [hintUsed, setHintUsed] = useState(false);
   const [removedOptionIds, setRemovedOptionIds] = useState<string[]>([]);
   const [hintVisible, setHintVisible] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(QUESTION_SECONDS);
+  const [timedOut, setTimedOut] = useState(false);
 
-  const question = QUESTIONS[questionIndex];
+  const question = questions[questionIndex];
   const questionLabel = useMemo(
-    () => `Question ${questionIndex + 1} of ${QUESTIONS.length}`,
-    [questionIndex],
+    () => `Question ${questionIndex + 1} of ${questions.length}`,
+    [questionIndex, questions.length],
   );
   const visibleOptions = question.options.filter(
     (option) => !removedOptionIds.includes(option.id),
   );
+
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+
+    const timer = setInterval(() => {
+      setSecondsLeft((previous) => Math.max(previous - 1, 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameState, questionIndex]);
+
+  useEffect(() => {
+    if (gameState !== 'playing' || secondsLeft > 0) return;
+
+    setWinnings(winningsForLoss(questionIndex));
+    setTimedOut(true);
+    setGameState('lost');
+  }, [gameState, questionIndex, secondsLeft]);
 
   function handleFiftyFifty() {
     if (fiftyFiftyUsed) return;
@@ -301,7 +329,7 @@ export function QuizPage() {
 
   function handleLockAnswer() {
     const isCorrect = selectedOptionId === question.correctOptionId;
-    if (isCorrect && questionIndex === QUESTIONS.length - 1) {
+    if (isCorrect && questionIndex === questions.length - 1) {
       setWinnings(PRIZES[questionIndex]);
       setGameState('won');
       return;
@@ -310,10 +338,11 @@ export function QuizPage() {
     if (isCorrect) {
       const nextQuestionIndex = questionIndex + 1;
       setQuestionIndex(nextQuestionIndex);
-      setSelectedOptionId(QUESTIONS[nextQuestionIndex].options[0].id);
+      setSelectedOptionId(questions[nextQuestionIndex].options[0].id);
       setWinnings(PRIZES[questionIndex]);
       setRemovedOptionIds([]);
       setHintVisible(false);
+      setSecondsLeft(QUESTION_SECONDS);
       return;
     }
 
@@ -322,14 +351,18 @@ export function QuizPage() {
   }
 
   function restartGame() {
+    const reshuffled = shuffle(QUESTIONS);
     setQuestionIndex(0);
-    setSelectedOptionId(QUESTIONS[0].options[0].id);
+    setQuestions(reshuffled);
+    setSelectedOptionId(reshuffled[0].options[0].id);
     setGameState('playing');
     setWinnings('$0');
     setFiftyFiftyUsed(false);
     setHintUsed(false);
     setRemovedOptionIds([]);
     setHintVisible(false);
+    setSecondsLeft(QUESTION_SECONDS);
+    setTimedOut(false);
   }
 
   return (
@@ -346,6 +379,33 @@ export function QuizPage() {
           {gameState === 'playing' ? (
             <>
               <h2 className="quiz-card__question">{question.prompt}</h2>
+              <div
+                className={
+                  secondsLeft <= 5
+                    ? 'quiz-timer quiz-timer--urgent'
+                    : 'quiz-timer'
+                }
+                role="timer"
+                aria-label="Time remaining for this question"
+              >
+                <svg className="quiz-timer__clock" viewBox="0 0 40 40" aria-hidden="true">
+                  <circle className="quiz-timer__track" cx="20" cy="20" r="17" />
+                  <circle
+                    className="quiz-timer__progress"
+                    cx="20"
+                    cy="20"
+                    r="17"
+                    style={{
+                      strokeDasharray: TIMER_CIRCUMFERENCE,
+                      strokeDashoffset:
+                        TIMER_CIRCUMFERENCE *
+                        (1 - secondsLeft / QUESTION_SECONDS),
+                    }}
+                  />
+                  <line className="quiz-timer__hand" x1="20" y1="20" x2="20" y2="9" />
+                </svg>
+                <span className="quiz-timer__value">{secondsLeft}s</span>
+              </div>
               <div className="quiz-lifelines" aria-label="Lifelines">
                 <button
                   type="button"
@@ -411,6 +471,7 @@ export function QuizPage() {
                 </div>
               ) : null}
               <h2>{gameState === 'won' ? 'You won the top prize!' : 'Game over!'}</h2>
+              {timedOut ? <p>Time ran out on that question.</p> : null}
               {gameState === 'won' ? (
                 <p className="quiz-result__cheer">Congratulations, Pattern Architect!</p>
               ) : null}

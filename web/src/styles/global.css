@@ -427,6 +427,69 @@ body {
   font-size: 1.2rem;
 }
 
+.quiz-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.quiz-timer__clock {
+  width: 2.5rem;
+  height: 2.5rem;
+  transform: rotate(-90deg);
+}
+
+.quiz-timer__track {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 3;
+}
+
+.quiz-timer__progress {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.quiz-timer__hand {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  transform-origin: 20px 20px;
+  animation: quiz-timer-sweep 30s linear infinite;
+}
+
+.quiz-timer--urgent {
+  color: #f87171;
+  animation: quiz-timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes quiz-timer-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes quiz-timer-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}
+
 .quiz-lifelines {
   display: flex;
   gap: 0.5rem;
@@ -612,7 +675,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .quiz-celebration__piece,
   .quiz-result--won h2,
-  .quiz-result__cheer {
+  .quiz-result__cheer,
+  .quiz-timer__hand,
+  .quiz-timer--urgent {
     animation: none;
   }
 }
