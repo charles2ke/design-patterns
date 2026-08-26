@@ -35,6 +35,11 @@ npm run dev
   repository GitHub Pages path.
 - Pushes to `main` automatically build `web/dist` and deploy it to GitHub
   Pages.
+- Each deployment writes `build-info.json` (commit SHA, ref and build time) into
+  the published site, and the workflow fails if the live site does not serve the
+  commit that was just deployed. Check
+  https://charles2ke.github.io/design-patterns/build-info.json to confirm what
+  is currently live.
 - Default production URL: https://charles2ke.github.io/design-patterns/
 
 ## Scripts
