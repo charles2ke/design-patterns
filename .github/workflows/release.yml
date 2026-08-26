@@ -30,7 +30,7 @@ jobs:
           BUMP: ${{ inputs.bump }}
         run: |
           set -euo pipefail
-          previous=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // ""')
+          previous=$(gh release view --json tagName --jq '.tagName' 2>/dev/null || echo "")
           if [ -z "$previous" ]; then
             next="v0.1.0"
           else
