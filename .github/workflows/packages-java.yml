@@ -24,4 +24,5 @@ jobs:
         with:
           distribution: temurin
           java-version: '11'
-      - run: mvn test
+          cache: maven
+      - run: mvn -B -ntp -Dmaven.wagon.http.retryHandler.count=3 test
