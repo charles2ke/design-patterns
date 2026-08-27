@@ -55,10 +55,12 @@ describe('Nav', () => {
   it('closes the menu when Escape is pressed', async () => {
     const { user, toggle } = renderOpenNav('index');
     await user.click(toggle);
+    screen.getByRole('link', { name: 'Design Patterns' }).focus();
 
     await user.keyboard('{Escape}');
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).toHaveFocus();
   });
 
   it('marks the index link as current when on the index page', async () => {

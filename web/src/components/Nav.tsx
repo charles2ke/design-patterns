@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ALGORITHMS_DATA_STRUCTURES_HASH,
   BEST_PRACTICES_HASH,
@@ -24,11 +24,15 @@ const LINKS: Array<{ page: NavPage; href: string; label: string }> = [
 
 export function Nav({ currentPage }: NavProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
     const handler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        toggleRef.current?.focus();
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -37,6 +41,7 @@ export function Nav({ currentPage }: NavProps) {
   return (
     <nav className="main-nav" aria-label="Site navigation">
       <button
+        ref={toggleRef}
         type="button"
         className="main-nav__toggle"
         aria-expanded={isOpen}
