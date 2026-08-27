@@ -19,8 +19,10 @@ writing or reviewing code:
 - [Backend](../.github/skills/backend-best-practices/SKILL.md)
 - [Database Design](../.github/skills/database-design-best-practices/SKILL.md)
 - [AI First](../.github/skills/ai-first-best-practices/SKILL.md)
+- [SOLID Principles](../.github/skills/solid-principles/SKILL.md)
 
 ![Backend best practices with skill link](docs/screenshots/best-practices-backend.png)
+![SOLID principles best practices](docs/screenshots/best-practices-solid-principles.png)
 
 ## Getting started
 

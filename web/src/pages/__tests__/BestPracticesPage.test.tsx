@@ -124,6 +124,9 @@ describe('BestPracticesPage', () => {
       screen.getByRole('link', { name: 'Database Design' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'AI First' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'SOLID Principles' }),
+    ).toBeInTheDocument();
   });
 
   it('switches to the backend section when its tab is clicked', async () => {
@@ -159,6 +162,17 @@ describe('BestPracticesPage', () => {
 
     expect(
       screen.getByRole('heading', { name: 'AI First Best Practices', level: 1 }),
+    ).toBeInTheDocument();
+  });
+
+  it('switches to the SOLID principles section when its tab is clicked', async () => {
+    const user = userEvent.setup();
+    render(<BestPracticesPage />);
+
+    await user.click(screen.getByRole('link', { name: 'SOLID Principles' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'SOLID Principles', level: 1 }),
     ).toBeInTheDocument();
   });
 });

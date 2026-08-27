@@ -8,19 +8,27 @@ import { EmptyState } from '../components/EmptyState';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
 import { SkillLink } from '../components/SkillLink';
+import { SolidPrinciplesPage } from './SolidPrinciplesPage';
 import {
   AI_FIRST_BEST_PRACTICES_HASH,
   BACKEND_BEST_PRACTICES_HASH,
   DATABASE_DESIGN_BEST_PRACTICES_HASH,
+  SOLID_PRINCIPLES_HASH,
 } from '../routes';
 import type { BestPractice } from '../types/best-practice';
 
-type BestPracticesSection = 'front-end' | 'backend' | 'database-design' | 'ai-first';
+type BestPracticesSection =
+  | 'front-end'
+  | 'backend'
+  | 'database-design'
+  | 'ai-first'
+  | 'solid-principles';
 
 function sectionFromHash(hash: string): BestPracticesSection {
   if (hash === BACKEND_BEST_PRACTICES_HASH) return 'backend';
   if (hash === DATABASE_DESIGN_BEST_PRACTICES_HASH) return 'database-design';
   if (hash === AI_FIRST_BEST_PRACTICES_HASH) return 'ai-first';
+  if (hash === SOLID_PRINCIPLES_HASH) return 'solid-principles';
   return 'front-end';
 }
 
@@ -33,6 +41,7 @@ const SECTIONS: Array<{ id: BestPracticesSection; label: string; hash: string }>
     hash: DATABASE_DESIGN_BEST_PRACTICES_HASH,
   },
   { id: 'ai-first', label: 'AI First', hash: AI_FIRST_BEST_PRACTICES_HASH },
+  { id: 'solid-principles', label: 'SOLID Principles', hash: SOLID_PRINCIPLES_HASH },
 ];
 
 interface BestPracticesPageProps {
@@ -117,6 +126,7 @@ export function BestPracticesPage({ source = allPractices }: BestPracticesPagePr
       {section === 'backend' && <BackendBestPracticesPage />}
       {section === 'database-design' && <DatabaseDesignBestPracticesPage />}
       {section === 'ai-first' && <AiFirstBestPracticesPage />}
+      {section === 'solid-principles' && <SolidPrinciplesPage />}
     </main>
   );
 }
