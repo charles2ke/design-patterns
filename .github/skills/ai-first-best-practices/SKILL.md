@@ -37,11 +37,11 @@ Mirrors the AI-first section of the site: https://charles2ke.github.io/design-pa
 - Know the fundamentals cold: tokenization, embeddings, context windows, temperature, and why models hallucinate.
 - Be able to design a retrieval-augmented generation system end to end: chunking, indexing, retrieval, re-ranking, and grounded answer generation.
 - Explain how you evaluate an AI feature with offline eval sets, golden datasets, LLM-as-judge, and online metrics — not just vibes.
-- Show product judgement: state when a prompt, fine-tune, retrieval, or plain deterministic code is the right tool for the problem.
+- Show product judgment: state when a prompt, fine-tune, retrieval, or plain deterministic code is the right tool for the problem.
 - Discuss latency, token cost, and caching trade-offs with concrete numbers for the systems you have built.
 - Cover safety by default: prompt injection, output validation, PII handling, and least-privilege tool access.
 - Bring a portfolio project you can demo and debug live, and be honest about its failure modes.
-- Practise thinking out loud, ask clarifying questions before designing, and confirm requirements and constraints early.
+- Practice thinking out loud, ask clarifying questions before designing, and confirm requirements and constraints early.
 
 ## Checklist
 

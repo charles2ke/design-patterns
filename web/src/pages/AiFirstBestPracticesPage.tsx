@@ -57,7 +57,7 @@ export function AiFirstBestPracticesPage() {
             LLM-as-judge, and online metrics — not just vibes.
           </li>
           <li>
-            Show product judgement: state when a prompt, fine-tune, retrieval, or plain
+            Show product judgment: state when a prompt, fine-tune, retrieval, or plain
             deterministic code is the right tool for the problem.
           </li>
           <li>
@@ -73,7 +73,7 @@ export function AiFirstBestPracticesPage() {
             modes.
           </li>
           <li>
-            Practise thinking out loud, ask clarifying questions before designing, and confirm
+            Practice thinking out loud, ask clarifying questions before designing, and confirm
             requirements and constraints early.
           </li>
         </ul>
