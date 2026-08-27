@@ -21,5 +21,8 @@ describe('AiFirstBestPracticesPage', () => {
     expect(
       screen.getByRole('heading', { name: 'Cost and operations', level: 2 }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'AI engineering interview tips', level: 2 }),
+    ).toBeInTheDocument();
   });
 });
