@@ -29,6 +29,7 @@ guidance while writing or reviewing code. Every skill mirrors the matching page 
 | [`backend-best-practices`](.github/skills/backend-best-practices/SKILL.md) | Boundaries, data and persistence, security and resilience, operations | [Backend](https://charles2ke.github.io/design-patterns/#/best-practices/backend) |
 | [`database-design-best-practices`](.github/skills/database-design-best-practices/SKILL.md) | Modeling, normalization, constraints, indexing, schema lifecycle | [Database Design](https://charles2ke.github.io/design-patterns/#/best-practices/database-design) |
 | [`ai-first-best-practices`](.github/skills/ai-first-best-practices/SKILL.md) | Product design, reliability, security and trust, cost and operations | [AI First](https://charles2ke.github.io/design-patterns/#/best-practices/ai-first) |
+| [`solid-principles`](.github/skills/solid-principles/SKILL.md) | Single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion | [Best Practices](https://charles2ke.github.io/design-patterns/#/best-practices) |
 
 ## Repository quick links
 
