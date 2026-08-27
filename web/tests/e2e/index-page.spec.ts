@@ -101,6 +101,7 @@ test('site navigation links keep a mobile-friendly tap target', async ({
 
   for (let index = 0; index < count; index += 1) {
     const box = await links.nth(index).boundingBox();
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
   }
 });
