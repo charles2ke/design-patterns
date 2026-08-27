@@ -99,7 +99,9 @@ test('hamburger menu keeps navigation usable on a mobile viewport', async ({
   const menuButton = page.getByRole('button', { name: 'Menu' });
   await expect(menuButton).toBeVisible();
   await expect(menuButton).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.locator('#main-nav-menu')).toBeHidden();
+  const menu = page.locator('#main-nav-menu');
+  await expect(menu).toBeAttached();
+  await expect(menu).toBeHidden();
 
   await menuButton.click();
   await page.getByRole('link', { name: 'Quiz' }).click();

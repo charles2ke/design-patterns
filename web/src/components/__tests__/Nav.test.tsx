@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { Nav } from '../Nav';
 
-function renderOpenNav(currentPage: Parameters<typeof Nav>[0]['currentPage']) {
+function renderNav(currentPage: Parameters<typeof Nav>[0]['currentPage']) {
   const user = userEvent.setup();
   render(<Nav currentPage={currentPage} />);
   return { user, toggle: screen.getByRole('button', { name: 'Menu' }) };
@@ -11,7 +11,7 @@ function renderOpenNav(currentPage: Parameters<typeof Nav>[0]['currentPage']) {
 
 describe('Nav', () => {
   it('hides the navigation links until the hamburger menu is opened', async () => {
-    const { user, toggle } = renderOpenNav('index');
+    const { user, toggle } = renderNav('index');
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     const designPatternsLink = screen.getByRole('link', {
@@ -30,7 +30,7 @@ describe('Nav', () => {
   });
 
   it('renders all navigation links when opened', async () => {
-    const { user, toggle } = renderOpenNav('index');
+    const { user, toggle } = renderNav('index');
     await user.click(toggle);
 
     expect(
@@ -46,7 +46,7 @@ describe('Nav', () => {
   });
 
   it('closes the menu when a link is clicked', async () => {
-    const { user, toggle } = renderOpenNav('index');
+    const { user, toggle } = renderNav('index');
     await user.click(toggle);
 
     await user.click(screen.getByRole('link', { name: 'Quiz' }));
@@ -58,7 +58,7 @@ describe('Nav', () => {
   });
 
   it('closes the menu when Escape is pressed', async () => {
-    const { user, toggle } = renderOpenNav('index');
+    const { user, toggle } = renderNav('index');
     await user.click(toggle);
     screen.getByRole('link', { name: 'Design Patterns' }).focus();
 
@@ -69,7 +69,7 @@ describe('Nav', () => {
   });
 
   it('keeps the menu open when a key other than Escape is pressed', async () => {
-    const { user, toggle } = renderOpenNav('index');
+    const { user, toggle } = renderNav('index');
     await user.click(toggle);
     screen.getByRole('link', { name: 'Design Patterns' }).focus();
 
@@ -82,7 +82,7 @@ describe('Nav', () => {
   });
 
   it('marks the index link as current when on the index page', async () => {
-    const { user, toggle } = renderOpenNav('index');
+    const { user, toggle } = renderNav('index');
     await user.click(toggle);
 
     expect(
@@ -94,7 +94,7 @@ describe('Nav', () => {
   });
 
   it('marks the best-practices link as current when on the best practices page', async () => {
-    const { user, toggle } = renderOpenNav('best-practices');
+    const { user, toggle } = renderNav('best-practices');
     await user.click(toggle);
 
     expect(
@@ -106,7 +106,7 @@ describe('Nav', () => {
   });
 
   it('marks the quiz link as current when on the quiz page', async () => {
-    const { user, toggle } = renderOpenNav('quiz');
+    const { user, toggle } = renderNav('quiz');
     await user.click(toggle);
 
     expect(screen.getByRole('link', { name: 'Quiz' })).toHaveAttribute(
@@ -119,7 +119,7 @@ describe('Nav', () => {
   });
 
   it('marks the algorithms & data structures link as current when on that page', async () => {
-    const { user, toggle } = renderOpenNav('algorithms-data-structures');
+    const { user, toggle } = renderNav('algorithms-data-structures');
     await user.click(toggle);
 
     expect(
