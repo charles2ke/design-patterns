@@ -35,7 +35,7 @@ describe('AlgorithmsDataStructuresPage', () => {
 
     const labels = Array.from(
       container.querySelectorAll('.algorithms-page__example-label'),
-    ).map((element) => element.textContent);
+    ).map((element) => element.textContent ?? '');
 
     for (const expected of [
       'Example: array',
