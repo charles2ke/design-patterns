@@ -13,22 +13,87 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  -webkit-text-size-adjust: 100%;
+  overflow-wrap: break-word;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 .main-nav {
+  position: relative;
   display: flex;
-  gap: 0.25rem;
   padding: 0.75rem 1.25rem;
   background: var(--surface);
   border-bottom: 1px solid #334155;
 }
 
+.main-nav__toggle {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.main-nav__toggle:hover,
+.main-nav__toggle:focus-visible {
+  background: #334155;
+}
+
+.main-nav__toggle[aria-expanded='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.main-nav__toggle-bars {
+  display: grid;
+  gap: 0.28rem;
+  width: 1.25rem;
+}
+
+.main-nav__toggle-bars span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.main-nav__menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 1.25rem;
+  right: 1.25rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 20rem;
+  padding: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 30px rgb(15 23 42 / 55%);
+}
+
+.main-nav__menu[hidden] {
+  display: none;
+}
+
 .main-nav__link {
-  padding: 0.4rem 0.85rem;
+  padding: 0.6rem 0.85rem;
   border-radius: 0.5rem;
   color: var(--muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .main-nav__link:hover,
@@ -88,7 +153,7 @@ body {
 .best-practice-list {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   list-style: none;
   padding: 0;
   margin: 0;
@@ -160,7 +225,7 @@ body {
 .table-of-contents__groups {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
 }
 
 .table-of-contents__group {
@@ -242,7 +307,7 @@ body {
 .pattern-list {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
 }
 
 .pattern-card {
@@ -407,7 +472,7 @@ body {
 
 .quiz-layout {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(min(260px, 100%), 1fr);
   gap: 1.25rem;
   margin-top: 1.5rem;
 }
@@ -736,4 +801,84 @@ body {
 .skill-link__anchor:hover,
 .skill-link__anchor:focus-visible {
   border-bottom-color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .main-nav {
+    padding: 0.65rem 1rem;
+  }
+
+  .main-nav__menu {
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
+
+  .index-page,
+  .best-practices-page,
+  .quiz-page {
+    padding: 1.25rem 1rem 3rem;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+  }
+
+  .header__subtitle {
+    font-size: 0.95rem;
+  }
+
+  .best-practices-subnav__link {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  .table-of-contents,
+  .best-practice-card,
+  .pattern-card,
+  .database-design-page__item,
+  .backend-page__section,
+  .ai-first-page__section,
+  .solid-page__section,
+  .algorithms-page__section,
+  .quiz-card,
+  .quiz-ladder {
+    padding: 0.9rem;
+  }
+
+  .empty-state {
+    padding: 1.25rem;
+  }
+
+  .category-filter__button,
+  .quiz-lifeline,
+  .quiz-lock-button,
+  .empty-state__reset {
+    min-height: 2.75rem;
+  }
+
+  .quiz-card__question {
+    font-size: 1.05rem;
+  }
+
+  .quiz-lifelines {
+    flex-wrap: wrap;
+  }
+
+  .quiz-option {
+    align-items: flex-start;
+    border-radius: 0.9rem;
+    padding: 0.75rem;
+  }
+
+  .quiz-lock-button {
+    width: 100%;
+  }
+
+  .backend-page__section ul,
+  .algorithms-page__section ul,
+  .table-of-contents__list,
+  .database-design-page__list {
+    padding-left: 1rem;
+  }
 }

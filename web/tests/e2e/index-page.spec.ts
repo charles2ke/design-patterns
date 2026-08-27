@@ -83,8 +83,43 @@ test('can navigate to database design best practices under the best practices ta
   ).toBeVisible();
   await expect(page.getByRole('listitem')).toHaveCount(5);
 
+  await page.getByRole('button', { name: 'Menu' }).click();
   await page.getByRole('link', { name: 'Design Patterns' }).click();
   await expect(
     page.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
   ).toBeVisible();
+});
+
+test('hamburger menu keeps navigation usable on a mobile viewport', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/');
+
+  const menuButton = page.getByRole('button', { name: 'Menu' });
+  await expect(menuButton).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Quiz' })).toBeHidden();
+
+  await menuButton.click();
+  await page.getByRole('link', { name: 'Quiz' }).click();
+
+  await expect(
+    page.getByRole('heading', {
+      name: 'Who Wants to Be a Pattern Architect?',
+      level: 1,
+    }),
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Quiz' })).toBeHidden();
+});
+
+test('index page content does not overflow horizontally on mobile', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await page.goto('/');
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
 });

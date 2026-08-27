@@ -1,10 +1,34 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { Nav } from '../Nav';
 
+function renderOpenNav(currentPage: Parameters<typeof Nav>[0]['currentPage']) {
+  const user = userEvent.setup();
+  render(<Nav currentPage={currentPage} />);
+  return { user, toggle: screen.getByRole('button', { name: 'Menu' }) };
+}
+
 describe('Nav', () => {
-  it('renders both navigation links', () => {
-    render(<Nav currentPage="index" />);
+  it('hides the navigation links until the hamburger menu is opened', async () => {
+    const { user, toggle } = renderOpenNav('index');
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(
+      screen.queryByRole('link', { name: 'Design Patterns' }),
+    ).not.toBeInTheDocument();
+
+    await user.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      screen.getByRole('link', { name: 'Design Patterns' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders all navigation links when opened', async () => {
+    const { user, toggle } = renderOpenNav('index');
+    await user.click(toggle);
 
     expect(
       screen.getByRole('link', { name: 'Design Patterns' }),
@@ -18,8 +42,28 @@ describe('Nav', () => {
     expect(screen.getByRole('link', { name: 'Quiz' })).toBeInTheDocument();
   });
 
-  it('marks the index link as current when on the index page', () => {
-    render(<Nav currentPage="index" />);
+  it('closes the menu when a link is clicked', async () => {
+    const { user, toggle } = renderOpenNav('index');
+    await user.click(toggle);
+
+    await user.click(screen.getByRole('link', { name: 'Quiz' }));
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('link', { name: 'Quiz' })).not.toBeInTheDocument();
+  });
+
+  it('closes the menu when Escape is pressed', async () => {
+    const { user, toggle } = renderOpenNav('index');
+    await user.click(toggle);
+
+    await user.keyboard('{Escape}');
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('marks the index link as current when on the index page', async () => {
+    const { user, toggle } = renderOpenNav('index');
+    await user.click(toggle);
 
     expect(
       screen.getByRole('link', { name: 'Design Patterns' }),
@@ -29,8 +73,9 @@ describe('Nav', () => {
     ).not.toHaveAttribute('aria-current');
   });
 
-  it('marks the best-practices link as current when on the best practices page', () => {
-    render(<Nav currentPage="best-practices" />);
+  it('marks the best-practices link as current when on the best practices page', async () => {
+    const { user, toggle } = renderOpenNav('best-practices');
+    await user.click(toggle);
 
     expect(
       screen.getByRole('link', { name: 'Best Practices' }),
@@ -40,8 +85,9 @@ describe('Nav', () => {
     ).not.toHaveAttribute('aria-current');
   });
 
-  it('marks the quiz link as current when on the quiz page', () => {
-    render(<Nav currentPage="quiz" />);
+  it('marks the quiz link as current when on the quiz page', async () => {
+    const { user, toggle } = renderOpenNav('quiz');
+    await user.click(toggle);
 
     expect(screen.getByRole('link', { name: 'Quiz' })).toHaveAttribute(
       'aria-current',
@@ -52,8 +98,9 @@ describe('Nav', () => {
     ).not.toHaveAttribute('aria-current');
   });
 
-  it('marks the algorithms & data structures link as current when on that page', () => {
-    render(<Nav currentPage="algorithms-data-structures" />);
+  it('marks the algorithms & data structures link as current when on that page', async () => {
+    const { user, toggle } = renderOpenNav('algorithms-data-structures');
+    await user.click(toggle);
 
     expect(
       screen.getByRole('link', { name: 'Algorithms & Data Structures' }),

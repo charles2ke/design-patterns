@@ -28,6 +28,7 @@ test('renders cards with category, summary, and why sections', async ({
 test('nav link navigates back to the design patterns index', async ({
   page,
 }) => {
+  await page.getByRole('button', { name: 'Menu' }).click();
   await page.getByRole('link', { name: 'Design Patterns' }).click();
 
   await expect(
@@ -37,6 +38,7 @@ test('nav link navigates back to the design patterns index', async ({
 });
 
 test('nav shows best practices link as active', async ({ page }) => {
+  await page.getByRole('button', { name: 'Menu' }).click();
   await expect(
     page.getByRole('link', { name: 'Best Practices' }),
   ).toHaveAttribute('aria-current', 'page');
