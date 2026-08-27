@@ -14,9 +14,12 @@ describe('Nav', () => {
     const { user, toggle } = renderOpenNav('index');
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    expect(
-      screen.queryByRole('link', { name: 'Design Patterns' }),
-    ).not.toBeInTheDocument();
+    const designPatternsLink = screen.getByRole('link', {
+      name: 'Design Patterns',
+      hidden: true,
+    });
+    expect(designPatternsLink).toBeInTheDocument();
+    expect(designPatternsLink).not.toBeVisible();
 
     await user.click(toggle);
 
@@ -49,7 +52,9 @@ describe('Nav', () => {
     await user.click(screen.getByRole('link', { name: 'Quiz' }));
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByRole('link', { name: 'Quiz' })).not.toBeInTheDocument();
+    const quizLink = screen.getByRole('link', { name: 'Quiz', hidden: true });
+    expect(quizLink).toBeInTheDocument();
+    expect(quizLink).not.toBeVisible();
   });
 
   it('closes the menu when Escape is pressed', async () => {
