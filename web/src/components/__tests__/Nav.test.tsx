@@ -71,6 +71,7 @@ describe('Nav', () => {
   it('keeps the menu open when a key other than Escape is pressed', async () => {
     const { user, toggle } = renderOpenNav('index');
     await user.click(toggle);
+    screen.getByRole('link', { name: 'Design Patterns' }).focus();
 
     await user.keyboard('{ArrowDown}');
 
