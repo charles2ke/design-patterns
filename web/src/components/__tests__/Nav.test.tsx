@@ -68,6 +68,19 @@ describe('Nav', () => {
     expect(toggle).toHaveFocus();
   });
 
+  it('keeps the menu open when a key other than Escape is pressed', async () => {
+    const { user, toggle } = renderOpenNav('index');
+    await user.click(toggle);
+    screen.getByRole('link', { name: 'Design Patterns' }).focus();
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      screen.getByRole('link', { name: 'Design Patterns' }),
+    ).toBeVisible();
+  });
+
   it('marks the index link as current when on the index page', async () => {
     const { user, toggle } = renderOpenNav('index');
     await user.click(toggle);
