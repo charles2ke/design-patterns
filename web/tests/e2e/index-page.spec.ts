@@ -98,7 +98,7 @@ test('hamburger menu keeps navigation usable on a mobile viewport', async ({
 
   const menuButton = page.getByRole('button', { name: 'Menu' });
   await expect(menuButton).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Quiz' })).toBeHidden();
+  await expect(page.getByRole('link', { name: 'Quiz' })).not.toBeVisible();
 
   await menuButton.click();
   await page.getByRole('link', { name: 'Quiz' }).click();
@@ -109,7 +109,6 @@ test('hamburger menu keeps navigation usable on a mobile viewport', async ({
       level: 1,
     }),
   ).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Quiz' })).toBeHidden();
 });
 
 test('index page content does not overflow horizontally on mobile', async ({

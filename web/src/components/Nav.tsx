@@ -35,7 +35,7 @@ export function Nav({ currentPage }: NavProps) {
   }, [isOpen]);
 
   return (
-    <div className="main-nav">
+    <nav className="main-nav" aria-label="Site navigation">
       <button
         type="button"
         className="main-nav__toggle"
@@ -50,12 +50,7 @@ export function Nav({ currentPage }: NavProps) {
           <span />
         </span>
       </button>
-      <nav
-        id="main-nav-menu"
-        className="main-nav__menu"
-        aria-label="Site navigation"
-        hidden={!isOpen}
-      >
+      <div id="main-nav-menu" className="main-nav__menu" hidden={!isOpen}>
         {LINKS.map((link) => (
           <a
             key={link.page}
@@ -67,7 +62,7 @@ export function Nav({ currentPage }: NavProps) {
             {link.label}
           </a>
         ))}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 }
