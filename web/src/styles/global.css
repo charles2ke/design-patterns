@@ -89,7 +89,10 @@ body {
 }
 
 .main-nav__link {
-  padding: 0.6rem 0.85rem;
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 0.5rem;
   color: var(--muted);
   text-decoration: none;

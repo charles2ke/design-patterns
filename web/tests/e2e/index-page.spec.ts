@@ -125,3 +125,21 @@ test('index page content does not overflow horizontally on mobile', async ({
   );
   expect(overflow).toBeLessThanOrEqual(1);
 });
+
+test('site navigation links keep a mobile-friendly tap target', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Menu' }).click();
+
+  const links = page.getByRole('navigation', { name: 'Site navigation' }).getByRole('link');
+  const count = await links.count();
+  expect(count).toBeGreaterThan(0);
+
+  for (let index = 0; index < count; index += 1) {
+    const box = await links.nth(index).boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  }
+});
