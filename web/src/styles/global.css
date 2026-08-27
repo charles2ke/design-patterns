@@ -24,6 +24,9 @@ body {
 }
 
 .main-nav__link {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
   padding: 0.4rem 0.85rem;
   border-radius: 0.5rem;
   color: var(--muted);

@@ -88,3 +88,20 @@ test('can navigate to database design best practices under the best practices ta
     page.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
   ).toBeVisible();
 });
+
+test('site navigation links keep a mobile-friendly tap target', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto('/');
+
+  const links = page.getByRole('navigation', { name: 'Site navigation' }).getByRole('link');
+  const count = await links.count();
+  expect(count).toBeGreaterThan(0);
+
+  for (let index = 0; index < count; index += 1) {
+    const box = await links.nth(index).boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  }
+});
