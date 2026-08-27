@@ -61,6 +61,15 @@ describe('Nav', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('keeps the menu open when another key is pressed', async () => {
+    const { user, toggle } = renderOpenNav('index');
+    await user.click(toggle);
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  });
+
   it('marks the index link as current when on the index page', async () => {
     const { user, toggle } = renderOpenNav('index');
     await user.click(toggle);
