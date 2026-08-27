@@ -22,6 +22,7 @@ writing or reviewing code:
 - [SOLID Principles](../.github/skills/solid-principles/SKILL.md)
 
 ![Backend best practices with skill link](docs/screenshots/best-practices-backend.png)
+![SOLID principles best practices](docs/screenshots/best-practices-solid-principles.png)
 
 ## Getting started
 

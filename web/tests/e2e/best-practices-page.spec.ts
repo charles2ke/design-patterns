@@ -63,6 +63,11 @@ test('sub-navigation switches between best practices categories', async ({
     page.getByRole('heading', { name: 'AI First Best Practices', level: 1 }),
   ).toBeVisible();
 
+  await page.getByRole('link', { name: 'SOLID Principles' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'SOLID Principles', level: 1 }),
+  ).toBeVisible();
+
   await page.getByRole('link', { name: 'Front-End' }).click();
   await expect(
     page.getByRole('heading', { name: 'Front-End Best Practices', level: 1 }),
@@ -95,5 +100,11 @@ test('each best practices section links to its Copilot skill', async ({
   await expect(page.getByTestId('skill-link-ai-first-best-practices')).toHaveAttribute(
     'href',
     `${skillsBase}/ai-first-best-practices/SKILL.md`,
+  );
+
+  await page.getByRole('link', { name: 'SOLID Principles' }).click();
+  await expect(page.getByTestId('skill-link-solid-principles')).toHaveAttribute(
+    'href',
+    `${skillsBase}/solid-principles/SKILL.md`,
   );
 });

@@ -385,6 +385,7 @@ body {
 }
 
 .ai-first-page__section,
+.solid-page__section,
 .algorithms-page__section {
   background: var(--surface);
   border: 1px solid #334155;
