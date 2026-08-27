@@ -410,9 +410,10 @@ dfs({ a: ['b'], b: ['c'], c: [] }, 'a'); // Set { 'a', 'b', 'c' }`}
           code={`function bfs(graph, start) {
   const visited = new Set([start]);
   const queue = [start];
+  let head = 0;
   const order = [];
-  while (queue.length) {
-    const node = queue.shift();
+  while (head < queue.length) {
+    const node = queue[head++];
     order.push(node);
     for (const neighbour of graph[node] ?? []) {
       if (visited.has(neighbour)) continue;
