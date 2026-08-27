@@ -181,8 +181,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '11'
-      - run: mvn test
-      - run: mvn package -DskipTests
+          cache: maven
+      - run: mvn -B -ntp -Dmaven.wagon.http.retryHandler.count=3 test
+      - run: mvn -B -ntp -Dmaven.wagon.http.retryHandler.count=3 package -DskipTests
       - uses: actions/upload-artifact@v4
         if: success()
         with:

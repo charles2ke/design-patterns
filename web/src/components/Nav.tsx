@@ -62,7 +62,10 @@ export function Nav({ currentPage }: NavProps) {
             href={link.href}
             className="main-nav__link"
             aria-current={currentPage === link.page ? 'page' : undefined}
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              toggleRef.current?.focus();
+            }}
           >
             {link.label}
           </a>
