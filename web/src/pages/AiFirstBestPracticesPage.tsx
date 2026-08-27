@@ -41,6 +41,43 @@ export function AiFirstBestPracticesPage() {
           <li>Define fallbacks and rate limits to contain runaway usage or failures.</li>
         </ul>
       </section>
+      <section className="ai-first-page__section">
+        <h2>AI engineering interview tips</h2>
+        <ul>
+          <li>
+            Know the fundamentals cold: tokenization, embeddings, context windows, temperature, and
+            why models hallucinate.
+          </li>
+          <li>
+            Be able to design a retrieval-augmented generation system end to end: chunking,
+            indexing, retrieval, re-ranking, and grounded answer generation.
+          </li>
+          <li>
+            Explain how you evaluate an AI feature with offline eval sets, golden datasets,
+            LLM-as-judge, and online metrics — not just vibes.
+          </li>
+          <li>
+            Show product judgement: state when a prompt, fine-tune, retrieval, or plain
+            deterministic code is the right tool for the problem.
+          </li>
+          <li>
+            Discuss latency, token cost, and caching trade-offs with concrete numbers for the
+            systems you have built.
+          </li>
+          <li>
+            Cover safety by default: prompt injection, output validation, PII handling, and
+            least-privilege tool access.
+          </li>
+          <li>
+            Bring a portfolio project you can demo and debug live, and be honest about its failure
+            modes.
+          </li>
+          <li>
+            Practise thinking out loud, ask clarifying questions before designing, and confirm
+            requirements and constraints early.
+          </li>
+        </ul>
+      </section>
     </div>
   );
 }
