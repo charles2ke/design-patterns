@@ -473,6 +473,32 @@ body {
   padding-left: 1.25rem;
 }
 
+.algorithms-page__example {
+  margin: 0.75rem 0 0;
+}
+
+.algorithms-page__example-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.algorithms-page__example pre {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0.75rem 0.9rem;
+}
+
+.algorithms-page__example code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
 .quiz-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(min(260px, 100%), 1fr);

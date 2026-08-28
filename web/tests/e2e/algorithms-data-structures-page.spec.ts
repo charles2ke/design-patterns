@@ -19,6 +19,13 @@ test('renders the core content sections', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Sorting', level: 2 })).toBeVisible();
 });
 
+test('renders code examples for data structures and algorithms', async ({ page }) => {
+  await expect(page.locator('.algorithms-page__example')).not.toHaveCount(0);
+  await expect(page.getByText('Example: binary search', { exact: true })).toBeVisible();
+  await expect(page.getByText('Example: merge sort', { exact: true })).toBeVisible();
+  await expect(page.getByText('Example: breadth-first search', { exact: true })).toBeVisible();
+});
+
 test('nav link navigates back to the design patterns index', async ({ page }) => {
   await page.getByRole('button', { name: 'Menu' }).click();
   await page.getByRole('link', { name: 'Design Patterns' }).click();
