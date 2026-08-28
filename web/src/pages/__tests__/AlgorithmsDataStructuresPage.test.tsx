@@ -37,30 +37,49 @@ describe('AlgorithmsDataStructuresPage', () => {
       container.querySelectorAll('.algorithms-page__example-label'),
     ).map((element) => element.textContent ?? '');
 
-    for (const expected of [
+    expect(labels).toEqual([
+      'Example: greedy coin change',
+      'Example: dynamic programming (fibonacci)',
       'Example: array',
       'Example: singly linked list',
       'Example: stack (LIFO) and queue (FIFO)',
       'Example: map and set',
       'Example: binary search tree insert',
       'Example: graph as an adjacency list',
+      'Example: comparing growth rates',
       'Example: linear search',
       'Example: binary search',
       'Example: hash-based lookup',
       'Example: insertion sort',
       'Example: merge sort',
       'Example: quicksort',
+      'Example: built-in sort with a comparator',
       'Example: recursion with a base case',
+      'Example: iterative version with an explicit stack',
       'Example: memoized recursion',
       'Example: depth-first search',
       'Example: breadth-first search',
       "Example: Dijkstra's shortest distances",
-    ]) {
-      expect(labels).toContain(expected);
-    }
+      'Example: choosing a structure and testing edge cases',
+    ]);
 
     expect(container.querySelectorAll('.algorithms-page__example pre code').length).toBe(
       labels.length,
     );
+  });
+
+  it('keeps the merge sort example free of O(n) shift() calls', () => {
+    const { container } = render(<AlgorithmsDataStructuresPage />);
+
+    const mergeSortExample = Array.from(
+      container.querySelectorAll('.algorithms-page__example'),
+    ).find(
+      (element) =>
+        element.querySelector('.algorithms-page__example-label')?.textContent ===
+        'Example: merge sort',
+    );
+
+    expect(mergeSortExample, 'Expected merge sort example to be rendered').toBeDefined();
+    expect(mergeSortExample!.textContent).not.toContain('shift()');
   });
 });
