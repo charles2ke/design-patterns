@@ -10,7 +10,7 @@ A browsable React site for design patterns lives in [`web/`](web/README.md). It 
 - a best-practices hub (front-end, backend, database design, AI-first, SOLID principles)
 - a modern **Who Wants to Be a Millionaire?-style** design-pattern quiz
 
-Live site: https://charles2ke.github.io/design-patterns/
+Live site: **Design Bible** — https://charles2ke.github.io/design-patterns/
 
 ```bash
 cd web && npm install && npm run dev

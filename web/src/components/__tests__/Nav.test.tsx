@@ -15,7 +15,7 @@ describe('Nav', () => {
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     const designPatternsLink = screen.getByRole('link', {
-      name: 'Design Patterns',
+      name: 'Design Bible',
       hidden: true,
     });
     expect(designPatternsLink).toBeInTheDocument();
@@ -25,7 +25,7 @@ describe('Nav', () => {
 
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(
-      screen.getByRole('link', { name: 'Design Patterns' }),
+      screen.getByRole('link', { name: 'Design Bible' }),
     ).toBeInTheDocument();
   });
 
@@ -34,7 +34,7 @@ describe('Nav', () => {
     await user.click(toggle);
 
     expect(
-      screen.getByRole('link', { name: 'Design Patterns' }),
+      screen.getByRole('link', { name: 'Design Bible' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Best Practices' }),
@@ -60,7 +60,7 @@ describe('Nav', () => {
   it('closes the menu when Escape is pressed', async () => {
     const { user, toggle } = renderNav('index');
     await user.click(toggle);
-    screen.getByRole('link', { name: 'Design Patterns' }).focus();
+    screen.getByRole('link', { name: 'Design Bible' }).focus();
 
     await user.keyboard('{Escape}');
 
@@ -71,13 +71,13 @@ describe('Nav', () => {
   it('keeps the menu open when a key other than Escape is pressed', async () => {
     const { user, toggle } = renderNav('index');
     await user.click(toggle);
-    screen.getByRole('link', { name: 'Design Patterns' }).focus();
+    screen.getByRole('link', { name: 'Design Bible' }).focus();
 
     await user.keyboard('{ArrowDown}');
 
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(
-      screen.getByRole('link', { name: 'Design Patterns' }),
+      screen.getByRole('link', { name: 'Design Bible' }),
     ).toBeVisible();
   });
 
@@ -86,7 +86,7 @@ describe('Nav', () => {
     await user.click(toggle);
 
     expect(
-      screen.getByRole('link', { name: 'Design Patterns' }),
+      screen.getByRole('link', { name: 'Design Bible' }),
     ).toHaveAttribute('aria-current', 'page');
     expect(
       screen.getByRole('link', { name: 'Best Practices' }),
@@ -101,7 +101,7 @@ describe('Nav', () => {
       screen.getByRole('link', { name: 'Best Practices' }),
     ).toHaveAttribute('aria-current', 'page');
     expect(
-      screen.getByRole('link', { name: 'Design Patterns' }),
+      screen.getByRole('link', { name: 'Design Bible' }),
     ).not.toHaveAttribute('aria-current');
   });
 
@@ -114,7 +114,7 @@ describe('Nav', () => {
       'page',
     );
     expect(
-      screen.getByRole('link', { name: 'Design Patterns' }),
+      screen.getByRole('link', { name: 'Design Bible' }),
     ).not.toHaveAttribute('aria-current');
   });
 
@@ -126,7 +126,7 @@ describe('Nav', () => {
       screen.getByRole('link', { name: 'Algorithms & Data Structures' }),
     ).toHaveAttribute('aria-current', 'page');
     expect(
-      screen.getByRole('link', { name: 'Design Patterns' }),
+      screen.getByRole('link', { name: 'Design Bible' }),
     ).not.toHaveAttribute('aria-current');
   });
 });

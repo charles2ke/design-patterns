@@ -29,10 +29,10 @@ test('nav link navigates back to the design patterns index', async ({
   page,
 }) => {
   await page.getByRole('button', { name: 'Menu' }).click();
-  await page.getByRole('link', { name: 'Design Patterns' }).click();
+  await page.getByRole('link', { name: 'Design Bible' }).click();
 
   await expect(
-    page.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
+    page.getByRole('heading', { name: 'Design Bible', level: 1 }),
   ).toBeVisible();
   await expect(page.locator('article')).toHaveCount(23);
 });

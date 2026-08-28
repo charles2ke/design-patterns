@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
 
 test('shows the full Gang of Four catalog on first load', async ({ page }) => {
   await expect(
-    page.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
+    page.getByRole('heading', { name: 'Design Bible', level: 1 }),
   ).toBeVisible();
   await expect(page.getByRole('status')).toHaveText(
     'Showing 23 of 23 patterns',
@@ -84,9 +84,9 @@ test('can navigate to database design best practices under the best practices ta
   await expect(page.getByRole('listitem')).toHaveCount(5);
 
   await page.getByRole('button', { name: 'Menu' }).click();
-  await page.getByRole('link', { name: 'Design Patterns' }).click();
+  await page.getByRole('link', { name: 'Design Bible' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
+    page.getByRole('heading', { name: 'Design Bible', level: 1 }),
   ).toBeVisible();
 });
 
@@ -142,4 +142,15 @@ test('site navigation links keep a mobile-friendly tap target', async ({
     expect(box).not.toBeNull();
     expect(box!.height).toBeGreaterThanOrEqual(44);
   }
+});
+
+test('footer links to the LinkedIn profile', async ({ page }) => {
+  const link = page.getByRole('link', { name: "Charles's LinkedIn profile" });
+
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute(
+    'href',
+    'https://www.linkedin.com/in/charles2ke',
+  );
+  await expect(link).toHaveAttribute('target', '_blank');
 });

@@ -12,7 +12,7 @@ interface NavProps {
 }
 
 const LINKS: Array<{ page: NavPage; href: string; label: string }> = [
-  { page: 'index', href: '#/', label: 'Design Patterns' },
+  { page: 'index', href: '#/', label: 'Design Bible' },
   { page: 'best-practices', href: BEST_PRACTICES_HASH, label: 'Best Practices' },
   {
     page: 'algorithms-data-structures',

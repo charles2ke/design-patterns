@@ -19,8 +19,8 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
   return (
     <main className="index-page">
       <Header
-        title="Design Patterns Index"
-        subtitle="The 23 Gang of Four patterns every engineer should know."
+        title="Design Bible"
+        subtitle="Design patterns, best practices, and a quiz for engineers."
       />
       <p>
         <a
