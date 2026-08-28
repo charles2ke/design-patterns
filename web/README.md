@@ -23,6 +23,7 @@ writing or reviewing code:
 
 ![Backend best practices with skill link](docs/screenshots/best-practices-backend.png)
 ![SOLID principles best practices](docs/screenshots/best-practices-solid-principles.png)
+![Algorithms and data structures with code examples](docs/screenshots/algorithms-data-structures.png)
 
 ## Getting started
 

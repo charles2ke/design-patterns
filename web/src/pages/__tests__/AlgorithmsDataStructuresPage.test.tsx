@@ -29,4 +29,38 @@ describe('AlgorithmsDataStructuresPage', () => {
       screen.getByRole('heading', { name: 'Practical guidance', level: 2 }),
     ).toBeInTheDocument();
   });
+
+  it('renders a code example for every data structure and algorithm', () => {
+    const { container } = render(<AlgorithmsDataStructuresPage />);
+
+    const labels = Array.from(
+      container.querySelectorAll('.algorithms-page__example-label'),
+    ).map((element) => element.textContent ?? '');
+
+    for (const expected of [
+      'Example: array',
+      'Example: singly linked list',
+      'Example: stack (LIFO) and queue (FIFO)',
+      'Example: map and set',
+      'Example: binary search tree insert',
+      'Example: graph as an adjacency list',
+      'Example: linear search',
+      'Example: binary search',
+      'Example: hash-based lookup',
+      'Example: insertion sort',
+      'Example: merge sort',
+      'Example: quicksort',
+      'Example: recursion with a base case',
+      'Example: memoized recursion',
+      'Example: depth-first search',
+      'Example: breadth-first search',
+      "Example: Dijkstra's shortest distances",
+    ]) {
+      expect(labels).toContain(expected);
+    }
+
+    expect(container.querySelectorAll('.algorithms-page__example pre code').length).toBe(
+      labels.length,
+    );
+  });
 });
