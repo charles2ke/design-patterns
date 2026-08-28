@@ -3,6 +3,7 @@ import { BestPracticesPage } from './pages/BestPracticesPage';
 import { AlgorithmsDataStructuresPage } from './pages/AlgorithmsDataStructuresPage';
 import { IndexPage } from './pages/IndexPage';
 import { Nav } from './components/Nav';
+import { SiteFooter } from './components/SiteFooter';
 import { ALGORITHMS_DATA_STRUCTURES_HASH, BEST_PRACTICES_HASH, QUIZ_HASH } from './routes';
 import { QuizPage } from './pages/QuizPage';
 
@@ -40,15 +41,18 @@ export function App() {
                 : 'index'
         }
       />
-      {isQuiz ? (
-        <QuizPage />
-      ) : isBestPractices ? (
-        <BestPracticesPage />
-      ) : isAlgorithmsDataStructures ? (
-        <AlgorithmsDataStructuresPage />
-      ) : (
-        <IndexPage />
-      )}
+      <div className="app-content">
+        {isQuiz ? (
+          <QuizPage />
+        ) : isBestPractices ? (
+          <BestPracticesPage />
+        ) : isAlgorithmsDataStructures ? (
+          <AlgorithmsDataStructuresPage />
+        ) : (
+          <IndexPage />
+        )}
+      </div>
+      <SiteFooter />
     </>
   );
 }

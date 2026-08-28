@@ -1,9 +1,10 @@
-# Design Patterns Index (React)
+# Design Bible (React)
 
-A React + TypeScript single-page app for learning design patterns. It includes a
-searchable index of the 23 Gang of Four patterns, a best-practices knowledge
-hub, and a modern Who Wants to Be a Millionaire-style quiz focused on design
-pattern knowledge.
+A React + TypeScript single-page app for learning design patterns. Design
+patterns, best practices, and a quiz for engineers — it includes a searchable
+index of the 23 Gang of Four patterns, a best-practices knowledge hub, and a
+modern Who Wants to Be a Millionaire-style quiz focused on design pattern
+knowledge.
 
 ![Index page](docs/screenshots/index-page.png)
 ![Quiz page](docs/screenshots/quiz-page.png)

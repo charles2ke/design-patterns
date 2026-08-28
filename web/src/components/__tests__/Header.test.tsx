@@ -4,10 +4,10 @@ import { Header } from '../Header';
 
 describe('Header', () => {
   it('renders the title and subtitle', () => {
-    render(<Header title="Design Patterns Index" subtitle="23 patterns" />);
+    render(<Header title="Design Bible" subtitle="23 patterns" />);
 
     expect(
-      screen.getByRole('heading', { name: 'Design Patterns Index', level: 1 }),
+      screen.getByRole('heading', { name: 'Design Bible', level: 1 }),
     ).toBeInTheDocument();
     expect(screen.getByText('23 patterns')).toBeInTheDocument();
   });
