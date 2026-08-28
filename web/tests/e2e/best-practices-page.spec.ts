@@ -25,7 +25,7 @@ test('renders cards with category, summary, and why sections', async ({
   await expect(firstCard.getByText(/Screen readers and search engines/)).toBeVisible();
 });
 
-test('nav link navigates back to the design patterns index', async ({
+test('nav link navigates back to Design Bible', async ({
   page,
 }) => {
   await page.getByRole('button', { name: 'Menu' }).click();

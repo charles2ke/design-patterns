@@ -14,12 +14,12 @@ describe('Nav', () => {
     const { user, toggle } = renderNav('index');
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    const designPatternsLink = screen.getByRole('link', {
+    const designBibleLink = screen.getByRole('link', {
       name: 'Design Bible',
       hidden: true,
     });
-    expect(designPatternsLink).toBeInTheDocument();
-    expect(designPatternsLink).not.toBeVisible();
+    expect(designBibleLink).toBeInTheDocument();
+    expect(designBibleLink).not.toBeVisible();
 
     await user.click(toggle);
 
