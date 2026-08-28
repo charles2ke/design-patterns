@@ -79,6 +79,7 @@ describe('AlgorithmsDataStructuresPage', () => {
         'Example: merge sort',
     );
 
-    expect(mergeSortExample?.textContent).not.toContain('shift()');
+    expect(mergeSortExample, 'Expected merge sort example to be rendered').toBeDefined();
+    expect(mergeSortExample!.textContent).not.toContain('shift()');
   });
 });
