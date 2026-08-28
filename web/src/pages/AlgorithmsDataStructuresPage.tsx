@@ -296,10 +296,12 @@ insertionSort([3, 1, 2]); // [1, 2, 3]`}
 
 function merge(left, right) {
   const merged = [];
-  while (left.length && right.length) {
-    merged.push(left[0] <= right[0] ? left.shift() : right.shift());
+  let i = 0;
+  let j = 0;
+  while (i < left.length && j < right.length) {
+    merged.push(left[i] <= right[j] ? left[i++] : right[j++]);
   }
-  return [...merged, ...left, ...right];
+  return [...merged, ...left.slice(i), ...right.slice(j)];
 }
 
 mergeSort([5, 2, 4, 1]); // [1, 2, 4, 5]`}
