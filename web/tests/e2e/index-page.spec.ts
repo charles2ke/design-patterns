@@ -147,6 +147,7 @@ test('site navigation links keep a mobile-friendly tap target', async ({
 test('footer links to the LinkedIn profile', async ({ page }) => {
   const link = page.getByRole('link', { name: "Charles's LinkedIn profile" });
 
+  await link.scrollIntoViewIfNeeded();
   await expect(link).toBeVisible();
   await expect(link).toHaveAttribute(
     'href',
