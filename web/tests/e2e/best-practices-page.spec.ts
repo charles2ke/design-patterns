@@ -25,14 +25,14 @@ test('renders cards with category, summary, and why sections', async ({
   await expect(firstCard.getByText(/Screen readers and search engines/)).toBeVisible();
 });
 
-test('nav link navigates back to Design Bible', async ({
+test('nav link navigates back to Design Patterns', async ({
   page,
 }) => {
   await page.getByRole('button', { name: 'Menu' }).click();
-  await page.getByRole('link', { name: 'Design Bible' }).click();
+  await page.getByRole('link', { name: 'Design Patterns' }).click();
 
   await expect(
-    page.getByRole('heading', { name: 'Design Bible', level: 1 }),
+    page.getByRole('heading', { name: 'Design Patterns', level: 1 }),
   ).toBeVisible();
   await expect(page.locator('article')).toHaveCount(23);
 });

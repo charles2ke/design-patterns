@@ -12,7 +12,7 @@ interface NavProps {
 }
 
 const LINKS: Array<{ page: NavPage; href: string; label: string }> = [
-  { page: 'index', href: '#/', label: 'Design Bible' },
+  { page: 'index', href: '#/', label: 'Design Patterns' },
   { page: 'best-practices', href: BEST_PRACTICES_HASH, label: 'Best Practices' },
   {
     page: 'algorithms-data-structures',
@@ -55,6 +55,7 @@ export function Nav({ currentPage }: NavProps) {
           <span />
         </span>
       </button>
+      <span className="main-nav__brand">Design Bible</span>
       <div id="main-nav-menu" className="main-nav__menu" hidden={!isOpen}>
         {LINKS.map((link) => (
           <a

@@ -9,7 +9,7 @@ describe('IndexPage', () => {
     render(<IndexPage />);
 
     expect(
-      screen.getByRole('heading', { name: 'Design Bible', level: 1 }),
+      screen.getByRole('heading', { name: 'Design Patterns', level: 1 }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Open best practices tab' }),

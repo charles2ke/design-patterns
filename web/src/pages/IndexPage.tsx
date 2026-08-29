@@ -19,7 +19,7 @@ export function IndexPage({ source = allPatterns }: IndexPageProps) {
   return (
     <main className="index-page">
       <Header
-        title="Design Bible"
+        title="Design Patterns"
         subtitle="Design patterns, best practices, and a quiz for engineers."
       />
       <p>
