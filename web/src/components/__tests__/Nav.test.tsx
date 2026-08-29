@@ -10,22 +10,28 @@ function renderNav(currentPage: Parameters<typeof Nav>[0]['currentPage']) {
 }
 
 describe('Nav', () => {
+  it('shows the site name beside the hamburger menu', () => {
+    renderNav('index');
+
+    expect(screen.getByText('Design Bible')).toBeVisible();
+  });
+
   it('hides the navigation links until the hamburger menu is opened', async () => {
     const { user, toggle } = renderNav('index');
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    const designBibleLink = screen.getByRole('link', {
-      name: 'Design Bible',
+    const designPatternsLink = screen.getByRole('link', {
+      name: 'Design Patterns',
       hidden: true,
     });
-    expect(designBibleLink).toBeInTheDocument();
-    expect(designBibleLink).not.toBeVisible();
+    expect(designPatternsLink).toBeInTheDocument();
+    expect(designPatternsLink).not.toBeVisible();
 
     await user.click(toggle);
 
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(
-      screen.getByRole('link', { name: 'Design Bible' }),
+      screen.getByRole('link', { name: 'Design Patterns' }),
     ).toBeInTheDocument();
   });
 
@@ -34,7 +40,7 @@ describe('Nav', () => {
     await user.click(toggle);
 
     expect(
-      screen.getByRole('link', { name: 'Design Bible' }),
+      screen.getByRole('link', { name: 'Design Patterns' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Best Practices' }),
@@ -60,7 +66,7 @@ describe('Nav', () => {
   it('closes the menu when Escape is pressed', async () => {
     const { user, toggle } = renderNav('index');
     await user.click(toggle);
-    screen.getByRole('link', { name: 'Design Bible' }).focus();
+    screen.getByRole('link', { name: 'Design Patterns' }).focus();
 
     await user.keyboard('{Escape}');
 
@@ -71,13 +77,13 @@ describe('Nav', () => {
   it('keeps the menu open when a key other than Escape is pressed', async () => {
     const { user, toggle } = renderNav('index');
     await user.click(toggle);
-    screen.getByRole('link', { name: 'Design Bible' }).focus();
+    screen.getByRole('link', { name: 'Design Patterns' }).focus();
 
     await user.keyboard('{ArrowDown}');
 
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(
-      screen.getByRole('link', { name: 'Design Bible' }),
+      screen.getByRole('link', { name: 'Design Patterns' }),
     ).toBeVisible();
   });
 
@@ -86,7 +92,7 @@ describe('Nav', () => {
     await user.click(toggle);
 
     expect(
-      screen.getByRole('link', { name: 'Design Bible' }),
+      screen.getByRole('link', { name: 'Design Patterns' }),
     ).toHaveAttribute('aria-current', 'page');
     expect(
       screen.getByRole('link', { name: 'Best Practices' }),
@@ -101,7 +107,7 @@ describe('Nav', () => {
       screen.getByRole('link', { name: 'Best Practices' }),
     ).toHaveAttribute('aria-current', 'page');
     expect(
-      screen.getByRole('link', { name: 'Design Bible' }),
+      screen.getByRole('link', { name: 'Design Patterns' }),
     ).not.toHaveAttribute('aria-current');
   });
 
@@ -114,7 +120,7 @@ describe('Nav', () => {
       'page',
     );
     expect(
-      screen.getByRole('link', { name: 'Design Bible' }),
+      screen.getByRole('link', { name: 'Design Patterns' }),
     ).not.toHaveAttribute('aria-current');
   });
 
@@ -126,7 +132,7 @@ describe('Nav', () => {
       screen.getByRole('link', { name: 'Algorithms & Data Structures' }),
     ).toHaveAttribute('aria-current', 'page');
     expect(
-      screen.getByRole('link', { name: 'Design Bible' }),
+      screen.getByRole('link', { name: 'Design Patterns' }),
     ).not.toHaveAttribute('aria-current');
   });
 });

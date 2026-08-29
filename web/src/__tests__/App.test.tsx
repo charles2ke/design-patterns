@@ -22,7 +22,7 @@ describe('App', () => {
     render(<App />);
 
     expect(
-      screen.getByRole('heading', { name: 'Design Bible', level: 1 }),
+      screen.getByRole('heading', { name: 'Design Patterns', level: 1 }),
     ).toBeInTheDocument();
   });
 

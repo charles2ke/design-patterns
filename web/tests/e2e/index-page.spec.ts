@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
 
 test('shows the full Gang of Four catalog on first load', async ({ page }) => {
   await expect(
-    page.getByRole('heading', { name: 'Design Bible', level: 1 }),
+    page.getByRole('heading', { name: 'Design Patterns', level: 1 }),
   ).toBeVisible();
   await expect(page.getByRole('status')).toHaveText(
     'Showing 23 of 23 patterns',
@@ -84,9 +84,9 @@ test('can navigate to database design best practices under the best practices ta
   await expect(page.getByRole('listitem')).toHaveCount(5);
 
   await page.getByRole('button', { name: 'Menu' }).click();
-  await page.getByRole('link', { name: 'Design Bible' }).click();
+  await page.getByRole('link', { name: 'Design Patterns' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Design Bible', level: 1 }),
+    page.getByRole('heading', { name: 'Design Patterns', level: 1 }),
   ).toBeVisible();
 });
 
