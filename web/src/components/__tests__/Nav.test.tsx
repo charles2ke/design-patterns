@@ -49,6 +49,36 @@ describe('Nav', () => {
       screen.getByRole('link', { name: 'Algorithms & Data Structures' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Quiz' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Algorithms Quiz' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Best Practices Quiz' }),
+    ).toBeInTheDocument();
+  });
+
+  it('marks the algorithms quiz link as current when on that quiz', async () => {
+    const { user, toggle } = renderNav('algorithms-quiz');
+    await user.click(toggle);
+
+    expect(
+      screen.getByRole('link', { name: 'Algorithms Quiz' }),
+    ).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Quiz' })).not.toHaveAttribute(
+      'aria-current',
+    );
+  });
+
+  it('marks the best practices quiz link as current when on that quiz', async () => {
+    const { user, toggle } = renderNav('best-practices-quiz');
+    await user.click(toggle);
+
+    expect(
+      screen.getByRole('link', { name: 'Best Practices Quiz' }),
+    ).toHaveAttribute('aria-current', 'page');
+    expect(
+      screen.getByRole('link', { name: 'Best Practices' }),
+    ).not.toHaveAttribute('aria-current');
   });
 
   it('closes the menu when a link is clicked', async () => {

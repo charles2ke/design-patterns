@@ -4,8 +4,16 @@ import { AlgorithmsDataStructuresPage } from './pages/AlgorithmsDataStructuresPa
 import { IndexPage } from './pages/IndexPage';
 import { Nav } from './components/Nav';
 import { SiteFooter } from './components/SiteFooter';
-import { ALGORITHMS_DATA_STRUCTURES_HASH, BEST_PRACTICES_HASH, QUIZ_HASH } from './routes';
+import {
+  ALGORITHMS_DATA_STRUCTURES_HASH,
+  ALGORITHMS_QUIZ_HASH,
+  BEST_PRACTICES_HASH,
+  BEST_PRACTICES_QUIZ_HASH,
+  QUIZ_HASH,
+} from './routes';
 import { QuizPage } from './pages/QuizPage';
+import { AlgorithmsQuizPage } from './pages/AlgorithmsQuizPage';
+import { BestPracticesQuizPage } from './pages/BestPracticesQuizPage';
 
 function useHashRoute() {
   const [hash, setHash] = useState(() => window.location.hash);
@@ -21,6 +29,8 @@ function useHashRoute() {
 
 export function App() {
   const hash = useHashRoute();
+  const isAlgorithmsQuiz = hash === ALGORITHMS_QUIZ_HASH;
+  const isBestPracticesQuiz = hash === BEST_PRACTICES_QUIZ_HASH;
   const isQuiz = hash === QUIZ_HASH || hash.startsWith(`${QUIZ_HASH}/`);
   const isBestPractices =
     hash === BEST_PRACTICES_HASH || hash.startsWith(`${BEST_PRACTICES_HASH}/`);
@@ -32,17 +42,25 @@ export function App() {
     <>
       <Nav
         currentPage={
-          isQuiz
-            ? 'quiz'
-            : isBestPractices
-              ? 'best-practices'
-              : isAlgorithmsDataStructures
-                ? 'algorithms-data-structures'
-                : 'index'
+          isAlgorithmsQuiz
+            ? 'algorithms-quiz'
+            : isBestPracticesQuiz
+              ? 'best-practices-quiz'
+              : isQuiz
+                ? 'quiz'
+                : isBestPractices
+                  ? 'best-practices'
+                  : isAlgorithmsDataStructures
+                    ? 'algorithms-data-structures'
+                    : 'index'
         }
       />
       <div className="app-content">
-        {isQuiz ? (
+        {isAlgorithmsQuiz ? (
+          <AlgorithmsQuizPage />
+        ) : isBestPracticesQuiz ? (
+          <BestPracticesQuizPage />
+        ) : isQuiz ? (
           <QuizPage />
         ) : isBestPractices ? (
           <BestPracticesPage />

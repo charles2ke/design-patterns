@@ -125,6 +125,30 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the algorithms quiz when hash is #/quiz/algorithms-data-structures', () => {
+    window.location.hash = '#/quiz/algorithms-data-structures';
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Who Wants to Be an Algorithms Ace?',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the best practices quiz when hash is #/quiz/best-practices', () => {
+    window.location.hash = '#/quiz/best-practices';
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Who Wants to Be a Best Practices Pro?',
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
   it('renders the algorithms and data structures page when hash is #/algorithms-data-structures', () => {
     window.location.hash = '#/algorithms-data-structures';
     render(<App />);

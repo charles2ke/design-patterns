@@ -8,7 +8,7 @@ A browsable React site for design patterns lives in [`web/`](web/README.md). It 
 
 - a searchable index of all 23 GoF patterns
 - a best-practices hub (front-end, backend, database design, AI-first, SOLID principles)
-- a modern **Who Wants to Be a Millionaire?-style** design-pattern quiz
+- three modern **Who Wants to Be a Millionaire?-style** quizzes: design patterns, algorithms & data structures, and best practices
 
 Live site: **Design Bible** — https://charles2ke.github.io/design-patterns/
 

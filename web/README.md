@@ -3,12 +3,14 @@
 A React + TypeScript single-page app for learning design patterns. Design
 patterns, best practices, and a quiz for engineers — it includes a searchable
 index of the 23 Gang of Four patterns, a best-practices knowledge hub, and a
-modern Who Wants to Be a Millionaire-style quiz focused on design pattern
-knowledge.
+set of modern Who Wants to Be a Millionaire-style quizzes covering design
+patterns, algorithms & data structures, and engineering best practices.
 
 ![Index page](docs/screenshots/index-page.png)
 ![Quiz page](docs/screenshots/quiz-page.png)
 ![Quiz win celebration](docs/screenshots/quiz-win.png)
+![Algorithms quiz page](docs/screenshots/algorithms-quiz-page.png)
+![Best practices quiz page](docs/screenshots/best-practices-quiz-page.png)
 
 ## Best-practice skills
 
