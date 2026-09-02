@@ -47,6 +47,19 @@ const TIMER_CIRCUMFERENCE = 2 * Math.PI * 17;
 
 const CONFETTI_PIECES = Array.from({ length: 20 }, (_, index) => index);
 
+function validateQuestions(questions: QuizQuestion[]): void {
+  if (questions.length === 0) {
+    throw new Error('QuizGame requires at least one question.');
+  }
+
+  const questionWithoutOptions = questions.find((question) => question.options.length === 0);
+  if (questionWithoutOptions) {
+    throw new Error(
+      `QuizGame question ${questionWithoutOptions.id} requires at least one option.`,
+    );
+  }
+}
+
 function winningsForLoss(questionIndex: number): string {
   if (questionIndex === 0) return '$0';
   return PRIZES[questionIndex - 1];
@@ -66,6 +79,8 @@ export function QuizGame({
   cheer,
   questions: questionBank,
 }: QuizGameProps) {
+  validateQuestions(questionBank);
+
   const [questionIndex, setQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState<QuizQuestion[]>(() =>
     shuffle(questionBank),
