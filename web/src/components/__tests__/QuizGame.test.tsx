@@ -30,4 +30,18 @@ describe('QuizGame', () => {
       'QuizGame question 1 requires at least one option.',
     );
   });
+
+  it('rejects a question bank that does not match the prize ladder', () => {
+    const question: QuizQuestion = {
+      id: 1,
+      prompt: 'Question?',
+      options: [{ id: 'a', label: 'Answer' }],
+      hint: 'Hint',
+      correctOptionId: 'a',
+    };
+
+    expect(() => render(<QuizGame {...props} questions={[question]} />)).toThrow(
+      'QuizGame requires exactly 15 questions.',
+    );
+  });
 });

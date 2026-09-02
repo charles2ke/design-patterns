@@ -58,6 +58,10 @@ function validateQuestions(questions: QuizQuestion[]): void {
       `QuizGame question ${questionWithoutOptions.id} requires at least one option.`,
     );
   }
+
+  if (questions.length !== PRIZES.length) {
+    throw new Error(`QuizGame requires exactly ${PRIZES.length} questions.`);
+  }
 }
 
 function winningsForLoss(questionIndex: number): string {
