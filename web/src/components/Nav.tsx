@@ -1,11 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ALGORITHMS_DATA_STRUCTURES_HASH,
+  ALGORITHMS_QUIZ_HASH,
   BEST_PRACTICES_HASH,
+  BEST_PRACTICES_QUIZ_HASH,
   QUIZ_HASH,
 } from '../routes';
 
-type NavPage = 'index' | 'best-practices' | 'quiz' | 'algorithms-data-structures';
+type NavPage =
+  | 'index'
+  | 'best-practices'
+  | 'quiz'
+  | 'algorithms-data-structures'
+  | 'algorithms-quiz'
+  | 'best-practices-quiz';
 
 interface NavProps {
   currentPage: NavPage;
@@ -20,6 +28,16 @@ const LINKS: Array<{ page: NavPage; href: string; label: string }> = [
     label: 'Algorithms & Data Structures',
   },
   { page: 'quiz', href: QUIZ_HASH, label: 'Quiz' },
+  {
+    page: 'algorithms-quiz',
+    href: ALGORITHMS_QUIZ_HASH,
+    label: 'Algorithms Quiz',
+  },
+  {
+    page: 'best-practices-quiz',
+    href: BEST_PRACTICES_QUIZ_HASH,
+    label: 'Best Practices Quiz',
+  },
 ];
 
 export function Nav({ currentPage }: NavProps) {

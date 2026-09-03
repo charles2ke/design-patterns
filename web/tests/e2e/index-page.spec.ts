@@ -104,7 +104,7 @@ test('hamburger menu keeps navigation usable on a mobile viewport', async ({
   await expect(menu).toBeHidden();
 
   await menuButton.click();
-  await page.getByRole('link', { name: 'Quiz' }).click();
+  await page.getByRole('link', { name: 'Quiz', exact: true }).click();
 
   await expect(
     page.getByRole('heading', {

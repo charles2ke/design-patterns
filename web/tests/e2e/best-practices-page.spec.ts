@@ -40,7 +40,7 @@ test('nav link navigates back to Design Patterns', async ({
 test('nav shows best practices link as active', async ({ page }) => {
   await page.getByRole('button', { name: 'Menu' }).click();
   await expect(
-    page.getByRole('link', { name: 'Best Practices' }),
+    page.getByRole('link', { name: 'Best Practices', exact: true }),
   ).toHaveAttribute('aria-current', 'page');
 });
 
