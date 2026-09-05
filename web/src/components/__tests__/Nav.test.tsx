@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { Nav } from '../Nav';
@@ -55,6 +55,25 @@ describe('Nav', () => {
     expect(
       screen.getByRole('link', { name: 'Best Practices Quiz' }),
     ).toBeInTheDocument();
+  });
+
+  it('groups the quiz links under a Quizzes section', async () => {
+    const { user, toggle } = renderNav('index');
+    await user.click(toggle);
+
+    const group = screen.getByRole('group', { name: 'Quizzes' });
+    expect(
+      within(group).getByRole('link', { name: 'Quiz' }),
+    ).toBeInTheDocument();
+    expect(
+      within(group).getByRole('link', { name: 'Algorithms Quiz' }),
+    ).toBeInTheDocument();
+    expect(
+      within(group).getByRole('link', { name: 'Best Practices Quiz' }),
+    ).toBeInTheDocument();
+    expect(
+      within(group).queryByRole('link', { name: 'Design Patterns' }),
+    ).not.toBeInTheDocument();
   });
 
   it('marks the algorithms quiz link as current when on that quiz', async () => {

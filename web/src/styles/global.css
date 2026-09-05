@@ -117,6 +117,28 @@ body {
   display: none;
 }
 
+.main-nav__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border);
+}
+
+.main-nav__group-label {
+  padding: 0.25rem 0.85rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.main-nav__group .main-nav__link {
+  padding-left: 1.5rem;
+}
+
 .main-nav__link {
   display: flex;
   align-items: center;
