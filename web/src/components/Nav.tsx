@@ -19,7 +19,19 @@ interface NavProps {
   currentPage: NavPage;
 }
 
-const LINKS: Array<{ page: NavPage; href: string; label: string }> = [
+interface NavLink {
+  page: NavPage;
+  href: string;
+  label: string;
+}
+
+interface NavGroup {
+  id: string;
+  label: string;
+  links: NavLink[];
+}
+
+const LINKS: NavLink[] = [
   { page: 'index', href: '#/', label: 'Design Patterns' },
   { page: 'best-practices', href: BEST_PRACTICES_HASH, label: 'Best Practices' },
   {
@@ -27,16 +39,25 @@ const LINKS: Array<{ page: NavPage; href: string; label: string }> = [
     href: ALGORITHMS_DATA_STRUCTURES_HASH,
     label: 'Algorithms & Data Structures',
   },
-  { page: 'quiz', href: QUIZ_HASH, label: 'Quiz' },
+];
+
+const GROUPS: NavGroup[] = [
   {
-    page: 'algorithms-quiz',
-    href: ALGORITHMS_QUIZ_HASH,
-    label: 'Algorithms Quiz',
-  },
-  {
-    page: 'best-practices-quiz',
-    href: BEST_PRACTICES_QUIZ_HASH,
-    label: 'Best Practices Quiz',
+    id: 'quizzes',
+    label: 'Quizzes',
+    links: [
+      { page: 'quiz', href: QUIZ_HASH, label: 'Quiz' },
+      {
+        page: 'algorithms-quiz',
+        href: ALGORITHMS_QUIZ_HASH,
+        label: 'Algorithms Quiz',
+      },
+      {
+        page: 'best-practices-quiz',
+        href: BEST_PRACTICES_QUIZ_HASH,
+        label: 'Best Practices Quiz',
+      },
+    ],
   },
 ];
 
@@ -55,6 +76,21 @@ export function Nav({ currentPage }: NavProps) {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [isOpen]);
+
+  const renderLink = (link: NavLink) => (
+    <a
+      key={link.page}
+      href={link.href}
+      className="main-nav__link"
+      aria-current={currentPage === link.page ? 'page' : undefined}
+      onClick={() => {
+        setIsOpen(false);
+        toggleRef.current?.focus();
+      }}
+    >
+      {link.label}
+    </a>
+  );
 
   return (
     <nav className="main-nav" aria-label="Site navigation">
@@ -75,19 +111,19 @@ export function Nav({ currentPage }: NavProps) {
       </button>
       <span className="main-nav__brand">Design Bible</span>
       <div id="main-nav-menu" className="main-nav__menu" hidden={!isOpen}>
-        {LINKS.map((link) => (
-          <a
-            key={link.page}
-            href={link.href}
-            className="main-nav__link"
-            aria-current={currentPage === link.page ? 'page' : undefined}
-            onClick={() => {
-              setIsOpen(false);
-              toggleRef.current?.focus();
-            }}
+        {LINKS.map((link) => renderLink(link))}
+        {GROUPS.map((group) => (
+          <div
+            key={group.id}
+            className="main-nav__group"
+            role="group"
+            aria-labelledby={`main-nav-group-${group.id}`}
           >
-            {link.label}
-          </a>
+            <span className="main-nav__group-label" id={`main-nav-group-${group.id}`}>
+              {group.label}
+            </span>
+            {group.links.map((link) => renderLink(link))}
+          </div>
         ))}
       </div>
     </nav>
