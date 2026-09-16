@@ -27,6 +27,9 @@ so a filtered view can be shared or reloaded. The navigation bar also carries a
 theme toggle that defaults to the operating system colour scheme and stores an
 explicit choice in `localStorage`.
 
+![Observer pattern detail page](docs/screenshots/pattern-detail-observer.png)
+![Light theme with deep-linked filters](docs/screenshots/light-theme-index.png)
+
 ## Best-practice skills
 
 Each best-practices section links to a matching Copilot agent skill in
