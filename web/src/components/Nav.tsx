@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ThemeToggle } from './ThemeToggle';
 import {
   ALGORITHMS_DATA_STRUCTURES_HASH,
   ALGORITHMS_QUIZ_HASH,
@@ -110,6 +111,7 @@ export function Nav({ currentPage }: NavProps) {
         </span>
       </button>
       <span className="main-nav__brand">Design Bible</span>
+      <ThemeToggle />
       <div id="main-nav-menu" className="main-nav__menu" hidden={!isOpen}>
         {LINKS.map((link) => renderLink(link))}
         {GROUPS.map((group) => (

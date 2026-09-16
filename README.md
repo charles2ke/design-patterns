@@ -95,7 +95,7 @@ abstract class Dialog { abstract Button createButton(); }
 class MacDialog extends Dialog { Button createButton() { return new MacButton(); } }
 ```
 
-#### React (JavaScript/TypeScript style)
+#### React
 ```jsx
 const buttonFactory = (platform) => {
   if (platform === "web") return ({ label }) => <button>{label}</button>;

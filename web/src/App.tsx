@@ -10,8 +10,10 @@ import {
   BEST_PRACTICES_HASH,
   BEST_PRACTICES_QUIZ_HASH,
   QUIZ_HASH,
+  patternSlugFromHash,
 } from './routes';
 import { QuizPage } from './pages/QuizPage';
+import { PatternDetailPage } from './pages/PatternDetailPage';
 import { AlgorithmsQuizPage } from './pages/AlgorithmsQuizPage';
 import { BestPracticesQuizPage } from './pages/BestPracticesQuizPage';
 
@@ -29,6 +31,7 @@ function useHashRoute() {
 
 export function App() {
   const hash = useHashRoute();
+  const patternSlug = patternSlugFromHash(hash);
   const isAlgorithmsQuiz = hash === ALGORITHMS_QUIZ_HASH;
   const isBestPracticesQuiz = hash === BEST_PRACTICES_QUIZ_HASH;
   const isQuiz = hash === QUIZ_HASH || hash.startsWith(`${QUIZ_HASH}/`);
@@ -42,7 +45,9 @@ export function App() {
     <>
       <Nav
         currentPage={
-          isAlgorithmsQuiz
+          patternSlug !== null
+            ? 'index'
+            : isAlgorithmsQuiz
             ? 'algorithms-quiz'
             : isBestPracticesQuiz
               ? 'best-practices-quiz'
@@ -56,7 +61,9 @@ export function App() {
         }
       />
       <div className="app-content">
-        {isAlgorithmsQuiz ? (
+        {patternSlug !== null ? (
+          <PatternDetailPage slug={patternSlug} />
+        ) : isAlgorithmsQuiz ? (
           <AlgorithmsQuizPage />
         ) : isBestPracticesQuiz ? (
           <BestPracticesQuizPage />

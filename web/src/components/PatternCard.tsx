@@ -1,3 +1,4 @@
+import { patternDetailHash } from '../routes';
 import type { Pattern } from '../types/pattern';
 
 interface PatternCardProps {
@@ -20,6 +21,15 @@ export function PatternCard({ pattern }: PatternCardProps) {
       </p>
       <p className="pattern-card__use-when">
         <strong>Use when:</strong> {pattern.useWhen}
+      </p>
+      <p className="pattern-card__details">
+        <a
+          className="page-link"
+          href={patternDetailHash(pattern.slug)}
+          aria-label={`Open ${pattern.name} details`}
+        >
+          View details
+        </a>
       </p>
       <div className="pattern-card__flow">
         <h3
