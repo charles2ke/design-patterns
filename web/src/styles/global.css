@@ -9,6 +9,7 @@
   --on-accent: #0f172a;
   --shadow: rgb(15 23 42 / 55%);
   --code-bg: #0b1222;
+  --danger: #f87171;
   color-scheme: dark;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
@@ -618,7 +619,7 @@ body {
 }
 
 .quiz-timer--urgent {
-  color: #f87171;
+  color: var(--danger);
   animation: quiz-timer-pulse 1s ease-in-out infinite;
 }
 
@@ -1024,6 +1025,7 @@ body {
   --on-accent: #f8fafc;
   --shadow: rgb(15 23 42 / 18%);
   --code-bg: #f1f5f9;
+  --danger: #b91c1c;
   color-scheme: light;
 }
 

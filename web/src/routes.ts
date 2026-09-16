@@ -29,6 +29,18 @@ export interface IndexFilters {
   category: string;
 }
 
+/**
+ * True for hashes that address the index page itself (`''`, `'#'`, `'#/'` or
+ * `'#/?q=...'`). In-page anchors such as `#pattern-observer` and other routes
+ * are not index hashes and must not be read as filter state.
+ */
+export function isIndexHash(hash: string): boolean {
+  if (hash === '' || hash === '#' || hash === '#/') {
+    return true;
+  }
+  return hash.startsWith('#/?');
+}
+
 /** Reads the deep-linkable search/category filters from the index hash. */
 export function parseIndexFilters(hash: string): IndexFilters {
   const queryStart = hash.indexOf('?');

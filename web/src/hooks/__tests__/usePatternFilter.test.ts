@@ -54,6 +54,33 @@ describe('usePatternFilter', () => {
     expect(result.current.query).toBe('builder');
   });
 
+  it('keeps the active filters when an in-page anchor changes the hash', () => {
+    const { result } = renderHook(() => usePatternFilter(patterns));
+
+    act(() => {
+      result.current.setQuery('proxy');
+    });
+    act(() => {
+      window.history.replaceState(null, '', '#pattern-observer');
+      window.dispatchEvent(new Event('hashchange'));
+    });
+
+    expect(result.current.query).toBe('proxy');
+  });
+
+  it('composes filter updates made in the same batch', () => {
+    const { result } = renderHook(() => usePatternFilter(patterns));
+
+    act(() => {
+      result.current.setQuery('proxy');
+      result.current.setCategory('Structural');
+    });
+
+    expect(result.current.query).toBe('proxy');
+    expect(result.current.category).toBe('Structural');
+    expect(window.location.hash).toBe('#/?q=proxy&category=Structural');
+  });
+
   it('starts with no query and the "All" category', () => {
     const { result } = renderHook(() => usePatternFilter(patterns));
 

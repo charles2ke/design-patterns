@@ -7,8 +7,8 @@ Design patterns every engineer should be aware of.
 A browsable React site for design patterns lives in [`web/`](web/README.md). It includes:
 
 - a searchable index of all 23 GoF patterns, each with a detail page covering
-  participants, trade-offs, pitfalls, related patterns and multi-language code
-  examples
+  participants, trade-offs, pitfalls and related patterns, plus multi-language
+  code examples for the patterns that ship with snippets
 - a best-practices hub (front-end, backend, database design, AI-first, SOLID principles)
 - three modern **Who Wants to Be a Millionaire?-style** quizzes: design patterns, algorithms & data structures, and best practices
 
