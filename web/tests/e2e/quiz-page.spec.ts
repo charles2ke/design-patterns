@@ -134,3 +134,25 @@ test('shows an animated 30 second countdown that restarts per question', async (
   await expect(page.getByText('Question 2 of 15')).toBeVisible();
   await expect(timer).toHaveText('30s');
 });
+
+test('keeps the urgent timer text fully opaque while the clock pulses', async ({
+  page,
+}) => {
+  const timer = page.getByRole('timer');
+  await expect(timer).toHaveText('30s');
+
+  await timer.evaluate((element) => element.classList.add('quiz-timer--urgent'));
+
+  for (let sample = 0; sample < 5; sample += 1) {
+    const opacity = await timer.evaluate((element) =>
+      Number.parseFloat(getComputedStyle(element).opacity),
+    );
+    expect(opacity).toBe(1);
+    await page.waitForTimeout(200);
+  }
+
+  const clockAnimation = await page
+    .locator('.quiz-timer__clock')
+    .evaluate((element) => getComputedStyle(element).animationName);
+  expect(clockAnimation).toContain('quiz-timer-pulse');
+});
