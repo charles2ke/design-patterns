@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   EXAMPLE_LANGUAGES,
   type ExampleLanguage,
@@ -14,6 +14,20 @@ export function CodeExamples({ example }: CodeExamplesProps) {
     EXAMPLE_LANGUAGES[0].id,
   );
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const tabRefSetters = useRef<Array<(node: HTMLButtonElement | null) => void>>(
+    [],
+  );
+
+  const getTabRefSetter = useCallback((index: number) => {
+    let setter = tabRefSetters.current[index];
+    if (!setter) {
+      setter = (node) => {
+        tabRefs.current[index] = node;
+      };
+      tabRefSetters.current[index] = setter;
+    }
+    return setter;
+  }, []);
 
   const focusTabAt = (index: number) => {
     const count = EXAMPLE_LANGUAGES.length;
@@ -58,9 +72,7 @@ export function CodeExamples({ example }: CodeExamplesProps) {
         {EXAMPLE_LANGUAGES.map((meta, index) => (
           <button
             key={meta.id}
-            ref={(node) => {
-              tabRefs.current[index] = node;
-            }}
+            ref={getTabRefSetter(index)}
             type="button"
             role="tab"
             id={`code-tab-${meta.id}`}
