@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   EXAMPLE_LANGUAGES,
   type ExampleLanguage,
@@ -13,6 +13,40 @@ export function CodeExamples({ example }: CodeExamplesProps) {
   const [language, setLanguage] = useState<ExampleLanguage>(
     EXAMPLE_LANGUAGES[0].id,
   );
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const focusTabAt = (index: number) => {
+    const count = EXAMPLE_LANGUAGES.length;
+    const nextIndex = (index + count) % count;
+    setLanguage(EXAMPLE_LANGUAGES[nextIndex].id);
+    tabRefs.current[nextIndex]?.focus();
+  };
+
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    switch (event.key) {
+      case 'ArrowRight':
+        event.preventDefault();
+        focusTabAt(index + 1);
+        break;
+      case 'ArrowLeft':
+        event.preventDefault();
+        focusTabAt(index - 1);
+        break;
+      case 'Home':
+        event.preventDefault();
+        focusTabAt(0);
+        break;
+      case 'End':
+        event.preventDefault();
+        focusTabAt(EXAMPLE_LANGUAGES.length - 1);
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="code-examples">
@@ -21,9 +55,12 @@ export function CodeExamples({ example }: CodeExamplesProps) {
         role="tablist"
         aria-label="Example language"
       >
-        {EXAMPLE_LANGUAGES.map((meta) => (
+        {EXAMPLE_LANGUAGES.map((meta, index) => (
           <button
             key={meta.id}
+            ref={(node) => {
+              tabRefs.current[index] = node;
+            }}
             type="button"
             role="tab"
             id={`code-tab-${meta.id}`}
@@ -32,6 +69,7 @@ export function CodeExamples({ example }: CodeExamplesProps) {
             aria-controls="code-examples-panel"
             tabIndex={language === meta.id ? 0 : -1}
             onClick={() => setLanguage(meta.id)}
+            onKeyDown={(event) => handleKeyDown(event, index)}
           >
             {meta.label}
           </button>

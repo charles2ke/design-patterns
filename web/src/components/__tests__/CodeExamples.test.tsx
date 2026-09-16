@@ -43,4 +43,57 @@ describe('CodeExamples', () => {
       '-1',
     );
   });
+
+  it('moves focus and selection with ArrowRight, ArrowLeft, Home, and End', async () => {
+    const user = userEvent.setup();
+    render(<CodeExamples example={example} />);
+
+    const csharpTab = screen.getByRole('tab', { name: 'C#' });
+    csharpTab.focus();
+
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('tab', { name: 'Java' })).toHaveFocus();
+    expect(screen.getByRole('tab', { name: 'Java' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    await user.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('tab', { name: 'C#' })).toHaveFocus();
+    expect(screen.getByRole('tab', { name: 'C#' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    await user.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('tab', { name: 'Rust' })).toHaveFocus();
+    expect(screen.getByRole('tab', { name: 'Rust' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('tab', { name: 'C#' })).toHaveFocus();
+
+    await user.keyboard('{End}');
+    expect(screen.getByRole('tab', { name: 'Rust' })).toHaveFocus();
+    expect(screen.getByRole('tab', { name: 'Rust' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    await user.keyboard('{Home}');
+    expect(screen.getByRole('tab', { name: 'C#' })).toHaveFocus();
+    expect(screen.getByRole('tab', { name: 'C#' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    await user.keyboard('a');
+    expect(screen.getByRole('tab', { name: 'C#' })).toHaveFocus();
+    expect(screen.getByRole('tab', { name: 'C#' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
 });
