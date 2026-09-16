@@ -47,6 +47,18 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the pattern detail page for a pattern hash', () => {
+    window.location.hash = '#/patterns/observer';
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Observer', level: 1 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Participants' }),
+    ).toBeInTheDocument();
+  });
+
   it('switches to the best practices page on hashchange', () => {
     render(<App />);
 

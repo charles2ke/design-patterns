@@ -12,6 +12,21 @@ patterns, algorithms & data structures, and engineering best practices.
 ![Algorithms quiz page](docs/screenshots/algorithms-quiz-page.png)
 ![Best practices quiz page](docs/screenshots/best-practices-quiz-page.png)
 
+## Pattern detail pages
+
+Every card in the catalog links to `#/patterns/<slug>`, a detail page with the
+pattern's participants, trade-offs, common pitfalls, related patterns and code
+examples in C#, Java, React, Python, Go and Rust. The snippets live in
+[`src/data/pattern-examples.ts`](src/data/pattern-examples.ts) and are also
+rendered into the root `README.md` by `scripts/generate-readme.ts`, so the site
+and the README cannot drift. The deep-dive prose lives in
+[`src/data/pattern-details.ts`](src/data/pattern-details.ts).
+
+Search and category filters are mirrored in the URL (`#/?q=undo&category=Behavioral`),
+so a filtered view can be shared or reloaded. The navigation bar also carries a
+theme toggle that defaults to the operating system colour scheme and stores an
+explicit choice in `localStorage`.
+
 ## Best-practice skills
 
 Each best-practices section links to a matching Copilot agent skill in
