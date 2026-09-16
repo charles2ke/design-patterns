@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildIndexHash,
+  isIndexHash,
   parseIndexFilters,
   patternDetailHash,
   patternSlugFromHash,
@@ -34,6 +35,16 @@ describe('routes', () => {
     expect(buildIndexHash({ query: 'proxy', category: 'Structural' })).toBe(
       '#/?q=proxy&category=Structural',
     );
+  });
+
+  it('recognises only index hashes as filter URLs', () => {
+    expect(isIndexHash('')).toBe(true);
+    expect(isIndexHash('#')).toBe(true);
+    expect(isIndexHash('#/')).toBe(true);
+    expect(isIndexHash('#/?q=proxy')).toBe(true);
+    expect(isIndexHash('#pattern-observer')).toBe(false);
+    expect(isIndexHash('#/quiz')).toBe(false);
+    expect(isIndexHash('#/patterns/observer')).toBe(false);
   });
 
   it('round-trips filters through the hash', () => {

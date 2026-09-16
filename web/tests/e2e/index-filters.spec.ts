@@ -16,6 +16,24 @@ test('search and category filters are shareable through the URL', async ({
   await expect(page.getByRole('status')).toHaveText('Showing 2 of 23 patterns');
 });
 
+test('in-page table of contents links keep the active filters', async ({
+  page,
+}) => {
+  await page.goto('/');
+
+  await page.getByLabel('Search patterns').fill('undo');
+  await expect(page.getByRole('status')).toHaveText('Showing 2 of 23 patterns');
+
+  await page
+    .getByRole('navigation', { name: 'Table of contents' })
+    .getByRole('link')
+    .first()
+    .click();
+
+  await expect(page.getByLabel('Search patterns')).toHaveValue('undo');
+  await expect(page.getByRole('status')).toHaveText('Showing 2 of 23 patterns');
+});
+
 test.describe('theme', () => {
   test.use({ colorScheme: 'dark' });
 

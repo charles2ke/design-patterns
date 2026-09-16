@@ -15,8 +15,9 @@ patterns, algorithms & data structures, and engineering best practices.
 ## Pattern detail pages
 
 Every card in the catalog links to `#/patterns/<slug>`, a detail page with the
-pattern's participants, trade-offs, common pitfalls, related patterns and code
-examples in C#, Java, React, Python, Go and Rust. The snippets live in
+pattern's participants, trade-offs, common pitfalls and related patterns. Where
+a snippet exists, the page also shows code examples in C#, Java, React, Python,
+Go and Rust. The snippets live in
 [`src/data/pattern-examples.ts`](src/data/pattern-examples.ts) and are also
 rendered into the root `README.md` by `scripts/generate-readme.ts`, so the site
 and the README cannot drift. The deep-dive prose lives in

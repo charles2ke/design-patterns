@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PATTERN_CATEGORIES, type Pattern } from '../types/pattern';
 import { filterPatterns, type CategoryFilter } from '../utils/filterPatterns';
-import { buildIndexHash, parseIndexFilters } from '../routes';
+import { buildIndexHash, isIndexHash, parseIndexFilters } from '../routes';
 
 export interface UsePatternFilterResult {
   query: string;
@@ -38,28 +38,44 @@ export function usePatternFilter(source: Pattern[]): UsePatternFilterResult {
   );
 
   useEffect(() => {
-    const handler = () => setFilters(filtersFromHash(window.location.hash));
+    const handler = () => {
+      const hash = window.location.hash;
+      // In-page anchors such as `#pattern-observer` are not filter URLs, so
+      // jumping to a card must not wipe the active filters.
+      if (!isIndexHash(hash)) {
+        return;
+      }
+      setFilters(filtersFromHash(hash));
+    };
     window.addEventListener('hashchange', handler);
     return () => window.removeEventListener('hashchange', handler);
   }, []);
 
-  const apply = useCallback((next: Filters) => {
-    setFilters(next);
-    // replaceState keeps the view shareable without adding a history entry per keystroke.
-    window.history.replaceState(null, '', buildIndexHash(next));
+  // The updater form keeps batched calls composable instead of overwriting each
+  // other with a stale render snapshot.
+  const apply = useCallback((update: (current: Filters) => Filters) => {
+    setFilters((current) => {
+      const next = update(current);
+      // replaceState keeps the view shareable without adding a history entry per keystroke.
+      window.history.replaceState(null, '', buildIndexHash(next));
+      return next;
+    });
   }, []);
 
   const setQuery = useCallback(
-    (query: string) => apply({ ...filters, query }),
-    [apply, filters],
+    (query: string) => apply((current) => ({ ...current, query })),
+    [apply],
   );
 
   const setCategory = useCallback(
-    (category: CategoryFilter) => apply({ ...filters, category }),
-    [apply, filters],
+    (category: CategoryFilter) => apply((current) => ({ ...current, category })),
+    [apply],
   );
 
-  const reset = useCallback(() => apply({ query: '', category: 'All' }), [apply]);
+  const reset = useCallback(
+    () => apply(() => ({ query: '', category: 'All' })),
+    [apply],
+  );
 
   const visiblePatterns = useMemo(
     () => filterPatterns(source, filters.query, filters.category),
