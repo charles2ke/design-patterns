@@ -38,4 +38,12 @@ describe('PatternCard', () => {
       'pattern-proxy',
     );
   });
+
+  it('links to the pattern detail page', () => {
+    render(<PatternCard pattern={pattern} />);
+
+    expect(
+      screen.getByRole('link', { name: 'Open Proxy details' }),
+    ).toHaveAttribute('href', '#/patterns/proxy');
+  });
 });

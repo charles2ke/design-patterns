@@ -10,6 +10,7 @@ on:
       - README.md
       - scripts/generate-readme.ts
       - web/src/data/patterns.ts
+      - web/src/data/pattern-examples.ts
       - web/src/types/pattern.ts
       - .github/workflows/readme-sync.yml
   pull_request:
@@ -17,6 +18,7 @@ on:
     paths:
       - scripts/generate-readme.ts
       - web/src/data/patterns.ts
+      - web/src/data/pattern-examples.ts
       - web/src/types/pattern.ts
       - .github/workflows/readme-sync.yml
 
