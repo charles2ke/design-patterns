@@ -620,6 +620,9 @@ body {
 
 .quiz-timer--urgent {
   color: var(--danger);
+}
+
+.quiz-timer--urgent .quiz-timer__clock {
   animation: quiz-timer-pulse 1s ease-in-out infinite;
 }
 
@@ -636,11 +639,11 @@ body {
 @keyframes quiz-timer-pulse {
   0%,
   100% {
-    opacity: 1;
+    transform: rotate(-90deg) scale(1);
   }
 
   50% {
-    opacity: 0.55;
+    transform: rotate(-90deg) scale(1.12);
   }
 }
 
@@ -831,7 +834,7 @@ body {
   .quiz-result--won h2,
   .quiz-result__cheer,
   .quiz-timer__hand,
-  .quiz-timer--urgent {
+  .quiz-timer--urgent .quiz-timer__clock {
     animation: none;
   }
 }
