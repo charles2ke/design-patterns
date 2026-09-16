@@ -156,3 +156,45 @@ test('keeps the urgent timer text fully opaque while the clock pulses', async ({
     .evaluate((element) => getComputedStyle(element).animationName);
   expect(clockAnimation).toContain('quiz-timer-pulse');
 });
+
+test.describe('when reduced motion is preferred', () => {
+  test.use({ contextOptions: { reducedMotion: 'reduce' } });
+
+  test('disables the timer sweep and urgent pulse animations', async ({ page }) => {
+    const timer = page.getByRole('timer');
+    await expect(timer).toHaveText('30s');
+
+    const handAnimation = await page
+      .locator('.quiz-timer__hand')
+      .evaluate((element) => getComputedStyle(element).animationName);
+    expect(handAnimation).toBe('none');
+
+    await timer.evaluate((element) => element.classList.add('quiz-timer--urgent'));
+
+    const clockAnimation = await page
+      .locator('.quiz-timer__clock')
+      .evaluate((element) => getComputedStyle(element).animationName);
+    expect(clockAnimation).toBe('none');
+  });
+
+  test('disables the celebration animations on the winning screen', async ({ page }) => {
+    for (let index = 0; index < ANSWER_BY_PROMPT_FRAGMENT.length; index += 1) {
+      await answerCurrentQuestionCorrectly(page);
+    }
+
+    await expect(
+      page.getByRole('heading', { name: 'You won the top prize!', level: 2 }),
+    ).toBeVisible();
+
+    const animationNames = await page
+      .locator('.quiz-celebration__piece, .quiz-result--won h2, .quiz-result__cheer')
+      .evaluateAll((elements) =>
+        elements.map((element) => getComputedStyle(element).animationName),
+      );
+
+    expect(animationNames.length).toBeGreaterThan(0);
+    for (const animationName of animationNames) {
+      expect(animationName).toBe('none');
+    }
+  });
+});
