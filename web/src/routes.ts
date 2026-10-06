@@ -8,6 +8,7 @@ export const SOLID_PRINCIPLES_HASH = '#/best-practices/solid-principles';
 export const ALGORITHMS_DATA_STRUCTURES_HASH = '#/algorithms-data-structures';
 export const ALGORITHMS_QUIZ_HASH = '#/quiz/algorithms-data-structures';
 export const BEST_PRACTICES_QUIZ_HASH = '#/quiz/best-practices';
+export const INTERVIEW_QUESTIONS_HASH = '#/interview-questions';
 export const PATTERNS_HASH = '#/patterns';
 
 /** Hash for a single pattern's detail page. */

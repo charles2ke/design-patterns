@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BestPracticesPage } from './pages/BestPracticesPage';
 import { AlgorithmsDataStructuresPage } from './pages/AlgorithmsDataStructuresPage';
 import { IndexPage } from './pages/IndexPage';
+import { InterviewQuestionsPage } from './pages/InterviewQuestionsPage';
 import { Nav } from './components/Nav';
 import { SiteFooter } from './components/SiteFooter';
 import {
@@ -9,6 +10,7 @@ import {
   ALGORITHMS_QUIZ_HASH,
   BEST_PRACTICES_HASH,
   BEST_PRACTICES_QUIZ_HASH,
+  INTERVIEW_QUESTIONS_HASH,
   QUIZ_HASH,
   patternSlugFromHash,
 } from './routes';
@@ -40,6 +42,7 @@ export function App() {
   const isAlgorithmsDataStructures =
     hash === ALGORITHMS_DATA_STRUCTURES_HASH ||
     hash.startsWith(`${ALGORITHMS_DATA_STRUCTURES_HASH}/`);
+  const isInterviewQuestions = hash === INTERVIEW_QUESTIONS_HASH;
 
   return (
     <>
@@ -57,7 +60,9 @@ export function App() {
                   ? 'best-practices'
                   : isAlgorithmsDataStructures
                     ? 'algorithms-data-structures'
-                    : 'index'
+                    : isInterviewQuestions
+                      ? 'interview-questions'
+                      : 'index'
         }
       />
       <div className="app-content">
@@ -73,6 +78,8 @@ export function App() {
           <BestPracticesPage />
         ) : isAlgorithmsDataStructures ? (
           <AlgorithmsDataStructuresPage />
+        ) : isInterviewQuestions ? (
+          <InterviewQuestionsPage />
         ) : (
           <IndexPage />
         )}

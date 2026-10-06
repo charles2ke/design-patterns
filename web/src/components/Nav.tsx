@@ -5,6 +5,7 @@ import {
   ALGORITHMS_QUIZ_HASH,
   BEST_PRACTICES_HASH,
   BEST_PRACTICES_QUIZ_HASH,
+  INTERVIEW_QUESTIONS_HASH,
   QUIZ_HASH,
 } from '../routes';
 
@@ -14,7 +15,8 @@ type NavPage =
   | 'quiz'
   | 'algorithms-data-structures'
   | 'algorithms-quiz'
-  | 'best-practices-quiz';
+  | 'best-practices-quiz'
+  | 'interview-questions';
 
 interface NavProps {
   currentPage: NavPage;
@@ -39,6 +41,11 @@ const LINKS: NavLink[] = [
     page: 'algorithms-data-structures',
     href: ALGORITHMS_DATA_STRUCTURES_HASH,
     label: 'Algorithms & Data Structures',
+  },
+  {
+    page: 'interview-questions',
+    href: INTERVIEW_QUESTIONS_HASH,
+    label: 'Interview Questions',
   },
 ];
 

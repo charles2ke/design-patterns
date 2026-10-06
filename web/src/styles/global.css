@@ -169,6 +169,7 @@ body {
 
 .index-page,
 .best-practices-page,
+.interview-page,
 .quiz-page {
   margin: 0 auto;
   max-width: 1100px;
@@ -555,6 +556,74 @@ body {
   white-space: pre;
 }
 
+.interview-page__section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.interview-page__section h2 {
+  margin-top: 0;
+}
+
+.interview-page__question {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.interview-page__question h3 {
+  margin: 0 0 0.5rem;
+}
+
+.interview-page__why {
+  color: var(--muted);
+}
+
+.interview-page__question ul {
+  padding-left: 1.25rem;
+}
+
+.interview-page__solution summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 0.75rem 0;
+  box-sizing: border-box;
+}
+
+.interview-page__solution h4 {
+  margin: 1rem 0 0.25rem;
+}
+
+.interview-page__example {
+  margin: 0.75rem 0 0;
+}
+
+.interview-page__example-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.interview-page__example pre {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0.75rem 0.9rem;
+}
+
+.interview-page__example code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
 .quiz-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(min(260px, 100%), 1fr);
@@ -905,6 +974,7 @@ body {
   .index-page,
   .best-practices-page,
   .algorithms-page,
+  .interview-page,
   .quiz-page {
     padding: 1.25rem 1rem 3rem;
   }
@@ -930,6 +1000,7 @@ body {
   .ai-first-page__section,
   .solid-page__section,
   .algorithms-page__section,
+  .interview-page__section,
   .quiz-card,
   .quiz-ladder {
     padding: 0.9rem;
