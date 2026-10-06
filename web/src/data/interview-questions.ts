@@ -383,7 +383,7 @@ expr.accept(new Print());    // '(2 + 3) * 4'`,
     ],
     code: {
       label: 'TypeScript: Strategy + registry',
-      code: `type Method = 'card' | 'paypal' | 'bank' | 'crypto';
+      code: `type Method = string;
 
 interface ChargeRequest { amountCents: number; currency: string; idempotencyKey: string; }
 type ChargeResult =
@@ -466,14 +466,21 @@ class EventBus<Events extends Record<string, unknown>> {
     handler: Handler<Events[K]>,
     options: { signal?: AbortSignal } = {},
   ): () => void {
+    const signal = options.signal;
+    if (signal?.aborted) return () => {};
+
     const set = this.listeners.get(type) ?? new Set<Handler<never>>();
     this.listeners.set(type, set);
     set.add(handler as Handler<never>);
+    let active = true;
     const off = () => {
+      if (!active) return;
+      active = false;
+      signal?.removeEventListener('abort', off);
       set.delete(handler as Handler<never>);
-      if (set.size === 0) this.listeners.delete(type);
+      if (set.size === 0 && this.listeners.get(type) === set) this.listeners.delete(type);
     };
-    options.signal?.addEventListener('abort', off, { once: true });
+    signal?.addEventListener('abort', off, { once: true });
     return off;
   }
 
@@ -706,13 +713,18 @@ function toBase62(n: bigint): string {
 class IdAllocator {
   private next = 0n;
   private end = 0n;
+  private pendingLease?: Promise<void>;
   constructor(private leaseRange: (size: bigint) => Promise<bigint>, private size = 1_000_000n) {}
 
   async nextId(): Promise<bigint> {
-    if (this.next >= this.end) {
-      const start = await this.leaseRange(this.size); // atomic increment in etcd / DB
-      this.next = start;
-      this.end = start + this.size;
+    while (this.next >= this.end) {
+      const lease = this.pendingLease ??= this.leaseRange(this.size).then((start) => {
+        this.next = start;
+        this.end = start + this.size;
+      }).finally(() => {
+        this.pendingLease = undefined;
+      });
+      await lease;
     }
     const id = this.next;
     this.next += 1n;
@@ -857,7 +869,8 @@ async function readTimeline(deps: Deps, userId: string, limit = 50): Promise<Pos
     deps.followeesWhoAreCelebrities(userId),
   ]);
   const celebPosts = (await Promise.all(celebs.map((c) => deps.recentPosts(c, limit)))).flat();
-  return [...cached, ...celebPosts]
+  const postsById = new Map([...cached, ...celebPosts].map((post) => [post.id, post]));
+  return [...postsById.values()]
     .sort((a, b) => b.createdAt - a.createdAt)
     .slice(0, limit);
 }`,
@@ -1102,7 +1115,9 @@ async function charge(
   } catch (err) {
     // Network timeouts stay PENDING and are resolved by polling the PSP / webhook.
     if (err instanceof Error && err.name === 'CardDeclined') {
-      await db.complete(key, 'FAILED', { error: err.message });
+      const response = { error: err.message };
+      await db.complete(key, 'FAILED', response);
+      return response;
     }
     throw err;
   }
