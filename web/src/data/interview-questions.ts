@@ -532,45 +532,44 @@ controller.abort(); // listener removed, nothing leaks`,
 
 interface OrderState {
   readonly name: string;
-  pay(order: Order): void;
-  ship(order: Order): void;
-  deliver(order: Order): void;
-  cancel(order: Order): void;
+  pay(): OrderState;
+  ship(): OrderState;
+  deliver(): OrderState;
+  cancel(): OrderState;
 }
 
 abstract class BaseState implements OrderState {
   abstract readonly name: string;
-  pay(_o: Order): void { throw new IllegalTransition('Cannot pay when ' + this.name); }
-  ship(_o: Order): void { throw new IllegalTransition('Cannot ship when ' + this.name); }
-  deliver(_o: Order): void { throw new IllegalTransition('Cannot deliver when ' + this.name); }
-  cancel(_o: Order): void { throw new IllegalTransition('Cannot cancel when ' + this.name); }
+  pay(): OrderState { throw new IllegalTransition('Cannot pay when ' + this.name); }
+  ship(): OrderState { throw new IllegalTransition('Cannot ship when ' + this.name); }
+  deliver(): OrderState { throw new IllegalTransition('Cannot deliver when ' + this.name); }
+  cancel(): OrderState { throw new IllegalTransition('Cannot cancel when ' + this.name); }
 }
 
 class Pending extends BaseState {
   readonly name = 'Pending';
-  pay(o: Order) { o.setState(new Paid()); }
-  cancel(o: Order) { o.setState(new Cancelled()); }
+  pay() { return new Paid(); }
+  cancel() { return new Cancelled(); }
 }
 class Paid extends BaseState {
   readonly name = 'Paid';
-  ship(o: Order) { o.setState(new Shipped()); }
-  cancel(o: Order) { o.setState(new Cancelled()); } // triggers a refund elsewhere
+  ship() { return new Shipped(); }
+  cancel() { return new Cancelled(); } // triggers a refund elsewhere
 }
 class Shipped extends BaseState {
   readonly name = 'Shipped';
-  deliver(o: Order) { o.setState(new Delivered()); }
+  deliver() { return new Delivered(); }
 }
 class Delivered extends BaseState { readonly name = 'Delivered'; }
 class Cancelled extends BaseState { readonly name = 'Cancelled'; }
 
 class Order {
   private state: OrderState = new Pending();
-  setState(s: OrderState) { this.state = s; }
   get status() { return this.state.name; }
-  pay() { this.state.pay(this); }
-  ship() { this.state.ship(this); }
-  deliver() { this.state.deliver(this); }
-  cancel() { this.state.cancel(this); }
+  pay() { this.state = this.state.pay(); }
+  ship() { this.state = this.state.ship(); }
+  deliver() { this.state = this.state.deliver(); }
+  cancel() { this.state = this.state.cancel(); }
 }
 
 const order = new Order();
