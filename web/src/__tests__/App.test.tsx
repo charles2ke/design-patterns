@@ -188,4 +188,13 @@ describe('App', () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it('renders the interview questions page when hash is #/interview-questions', () => {
+    window.location.hash = '#/interview-questions';
+    render(<App />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Tough Interview Questions', level: 1 }),
+    ).toBeInTheDocument();
+  });
 });

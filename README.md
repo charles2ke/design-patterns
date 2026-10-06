@@ -11,6 +11,7 @@ A browsable React site for design patterns lives in [`web/`](web/README.md). It 
   code examples for the patterns that ship with snippets
 - a best-practices hub (front-end, backend, database design, AI-first, SOLID principles)
 - three modern **Who Wants to Be a Millionaire?-style** quizzes: design patterns, algorithms & data structures, and best practices
+- a **tough interview questions** page with the hardest design pattern and system design questions, each with a complete worked solution and code
 
 Live site: **Design Bible** — https://charles2ke.github.io/design-patterns/
 

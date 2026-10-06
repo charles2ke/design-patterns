@@ -47,6 +47,19 @@ writing or reviewing code:
 ![SOLID principles best practices](docs/screenshots/best-practices-solid-principles.png)
 ![Algorithms and data structures with code examples](docs/screenshots/algorithms-data-structures.png)
 
+## Tough interview questions
+
+`#/interview-questions` collects the hardest design pattern and system design
+interview questions (thread-safe Singleton, undo/redo, Visitor, URL shortener,
+distributed rate limiter, news feed, chat, Dynamo-style key-value store,
+payments, crawler, ride matching and more). Each question explains why it is
+tough and hides a complete solution — design notes, a working code sample and
+likely follow-ups — behind a "Show complete solution" toggle. The content lives
+in [`src/data/interview-questions.ts`](src/data/interview-questions.ts).
+
+![Tough interview questions page](docs/screenshots/interview-questions.png)
+![Expanded rate limiter solution](docs/screenshots/interview-questions-solution.png)
+
 ## Getting started
 
 ```bash
