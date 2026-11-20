@@ -24,7 +24,7 @@ export const viewCounter: SystemDesignQuestion = {
       'Absorb ~70,000 views/s at peak, including 50,000/s for a single viral video, without dropping events.',
       'Display counts may be a few seconds stale and slightly approximate, but count reads stay fast (p99 under 10 ms).',
       'Billing counts are exact: every valid view is counted exactly once despite retries and crashes, and is reproducible from raw events.',
-      'Recording a view never delays playback: the client sends it fire-and-forget and the server only appends it to a log.',
+      'Recording a view never delays playback: the client durably queues an event in IndexedDB and retries its stable event ID until the server confirms the Kafka append.',
     ],
     outOfScope: [
       'Video streaming, recommendations and the creator analytics dashboard.',
@@ -42,7 +42,7 @@ export const viewCounter: SystemDesignQuestion = {
   api: `POST /api/v1/videos/{videoId}/views      sent once playback passes the minimum watch time
 Authorization: Bearer <token>            (optional; logged-out players send X-Device-Id)
 { "eventId": "5f0c9a2e-...", "watchedMs": 31000 }      (eventId is reused on retries)
--> 202 Accepted    (appended to Kafka; validated and deduplicated asynchronously)
+-> 202 Accepted    { "eventId": "5f0c9a2e-...", "durable": true } (Kafka append acknowledged)
 
 PUT    /api/v1/videos/{videoId}/like     -> 204 No Content    (already liked: still 204)
 DELETE /api/v1/videos/{videoId}/like     -> 204 No Content    (not liked: still 204)
@@ -56,6 +56,9 @@ GET /api/v1/videos/{videoId}/stats
   viewer_id   string     user ID, or device ID for logged-out viewers
   ts          timestamp
   bot_score   float      attached by the ingest tier
+
+client_outbox   IndexedDB on each player device; durable until server acknowledges event_id
+  event_id, video_id, viewer_id, watched_ms, created_at
 
 view_counters    one sub-counter row per (video, aggregator task), summed on read
   video_id    string     partition key
@@ -178,9 +181,57 @@ A watch page reads SUM(count) over one video_id partition, cached for ~5 s; the
     'Counter store or cache outage: events keep accumulating in Kafka (7-day retention) and are counted on recovery; the watch page shows the last cached count, or hides it, instead of failing.',
   ],
   code: {
-    label: 'TypeScript: windowed view dedup, batched flushes and idempotent sharded counter rows',
+    label: 'TypeScript: durable client view retries plus windowed dedup and idempotent counter rows',
     language: 'TypeScript',
-    code: `export interface CounterStore {
+    code: `export interface ViewEvent {
+  eventId: string; // generated once; reused until the server confirms the durable Kafka append
+  videoId: string;
+  viewerId: string;
+  watchedMs: number;
+}
+
+/** IndexedDB implementation: insert-if-absent, list oldest first, and delete only after ACK. */
+export interface ClientViewOutbox {
+  putIfAbsent(event: ViewEvent): Promise<void>;
+  oldest(limit: number): Promise<ViewEvent[]>;
+  acknowledge(eventId: string): Promise<void>;
+}
+
+export function flushViewOutbox(
+  outbox: ClientViewOutbox,
+  post: (event: ViewEvent) => Promise<{ eventId: string; durable: boolean }>,
+  retryLater: () => void,
+): void {
+  void outbox.oldest(100).then(async (events) => {
+    for (const event of events) {
+      try {
+        const ack = await post(event);
+        if (!ack.durable || ack.eventId !== event.eventId) {
+          retryLater();
+          return;
+        }
+        await outbox.acknowledge(event.eventId);
+      } catch {
+        retryLater();
+        return;
+      }
+    }
+  }).catch(retryLater);
+}
+
+export function reportView(
+  outbox: ClientViewOutbox,
+  event: ViewEvent,
+  post: (event: ViewEvent) => Promise<{ eventId: string; durable: boolean }>,
+  retryLater: () => void,
+): void {
+  // Persist and deliver in the background so playback does not wait on storage or the network.
+  void outbox.putIfAbsent(event)
+    .then(() => flushViewOutbox(outbox, post, retryLater))
+    .catch(retryLater);
+}
+
+export interface CounterStore {
   // Per row, atomically: UPDATE view_counters SET count = count + :delta, last_batch = :seq
   //   WHERE video_id = :video AND shard = :shard AND last_batch < :seq
   apply(shard: number, seq: number, deltas: ReadonlyMap<string, number>): Promise<void>;

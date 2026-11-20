@@ -65,6 +65,7 @@ Rider WebSocket, server -> client: ride_status events and driver_location every 
   dataModel: `geo index        in memory, one per city partition (soft state, rebuilt from updates)
   cell_id   -> set<driver_id>                         H3 res 8-9 (or S2) cell
   driver_id -> (lat, lng, seq, updated_at, cell_id)   evicted ~30 s after last update
+  driver_seq (driver_id, session_id) -> seq watermark; retained after location eviction
 
 driver_state     strongly consistent KV (e.g. DynamoDB), key driver_id
   status        AVAILABLE | OFFERED | ASSIGNED | OFFLINE
@@ -195,7 +196,7 @@ transitions (~2k writes/s) and single-key reads.`,
     },
   ],
   failureModes: [
-    'Driver app offline (tunnel, dead battery): updates stop, the location expires after ~30 s so no new offers arrive, and an outstanding offer times out and moves on. Mid-trip, the rider sees the last known position with a reconnecting indicator; the trip is not canceled automatically.',
+    'Driver app offline (tunnel, dead battery): updates stop and geo-cell membership expires after ~30 s, but the durable authenticated device-session sequence watermark remains. Delayed older packets cannot restore a stale location; only a newly authenticated device session resets it.',
     'Matching partition crash: a standby acquires the city’s lease (etcd or ZooKeeper) and rebuilds the index from fresh updates or a Kafka replay. Rides stuck in MATCHING are re-dispatched, and the driver CAS and ride transitions are idempotent, so retries cannot double-assign.',
     'WebSocket gateway crash: clients reconnect with backoff to another gateway, re-register in the connection registry and fetch the current ride state over REST, so missed pushes are recovered by reading state rather than replaying messages.',
     'Demand spike (a stadium empties): one area’s requests explode. Surge raises prices and draws drivers in, batching avoids offer storms, and per-partition admission control sheds load before the hot partition falls over.',
@@ -215,6 +216,8 @@ const key = (cx: number, cy: number): string => cx + ':' + cy;
 export class DriverIndex {
   private readonly cells = new Map<string, Set<string>>();
   private readonly positions = new Map<string, Position>();
+  private readonly seqWatermarks = new Map<string, { sessionId: string; seq: number }>();
+  private readonly activeSessions = new Map<string, string>();
   private readonly states = new Map<string, DriverState>(); // survives location expiry
   private readonly size: number;
   private readonly ttlMs: number;
@@ -225,10 +228,19 @@ export class DriverIndex {
     [this.size, this.ttlMs, this.now] = [cellSize, ttlMs, now];
   }
 
-  /** Last write wins by device sequence number, so retried or reordered updates are no-ops. */
-  update(id: string, x: number, y: number, seq: number): void {
+  /** Called only after authentication establishes a new device session. */
+  beginDeviceSession(id: string, sessionId: string): void {
+    this.activeSessions.set(id, sessionId);
+    this.seqWatermarks.set(id, { sessionId, seq: -1 });
+  }
+
+  /** Sequence watermarks outlive the geo location; sessionId comes from the authenticated connection. */
+  update(id: string, sessionId: string, x: number, y: number, seq: number): void {
+    if (this.activeSessions.get(id) !== sessionId) return;
+    const watermark = this.seqWatermarks.get(id);
+    if (watermark?.sessionId === sessionId && seq <= watermark.seq) return;
     const prev = this.positions.get(id);
-    if (prev && seq <= prev.seq) return;
+    this.seqWatermarks.set(id, { sessionId, seq });
     const cell = key(Math.floor(x / this.size), Math.floor(y / this.size));
     if (prev && prev.cell !== cell) this.remove(id, prev.cell);
     this.cells.set(cell, (this.cells.get(cell) ?? new Set<string>()).add(id));

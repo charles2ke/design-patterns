@@ -147,7 +147,8 @@ they read the edge controller cache, which sync deltas keep current.`,
       heading: 'Gates without the cloud',
       points: [
         'Each garage runs an active-standby pair of edge controllers that pull a versioned delta of the next 24 hours of reservations, the rate card and QR keys, so lanes decide locally in milliseconds.',
-        'QR codes are signed tokens (reservation ID, plate, window, expiry) that the controller verifies offline with a cached public key, so even reservations made after the last sync get in.',
+        'QR codes are signed tokens (reservation ID, plate, window, expiry) verified with a cached public key. An offline controller accepts only reservations in its synced active inventory; unknown reservations require online reconciliation.',
+        'The cloud does not resell a canceled spot for a garage until that garage acknowledges the revocation delta. During a partition, cached cancellations are rejected and unsynchronized inventory remains reserved, preventing a canceled QR from sharing capacity with a new booking.',
         'Plates are matched against the cache with fuzzy matching for look-alike characters (O and 0, B and 8); a low-confidence read falls back to the QR code, a ticket or the intercom.',
         'Every entry and exit goes to a durable local queue with a UUID and is uploaded when the link returns; the cloud dedupes by event ID. Exits fail open: the barrier lifts and the fee is captured later.',
       ],
@@ -186,7 +187,7 @@ they read the edge controller cache, which sync deltas keep current.`,
     },
   ],
   failureModes: [
-    'A garage loses its internet link: lanes keep deciding from the local cache and queue events durably; alert when the cache is older than its sync window, and keep honoring validly signed QR codes.',
+    'A garage loses its internet link: lanes use cached reservation status and queue events durably; the cloud withholds resale of unsynchronized allocations, and the gate rejects unknown reservations until it can reconcile their status.',
     'Plate misreads from dirt, glare or look-alike characters: fall back to the QR code, a ticket or the intercom, and alert when a camera’s match rate drops, which usually means it is dirty or misaligned.',
     'Replayed or duplicated gate events after reconnecting: a unique entry_event_id on stays makes ingest idempotent, and an exit without a matching entry opens a review case instead of guessing a fee.',
     'An overstaying car occupies the next reservation’s spot: the controller reassigns the arriving driver to a free spot of the same type from the buffer and bills the overstay at exit.',
@@ -294,7 +295,7 @@ export function exitFee(rate: RateCard, quoteCents: number, reservedEnd: number,
     {
       question: 'How do you stop a copied QR code from being used twice?',
       answer:
-        'A signature proves the token is genuine, not that it is unused, so the controller also tracks state: a reservation with an open entry cannot enter again until it exits, and tokens expire at the end of the window. During an outage both controllers of a garage share that state locally, and a duplicate that slips through is caught when events sync and handled as a billing case.',
+        'A signature proves the token is genuine, not that the reservation is still valid. Controllers check the synced active/revoked status and track entry state to prevent reuse. The cloud does not resell a canceled allocation until the garage acknowledges its revocation; an offline controller rejects unknown reservations and shares its local state with its standby.',
     },
   ],
 };

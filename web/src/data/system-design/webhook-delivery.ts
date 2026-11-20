@@ -61,7 +61,7 @@ POST /v1/webhook_endpoints/we_123/replays  { "from": "<time>", "to": "<time>" }
 Outbound request to the customer endpoint:
 POST https://shop.example/hooks
 Content-Type: application/json
-Webhook-Id: evt_789                          (stable across retries: the dedup key)
+Webhook-Id: evt_789                          (unsigned echo; body.id is the authenticated dedup key)
 Webhook-Signature: t=1767225600,v1=5f2a...,v1=91c0...    (one v1 per active secret)
 { "id": "evt_789", "type": "payment.succeeded", "created": 1767225600, "data": {} }
 -> 2xx within 10 s = delivered; any other status, timeout or redirect = retry later`,
@@ -134,7 +134,7 @@ the dashboard reads attempts by (endpoint_id, event_id). Payloads are never copi
         'Writing the business row and then publishing to Kafka is a dual write: a crash in between loses the event, and publishing first can announce a change that later rolls back.',
         'With an outbox, the service inserts the event into an outbox table in the same local transaction as the business change, so the event exists if and only if the change committed.',
         'A relay moves outbox rows to Kafka, ideally by tailing the database log with change data capture (Debezium is a widely used open-source option). Polling by increasing ID is simpler but can skip rows whose transactions commit out of ID order.',
-        'The relay is at-least-once and may republish rows after a crash. Fan-out inserts each delivery only if (event_id, endpoint_id) is absent, and receivers dedupe on the Webhook-Id, so a duplicate is harmless at both ends.',
+        'The relay is at-least-once and may republish rows after a crash. Fan-out inserts each delivery only if (event_id, endpoint_id) is absent. Receivers verify the raw-body signature, parse the authenticated body id, reject a mismatching Webhook-Id header and dedupe on body.id.',
       ],
     },
     {
@@ -171,7 +171,7 @@ the dashboard reads attempts by (endpoint_id, event_id). Payloads are never copi
       decision: 'Delivery guarantee',
       choice: 'At-least-once with a stable event ID',
       rationale:
-        'A lost 2xx response looks exactly like a failed request, so exactly-once delivery over HTTP is impossible; retrying with the same Webhook-Id lets consumers deduplicate. At-most-once would silently drop payment and job-completion events.',
+        'A lost 2xx response looks exactly like a failed request, so exactly-once delivery over HTTP is impossible; retrying the signed event body lets consumers deduplicate on its authenticated id. At-most-once would silently drop payment and job-completion events.',
     },
     {
       decision: 'Ordering',
@@ -202,7 +202,7 @@ the dashboard reads attempts by (endpoint_id, event_id). Payloads are never copi
     'Endpoint down for days: its deliveries back off to an attempt every few hours, the owner is alerted when it turns FAILING, and after 3 days without a success it is disabled; failed deliveries remain replayable for 30 days.',
     'Slow endpoint that always uses the full 10 s: its in-flight cap holds it to 10 connections, so only its own backlog grows. Per-endpoint queue age and latency metrics trigger the alert.',
     'Retry storm after our own outage: millions of deliveries are overdue at once. A global send-rate limit and the per-endpoint caps drain the backlog at a safe pace, and full jitter on the next retries keeps failures from re-synchronizing.',
-    'A relay, fan-out or delivery worker crashes after doing its work but before recording it, so the work repeats. Put-if-absent on (event_id, endpoint_id) absorbs duplicate events, and a repeated POST carries the same Webhook-Id for the receiver to drop.',
+    'A relay, fan-out or delivery worker crashes after doing its work but before recording it, so the work repeats. Put-if-absent on (event_id, endpoint_id) absorbs duplicate events; receivers verify the signed body and dedupe on body.id, never on the unsigned Webhook-Id header.',
     'Leaked secret or DNS rebinding: the owner rolls the secret with immediate expiry, while per-send SSRF checks, IP pinning and the egress firewall stop rebinding; blocked attempts are logged and alerted on.',
   ],
   code: {
@@ -302,7 +302,7 @@ export function nextAttemptAt(
     {
       question: 'What must a consumer do to process webhooks safely?',
       answer:
-        'Verify the signature and timestamp on the raw body, then record the Webhook-Id in a table with a unique constraint and skip IDs it has already seen. Return 2xx quickly and do slow work asynchronously, so processing time never triggers retries. Because order is not guaranteed, compare object versions or fetch the current state before acting.',
+        'Verify the signature and timestamp over the raw body before parsing it. Deduplicate on the authenticated body id with a unique constraint and reject a Webhook-Id header that does not match that id; the header itself is unsigned. Return 2xx quickly and do slow work asynchronously, so processing time never triggers retries. Because order is not guaranteed, compare object versions or fetch the current state before acting.',
     },
     {
       question: 'A customer says an event never arrived. How do you investigate and recover?',

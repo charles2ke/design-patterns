@@ -84,6 +84,10 @@ user_settings        partitioned by user_id (key-value store or sharded Postgres
   user_values    json     overrides only, typically < 2 KB
   device_values  json     { deviceId: { key: value } }
 
+cache_fences         Redis, per user_id; minimum version allowed in cache or returned to clients
+  Writers advance the fence before committing a newer version; reads and cache refills use a Lua
+  CAS that rejects values below the fence. Keep it beyond the maximum in-flight read time.
+
 settings_audit       append-only, partitioned by user_id, sorted by ts
   user_id, ts, key, old_value, new_value, actor, device_id, request_id
 
@@ -186,7 +190,7 @@ A write = one conditional update: ... SET ..., version = version + 1 WHERE versi
   ],
   failureModes: [
     'Settings service or store down at app start: clients render from their last cached copy (or built-in defaults), queue edits and replay them as field-level PATCHes later, so an outage costs freshness, not startup.',
-    'Stale cache refill: a slow reader can put the old document back into Redis after a writer deleted it. Refill only if the cached version is older (a compare in a Lua script) and keep a TTL as a backstop.',
+    'Stale cache refill: a slow reader can return with version 42 after version 43 commits. Writers advance a per-user minimum-version fence before commit; cache refill atomically rejects any value below that fence, and readers retry from the database instead of restoring stale data.',
     'Lost change events after a crash between commit and publish: the transactional outbox makes the event part of the commit; the relay delivers at least once and consumers dedupe by (user_id, version).',
     'A buggy client release resets a privacy toggle for many users: validation cannot catch a valid but wrong value, so the audit log identifies affected users and prior values for a targeted restore, and per-user write rate limits contain runaway loops.',
     'An admin locks the wrong value for a large workspace: policies are versioned and audited, so rollback is one write, and it changes every member’s ETag so clients pick it up.',

@@ -35,7 +35,7 @@ export const urlShortener: SystemDesignQuestion = {
     'Writes: 100M links/day ÷ 86,400 s ≈ 1,160 creates/s on average; plan for ~3× peak ≈ 3,500/s.',
     'Reads: 100 × 1,160 ≈ 116,000 redirects/s on average, ~350,000/s at peak.',
     'Links retained for 5 years: 100M × 365 × 5 ≈ 183 billion.',
-    'Key space: 62^6 ≈ 57 billion is too small; 62^7 ≈ 3.5 trillion leaves ~19× headroom, so use 7-character base62 codes.',
+    'Key space: 10 base64url characters provide 60 random bits (2^60 ≈ 1.15 quintillion), ample headroom for 183B retained links with conditional collision retries.',
     'Storage: 183B rows × ~500 bytes ≈ 91 TB before replication, so the store must be horizontally partitioned.',
     'Cache: the hottest 100M links × ~500 bytes ≈ 50 GB of RAM, which fits in a small Redis cluster.',
   ],
@@ -53,15 +53,12 @@ GET /{code}
 -> 302 Found    Location: https://example.com/a/very/long/path
 -> 404 Not Found  |  410 Gone (expired or taken down)`,
   dataModel: `links            partitioned by code (DynamoDB, Cassandra or Bigtable)
-  code        string     primary key: 7-char base62 or a custom alias
-  long_url    string     not null, <= 2,048 chars after validation
+    code        string     primary key: random 10-char base64url or a custom alias
+    status      enum       ACTIVE | TOMBSTONE; code reservations are never deleted or reused
+    long_url    string     nullable for TOMBSTONE; <= 2,048 chars after validation
   owner_id    string     nullable: API key / account that created it
   created_at  timestamp  not null
   expires_at  timestamp  nullable: checked on every redirect
-
-id_blocks        tiny strongly consistent table (or etcd / ZooKeeper)
-  name        string     primary key, e.g. "links"
-  next_id     int64      atomically advanced by one block per lease
 
 Every redirect is a single-key lookup by code: no joins, no secondary
 index on the hot path. An (owner_id, created_at) index serves "my links".`,
@@ -78,17 +75,17 @@ index on the hot path. An (owner_id, created_at) index serves "my links".`,
       |       |                         |        |
       v       |                  1. get |        | 2. on miss
  +---------+  |                         v        |
- | ID      |  |                  +-----------+   |
- | blocks  |  |                  |   Redis   |   |
- +---------+  |                  +-----------+   |
+ | CSPRNG  |  |                  +-----------+   |
+ +---------+  |                  |   Redis   |   |
+              |                  +-----------+   |
               v                                  v
         +-------------------------------------------+
         |      links table (partitioned KV store)   |
         +-------------------------------------------+`,
     flow: [
-      'Create: the Write API validates the URL (http/https only, length limit, reputation check) and takes the next ID from a block it has leased from the ID-blocks table.',
-      'It scrambles and base62-encodes the ID into a 7-character code and stores the row with a conditional put, so an existing code is never overwritten.',
-      'Custom aliases skip the allocator and use the same conditional put; a conflict returns 409.',
+      'Create: the Write API validates the URL (http/https only, length limit, reputation check) and generates a cryptographically random 10-character code.',
+      'It stores the active link with a conditional put and retries on collision; random codes are not enumerable from neighboring links, and retired codes remain reserved.',
+      'Custom aliases use the same conditional put; a conflict returns 409.',
       'Redirect: the Redirect API looks up the code in Redis and, on a miss, reads the links table and fills the cache with a TTL that never outlives expires_at.',
       'It answers 302 with a Location header (404/410 otherwise) and publishes a click event to Kafka asynchronously, off the critical path.',
     ],
@@ -98,16 +95,15 @@ index on the hot path. An (owner_id, created_at) index serves "my links".`,
       heading: 'Generating unique short codes',
       points: [
         'Hash-and-truncate (first 7 characters of base62(SHA-256(url))) is stateless, but it must detect collisions with a conditional write and it gives every user the same code for the same URL.',
-        'A counter encoded in base62 is collision-free by construction. A coordinator (an atomic row update, etcd or ZooKeeper) leases blocks of ~1M IDs to each writer, so it is touched once per million links rather than once per request.',
-        'Raw counters are enumerable: anyone can walk /0000001, /0000002 and so on. Passing the ID through a bijective permutation of the code space before encoding keeps codes unique but non-sequential. This is obfuscation, not security, so private links still need access control.',
-        'If a writer crashes mid-block its unused IDs are simply skipped; 62^7 has plenty of headroom for such gaps.',
+        'Generate each code with a cryptographically secure random source. Conditional create detects the rare collision and retries with a fresh code; a 10-character base64url code has 60 bits of entropy.',
+        'Unlike a public affine permutation of a counter, random codes do not expose adjacent IDs. Private links still need access control, and collision resistance is not authorization.',
       ],
     },
     {
       heading: 'Read path and caching',
       points: [
         'Redirects outnumber creates 100:1, so the read path is cache-aside: Redis first, the links table on a miss, then fill the cache.',
-        'Links are immutable once created, so there is no general invalidation problem; only deletes and abuse takedowns explicitly evict a key.',
+        'Link targets are immutable; expiry, deletion and abuse takedowns atomically change the row to a permanent TOMBSTONE and evict caches. Tombstones preserve 410 behavior and prevent an old code from ever being reassigned.',
         'Cache negative results (unknown codes) for a short TTL so scanners probing random codes do not reach the database.',
         'Viral links can also be cached at the CDN edge with a short max-age, absorbing spikes before they reach the origin.',
       ],
@@ -125,9 +121,9 @@ index on the hot path. An (owner_id, created_at) index serves "my links".`,
   tradeOffs: [
     {
       decision: 'Key generation',
-      choice: 'Leased ID blocks + bijective scrambling + base62',
+      choice: 'Cryptographically random codes + conditional create',
       rationale:
-        'No collisions to resolve, no per-request coordination, and codes are not trivially sequential. Hashing would need collision handling on every write.',
+        'Codes are not enumerable from adjacent IDs, but random collisions require a conditional write and retry; private links still need access control.',
     },
     {
       decision: 'Primary store',
@@ -145,79 +141,48 @@ index on the hot path. An (owner_id, created_at) index serves "my links".`,
       decision: 'Consistency',
       choice: 'Strong for creates, eventual for caches and replicas',
       rationale:
-        'Uniqueness must be guaranteed at write time with a conditional put; a few seconds of replica lag is harmless because links never change after creation.',
+        'Uniqueness must be guaranteed at write time with a conditional put; active targets are immutable, and tombstones are permanent so replica lag cannot make a retired code reusable.',
     },
   ],
   failureModes: [
-    'Coordinator outage: writers keep serving from their current leased block; creation stalls only once blocks run out, and redirects are unaffected.',
+    'Random-code collision: conditional create rejects the occupied code and the writer retries with fresh random bytes; redirects and existing links are unaffected.',
     'Cache cluster failure: traffic falls through to the database. Coalesce concurrent misses for the same key, shed load with a circuit breaker and provision the database for a realistic miss rate.',
     'Hot key from a viral link: one Redis shard saturates. Add a small in-process LRU in front of Redis or replicate hot keys across shards.',
-    'Abuse: shorteners attract phishing and spam. Rate-limit creation per API key and IP, check URLs against a reputation service and support takedowns that evict from Redis and purge the CDN.',
-    'Region loss: replicate the links table across regions. Links are immutable, so asynchronous replication is safe for reads, and each region leases from disjoint ID blocks.',
+    'Abuse: shorteners attract phishing and spam. Rate-limit creation per API key and IP, check URLs against a reputation service and tombstone takedowns while evicting caches and purging the CDN.',
+    'Region loss: replicate links and tombstones across regions. Conditional create in the shared code namespace resolves rare random collisions; a tombstone must never be lost or a retired code could be reassigned.',
   ],
   code: {
-    label: 'TypeScript: leased ID blocks, scrambled base62 codes and conflict-safe creation',
+    label: 'TypeScript: cryptographically random codes, collision-safe creation and permanent tombstones',
     language: 'TypeScript',
-    code: `const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const CODE_LENGTH = 7;
-const SPACE = 62n ** 7n; // ≈ 3.52 trillion codes
-// Affine permutation of [0, SPACE). SPACE = 2^7 * 31^7, so a multiplier that is odd
-// and not divisible by 31 is coprime to it: every ID maps to a unique code, and
-// consecutive IDs no longer produce consecutive, guessable codes.
-const MULTIPLIER = 2_176_477_521_915n; // ≈ SPACE × 0.618 spreads consecutive IDs
-const OFFSET = 1_029_384_756_101n;
+    code: `import { randomBytes } from 'node:crypto';
 
-export function toCode(id: bigint): string {
-  if (id < 0n || id >= SPACE) throw new RangeError('ID outside the 7-character code space');
-  let n = (id * MULTIPLIER + OFFSET) % SPACE;
-  let code = '';
-  for (let i = 0; i < CODE_LENGTH; i++) {
-    code = ALPHABET.charAt(Number(n % 62n)) + code;
-    n /= 62n;
-  }
-  return code;
-}
+const CODE_LENGTH = 10;
 
-/** Each writer leases a block of IDs, so the coordinator is hit once per block, not per link. */
-export class KeyRangeAllocator {
-  private next = 0n;
-  private end = 0n;
-  private pending: Promise<void> | null = null;
-  private readonly lease: (size: bigint) => Promise<bigint>;
-  private readonly blockSize: bigint;
-
-  constructor(lease: (size: bigint) => Promise<bigint>, blockSize = 1_000_000n) {
-    this.lease = lease; // e.g. an atomic "UPDATE counter SET next = next + size RETURNING ..."
-    this.blockSize = blockSize;
-  }
-
-  async nextId(): Promise<bigint> {
-    while (this.next >= this.end) {
-      // Concurrent callers share one in-flight lease instead of each leasing a block.
-      this.pending ??= this.lease(this.blockSize)
-        .then((start) => {
-          this.next = start;
-          this.end = start + this.blockSize;
-        })
-        .finally(() => {
-          this.pending = null;
-        });
-      await this.pending;
-    }
-    return this.next++;
-  }
+/** Eight random bytes provide 64 bits; the first ten base64url chars retain 60 bits. */
+export function randomCode(): string {
+  return randomBytes(8).toString('base64url').slice(0, CODE_LENGTH);
 }
 
 export interface LinkStore {
-  /** Conditional write (e.g. DynamoDB attribute_not_exists); resolves false if the code exists. */
-  putIfAbsent(code: string, longUrl: string): Promise<boolean>;
+  /** Conditional write; tombstones remain present so an issued code can never be reused. */
+  putIfAbsent(code: string, row: LinkRow): Promise<boolean>;
+  /** Atomically changes ACTIVE to TOMBSTONE without deleting the reservation. */
+  tombstone(code: string, now: Date): Promise<boolean>;
+  get(code: string): Promise<LinkRow | undefined>;
+}
+
+export interface LinkRow {
+  status: 'ACTIVE' | 'TOMBSTONE';
+  longUrl: string | null;
+  ownerId: string | null;
+  createdAt: Date;
+  expiresAt: Date | null;
 }
 
 const ALIAS = /^[A-Za-z0-9_-]{4,32}$/;
 
 export async function shorten(
   store: LinkStore,
-  ids: KeyRangeAllocator,
   longUrl: string,
   alias?: string,
 ): Promise<string> {
@@ -227,14 +192,29 @@ export async function shorten(
   }
   if (alias !== undefined) {
     if (!ALIAS.test(alias)) throw new Error('Alias must be 4-32 letters, digits, - or _');
-    if (!(await store.putIfAbsent(alias, url.href))) throw new Error('Alias taken'); // HTTP 409
+    if (!(await store.putIfAbsent(alias, {
+      status: 'ACTIVE', longUrl: url.href, ownerId: null, createdAt: new Date(), expiresAt: null,
+    }))) throw new Error('Alias taken'); // HTTP 409
     return alias;
   }
-  // A generated code can only collide with an earlier custom alias: take the next ID.
+  // Conditional create handles generated-code collisions and aliases in the same namespace.
   for (;;) {
-    const code = toCode(await ids.nextId());
-    if (await store.putIfAbsent(code, url.href)) return code;
+    const code = randomCode();
+    if (await store.putIfAbsent(code, {
+      status: 'ACTIVE', longUrl: url.href, ownerId: null, createdAt: new Date(), expiresAt: null,
+    })) return code;
   }
+}
+
+/** Expired, deleted and taken-down links keep a permanent reservation and always return 410. */
+export async function retire(store: LinkStore, code: string, now: Date): Promise<410 | 404> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const row = await store.get(code);
+    if (row === undefined) return 404;
+    if (row.status === 'TOMBSTONE') return 410;
+    if (await store.tombstone(code, now)) return 410;
+  }
+  throw new Error('Concurrent link update; retry retirement');
 }`,
   },
   followUps: [
@@ -246,7 +226,7 @@ export async function shorten(
     {
       question: 'How do you implement expiry and deletion?',
       answer:
-        'Store expires_at, check it on every redirect and return 410 Gone once it has passed. Set the cache TTL to the smaller of the default TTL and the time remaining. The store’s native TTL or a background sweeper purges expired rows, and deletes explicitly evict the key from Redis and purge it from the CDN.',
+        'Store expires_at, check it on every redirect and atomically tombstone expired or removed rows instead of purging them. Return 410 for a tombstone and 404 only for a never-issued code; evict caches and CDN entries, but retain the permanent reservation so it cannot be reassigned.',
     },
     {
       question: 'If the same long URL is submitted twice, should it get the same code?',

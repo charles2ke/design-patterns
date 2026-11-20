@@ -80,6 +80,11 @@ chunks          one row per chunk; text encrypted with the tenant's data key
   acl, acl_version   copied from the document and rewritten on every permission change
   embedding_model    version of the model that produced the stored vector
 
+index_jobs (tenant_id, doc_id, job_id)   captured acl_version; stale jobs cannot publish
+index_fences (tenant_id, doc_id)         current acl_version and tombstone state in the index
+Every upsert atomically requires its captured version to equal the fence and tombstone=false;
+the fast lane advances the fence before changing ACLs or deleting chunks.
+
 principals      (tenant_id, user_id) -> user id + transitive group ids; cached ~1 min
 group_members   (tenant_id, group_id, member_id) mirrored from the identity provider
 sync_state      (tenant_id, connector_id) -> delta cursor, last full reconciliation
@@ -87,8 +92,9 @@ sync_state      (tenant_id, connector_id) -> delta cursor, last full reconciliat
 Search indexes: dedicated per large tenant, or shared with a mandatory tenant_id filter
   bm25          inverted index on title + heading_path + text; acl as a keyword field
   vectors       HNSW (M = 16) over int8 embeddings with the same acl keyword field
-Each query filters both indexes on "chunk acl overlaps the user's principals" during
-the search, then fuses, reranks and packs the survivors.`,
+Each query filters both indexes on "chunk acl overlaps the user's principals" and requires
+chunk.acl_version = index_fences.acl_version with tombstone=false before returning content;
+then it fuses, reranks and packs the survivors.`,
   architecture: {
     diagram: ` Drives, wikis, chat, ticketing           Identity provider
        | webhooks, change feeds                  | groups, members
@@ -119,8 +125,8 @@ the search, then fuses, reranks and packs the survivors.`,
                       +---------------------------------+`,
     flow: [
       'Ingest: per-tenant connectors receive webhooks or change-feed events, pull the delta with a stored cursor and send changed content to the parse, chunk and embed pipeline.',
-      'Index: the pipeline splits each document along its structure into overlapping ~500-token chunks, embeds them in batches and upserts them into the tenant index (BM25, HNSW and chunk text) with the document’s ACL.',
-      'Fast lane: permission changes and deletes skip the pipeline and rewrite the acl field or remove chunks directly, while the ACL service mirrors groups and members from the identity provider.',
+      'Index: jobs capture the document and ACL version when they start; each chunk upsert atomically compares that version with the index-side fence and refuses a tombstoned document.',
+      'Fast lane: permission changes advance the index fence before rewriting ACLs; deletes advance it and set its tombstone before removing chunks. Stale parse or embedding jobs fail the fence check and cannot restore old content or permissions.',
       'Retrieve: the query service gets the user’s principals (user id plus transitive groups) from the ACL service, then runs BM25 and ANN searches in parallel, each filtered to chunks whose ACL contains one of them.',
       'Rank and pack: the query service fuses both rankings with RRF, reranks the top 50 with a cross-encoder and packs the best chunks into the token budget as numbered sources for the LLM.',
       'Answer: the LLM answers only from those sources with [n] citations or says it does not know; the query service drops citations to unknown sources and streams the answer and source links to the user.',
@@ -141,7 +147,7 @@ the search, then fuses, reranks and packs the survivors.`,
       heading: 'Connectors, chunking and freshness',
       points: [
         'After an initial crawl, each connector follows the source’s change feed (Microsoft Graph delta queries, Google Drive changes.list with a saved page token) or event stream (Slack Events API). Webhooks just trigger an early pull; periodic pulls catch lost ones.',
-        'Permission changes and deletes take a fast lane that skips parsing and embedding and rewrites the acl field or deletes the chunks directly. Revocations go first: a delayed grant only hides content, but a delayed revocation leaks it.',
+        'Permission changes and deletes take a fast lane: first atomically advance the index-side document fence (and set its tombstone on deletion), then update ACLs or remove chunks. Every parse and embedding job carries its starting version and conditionally upserts only when it equals the fence and the tombstone is clear, so a stale job cannot win a check-then-write race or restore revoked content.',
         'A periodic full reconciliation lists every item and ACL and diffs them against the index to catch missed events. A sharing change on a folder or space recomputes the ACLs of everything beneath it, in batches.',
         'Parsers keep structure (headings, lists, tables, code) and split along sections into ~500-token chunks with ~100 tokens of overlap, prefixing each with its title and heading path before embedding. Section-aligned chunks keep edits local: unchanged chunks keep their hash and vector.',
         'An embedding-model upgrade is a blue/green migration, because vectors from different models are not comparable: build a new index (≈ 28 hours for 50B tokens), dual-write changes, compare recall offline, then switch reads. Each chunk records its embedding model version.',

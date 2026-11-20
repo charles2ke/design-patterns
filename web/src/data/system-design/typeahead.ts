@@ -105,7 +105,7 @@ or network I/O once a snapshot is loaded.`,
     flow: [
       'The browser debounces keystrokes (~50–100 ms), cancels the previous in-flight request and sends the prefix; the CDN answers repeated (prefix, locale) lookups from cache for up to 60 s.',
       'On a miss, a suggest server normalizes the prefix exactly as the index was built, walks its in-memory trie and reads the node’s precomputed top 10 in O(prefix length), with no ranking work.',
-      'It merges candidates for the same prefix from the trending job’s latest push, drops anything on the removal list and returns the result.',
+      'It merges approved candidates for the same prefix from the trending job’s latest push, drops anything on the removal list and returns the result.',
       'Search frontends log completed searches to Kafka; the trending job counts them over a sliding ~15-minute window, and the warehouse aggregates daily statistics.',
       'The batch index builder turns daily statistics into decayed scores, filters unsafe and rare queries, and publishes a validated, immutable snapshot that servers swap in atomically.',
     ],
@@ -124,9 +124,9 @@ or network I/O once a snapshot is loaded.`,
       heading: 'Offline pipeline, freshness and safety',
       points: [
         'Score each query with exponential decay, e.g. the sum over days of count × 0.5^(age in days ÷ 7), so its weight halves every week and old spikes fade instead of ranking for years.',
-        'Filter before building: require a minimum number of distinct users so a query typed by only a few people, which may be private, never becomes a suggestion, drop queries that look like emails, phone numbers or other PII, and apply the offensive-content blocklist and classifier.',
+        'Use the same safety gate for both daily snapshots and streaming candidates: require a minimum number of distinct users, drop email/phone and other PII, and apply the offensive-content blocklist and classifier before anything can be published.',
         'Build one snapshot per locale, validate it (query count, checksum, known prefixes compared with the previous version), then publish. Servers load it beside the current one and switch a pointer atomically, so no request sees a half-built index.',
-        'Daily builds miss breaking news, so a streaming job counts searches over a sliding ~15-minute window and pushes trending (prefix, query, score) entries. Servers merge them with the snapshot’s list at serve time, scaled so a sudden spike can outrank long-term favorites.',
+        'Daily builds miss breaking news, so a streaming job counts searches over a sliding ~15-minute window and applies the same distinct-user minimum, PII checks, blocklist and classifier as the daily builder before publishing trending entries. Servers merge only approved entries with the snapshot at serve time.',
         'A removal list pushed to every server takes effect within minutes, so a takedown does not wait for the next build.',
       ],
     },
@@ -178,6 +178,37 @@ or network I/O once a snapshot is loaded.`,
     label: 'TypeScript: trie with top-K per node, deterministic ties and Unicode normalization',
     language: 'TypeScript',
     code: `export interface Suggestion { readonly query: string; readonly score: number }
+    export interface PublicCandidate {
+      readonly query: string;
+      readonly score: number;
+      readonly distinctUsers: number;
+    }
+
+    /** Shared publish gate for both the batch snapshot builder and the streaming trending job. */
+    export async function filterPublicCandidates(
+      candidates: Iterable<PublicCandidate>,
+      minDistinctUsers: number,
+      looksLikePii: (query: string) => boolean,
+      isBlocked: (query: string) => boolean,
+      isUnsafe: (query: string) => Promise<boolean>,
+    ): Promise<PublicCandidate[]> {
+      if (!Number.isInteger(minDistinctUsers) || minDistinctUsers < 1) {
+        throw new RangeError('minDistinctUsers must be positive');
+      }
+      const approved: PublicCandidate[] = [];
+      for (const candidate of candidates) {
+        const query = normalize(candidate.query);
+        if (
+          query === '' ||
+          candidate.distinctUsers < minDistinctUsers ||
+          looksLikePii(query) ||
+          isBlocked(query) ||
+          (await isUnsafe(query))
+        ) continue;
+        approved.push({ ...candidate, query });
+      }
+      return approved;
+    }
 
 /** Maps case, composed vs decomposed accents and full-width letters to one key. */
 export function normalize(text: string, keepTrailingSpace = false): string {
@@ -208,14 +239,21 @@ export class SuggestionIndex {
   constructor(entries: Iterable<readonly [string, number]>, k = 10) {
     if (!Number.isSafeInteger(k) || k < 1) throw new RangeError('k must be a positive integer');
     this.k = k;
-    const totals = new Map<string, number>();
+    const totals = new Map<string, Suggestion>();
     for (const [raw, score] of entries) {
       if (!Number.isFinite(score) || score < 0) throw new RangeError('bad score for ' + raw);
       const query = normalize(raw);
-      // "Weather" and "weather " are one query: merge them so it never fills two slots.
-      if (query !== '') totals.set(query, (totals.get(query) ?? 0) + score);
+      const folded = trieKey(query);
+      // Aggregate on the lookup key; preserve a deterministic display spelling separately.
+      if (folded !== '') {
+        const previous = totals.get(folded);
+        totals.set(folded, {
+          query: previous === undefined || query < previous.query ? query : previous.query,
+          score: (previous?.score ?? 0) + score,
+        });
+      }
     }
-    for (const [query, score] of totals) this.insert({ query, score });
+    for (const suggestion of totals.values()) this.insert(suggestion);
   }
 
   private insert(s: Suggestion): void {

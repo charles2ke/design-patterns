@@ -67,7 +67,7 @@ POST /internal/webhooks/{psp}    signature verified; deduplicated by PSP event i
 -> 200 only once the event is stored; the PSP redelivers on any other response`,
   dataModel: `payments              sharded by merchant_id; one row per payment
   payment_id        string     primary key with the shard baked in (pay_s3_9f2);
-                               also the idempotency key sent to the PSP
+                               internal payment identity; PSP keys are per operation
   merchant_id       uuid       shard key
   order_id          string     one live payment per order: unique (merchant_id, order_id)
                                where status is not failed or voided
@@ -93,7 +93,11 @@ ledger_entries        append-only: the service may INSERT and SELECT, never UPDA
   currency          char(3)    exactly one currency per tx_id
   index (account, currency, entry_id) for balances and statements
 
-refunds               refund_id, payment_id, amount, status, psp_ref
+refunds               refund_id, payment_id, amount, status, psp_ref,
+                      psp_idempotency_key (stable and unique per refund)
+psp_operations        operation_id primary key, UNIQUE (psp_idempotency_key),
+                      payment_id, kind, psp_idempotency_key,
+                      request_hash, status; one stable PSP key per logical operation
 transitions           append-only audit: payment_id, from, to, cause (request or event id)
 psp_events            (psp, event_id) primary key: redelivered webhooks are dropped
 outbox                event_id, type, payload, created_at, published_at
@@ -111,7 +115,7 @@ local transaction on the merchant shard; no transaction ever spans shards.`,
 |   (state machine)   |           +----------------+
 +---------------------+
   |           |
-  |           | authorize / capture, PSP idempotency key = payment_id
+  |           | authorize / capture / refund, PSP key = operation_id
   |           v
   |   +---------------+       +-------+
   |   |  PSP adapter  |------>|  PSP  |----> card networks
@@ -137,7 +141,7 @@ Event bus --> orders, payouts, notifications`,
     flow: [
       'The buyer’s browser sends the card number straight to the PSP’s hosted fields and gets a token back; the merchant’s server then calls POST /v1/payments with the token, the amount in minor units and an Idempotency-Key.',
       'The payment service claims the key on the merchant’s shard (replaying a stored response, or answering 409 or 422), commits the payment as created and asks the risk service to allow it, block it or require 3-D Secure.',
-      'The PSP adapter sends the authorization to the PSP, which routes it over the card networks to the issuing bank, with payment_id as the PSP idempotency key; a timeout marks the payment unknown for a resolver to settle.',
+      'The PSP adapter sends each operation with its persisted psp_operations key (authorization, capture or refund), which the PSP carries across retries; a timeout leaves that operation unknown for a resolver to settle.',
       'One transaction on the shard records the outcome: payment status, stored response, ledger entries (on capture) and an outbox row, which a relay publishes to the event bus for orders, payouts and notifications.',
       'PSP webhooks and the daily settlement file reach the webhook handler and reconciliation job, which drop duplicate events, apply only valid transitions, mark captures settled and queue mismatches for review.',
     ],
@@ -159,7 +163,7 @@ Event bus --> orders, payouts, notifications`,
         'States run created → authorized → captured → settled, plus failed (declined or errored), voided (released before capture) and refunded (refunds reach the captured amount). Every transition is a compare-and-set on (status, version), so two workers can never both capture.',
         'Authorization places a hold on the cardholder’s funds and capture collects them; an uncaptured authorization expires after a window set by the card network and PSP. Capture when the goods ship, or void promptly to release the hold.',
         'Commit the payment as created before calling the PSP, so a crash mid-call leaves a row to resolve. A timeout or 5xx means the card may have been charged, so the payment becomes unknown, not failed.',
-        'A resolver repeats the request with the same PSP idempotency key or looks the payment up by our reference until the outcome is known, with reconciliation as the backstop. Retrying with a fresh key after a timeout is the classic double charge.',
+        'Each logical PSP operation has a persisted stable key (for example authorize:<payment_id>, capture:<capture_id> or refund:<refund_id>). A resolver retries that operation with its same key or queries by our reference until the outcome is known; distinct partial refunds therefore never reuse one another’s keys.',
         'Webhooks arrive late, duplicated and out of order, so treat them as hints: verify the signature, drop repeated event IDs, apply only transitions valid from the current state, and fetch the payment from the PSP when an event looks stale.',
       ],
     },
@@ -217,7 +221,7 @@ Event bus --> orders, payouts, notifications`,
     },
   ],
   failureModes: [
-    'PSP timeout or our crash mid-call: the payment stays created or unknown with the attempt recorded; the resolver retries with the same PSP idempotency key or queries the PSP, reconciliation catches the rest, and unknowns older than a few minutes page on-call.',
+    'PSP timeout or our crash mid-call: the operation stays unknown with its key and attempt recorded; the resolver retries with that operation’s same PSP key or queries the PSP, reconciliation catches the rest, and unknowns older than a few minutes page on-call.',
     'PSP outage or brownout: per-PSP circuit breakers trip on error rate and latency, and new checkouts route to a secondary PSP; payments already in flight wait for the primary, because switching PSPs mid-payment can charge twice.',
     'Duplicate, late or out-of-order webhooks: a unique key on the PSP event ID drops repeats, transitions invalid from the current state are ignored (authorized after captured), and a missing expected webhook triggers a PSP status query.',
     'Reconciliation mismatch: a settled line with no matching payment, or a capture missing from the settlement file past its expected date. Each lands in an exception queue with an owner and is fixed by correcting ledger transactions; a rising rate pages on-call.',

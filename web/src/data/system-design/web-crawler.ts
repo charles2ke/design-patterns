@@ -140,7 +140,8 @@ only newly found links cross nodes, in batches.`,
         'A 4xx such as 404 means no restrictions; a 5xx or network error means complete disallow, relaxed only after a long outage (the RFC suggests 30 days). Crawl-delay is not in the RFC and Google does not support it, but honoring it is cheap.',
         'Check robots rules just before fetching, not only at discovery, because a URL can wait in the frontier for days while the file changes. URLs leave the frontier grouped by host, so the robots cache still has good locality.',
         'DNS resolution is a classic crawler bottleneck: run a caching resolver on each node that honors TTLs and answers asynchronously, and prefetch a host’s address shortly before it comes due.',
-        'Fetchers multiplex thousands of connections per process with connect and read timeouts, a body cap of a few MB and a redirect limit, and send If-None-Match or If-Modified-Since on recrawls so unchanged pages cost only a 304.',
+        'Before every connection, resolve the hostname and reject the URL if any answer is non-public; pin the socket to a vetted address while preserving the original Host and TLS server name. Disable automatic redirects and repeat the same checks for every redirect target.',
+        'Fetchers multiplex thousands of pinned connections per process with connect and read timeouts, a body cap of a few MB and a redirect limit, and send If-None-Match or If-Modified-Since on recrawls so unchanged pages cost only a 304.',
       ],
     },
     {
@@ -151,6 +152,14 @@ only newly found links cross nodes, in batches.`,
         'SHA-256 of the normalized body catches exact duplicates. Near-duplicates (same article, different ads or dates) use 64-bit SimHash (Charikar, 2002); Manku, Jain and Das Sarma (WWW 2007) found a Hamming distance threshold of 3 reasonable for 8 billion pages.',
         'Traps such as infinite calendars, session IDs in paths and ever-deeper relative links are bounded by URL length and depth limits, a cap on repeated path segments, and a per-host page budget per cycle that grows with the host’s measured quality.',
         'Recrawl from observed change: compare main-content hashes across visits, since ads and timestamps change the raw bytes, to estimate each page’s change rate. Cho and Garcia-Molina (2003) showed proportional revisiting is not optimal: pages changing too often to keep fresh deserve fewer visits.',
+      ],
+    },
+    {
+      heading: 'Safe outbound fetching',
+      points: [
+        'Discovered URLs are untrusted. Reject loopback, private, link-local, multicast, reserved and IPv4-mapped private IPv6 addresses, and reject a hostname if any resolved A or AAAA answer is non-public.',
+        'Connect to the vetted IP directly while retaining the URL hostname for Host and TLS SNI; do not resolve the hostname again inside the HTTP client. Disable automatic redirects and resolve, validate and pin every redirect target.',
+        'Enforce the same public-egress policy in a network firewall as a second boundary, and fail closed on DNS errors or an empty address set.',
       ],
     },
     {
@@ -219,9 +228,45 @@ const before = (a: HostQueue, b: HostQueue): boolean =>
 
 export function normalizeUrl(raw: string): string | null {
   const url = URL.parse(raw); // WHATWG parsing lowercases scheme/host and drops default ports
-  if (url === null || (url.protocol !== 'http:' && url.protocol !== 'https:')) return null;
+  if (
+    url === null ||
+    (url.protocol !== 'http:' && url.protocol !== 'https:') ||
+    url.username !== '' ||
+    url.password !== ''
+  ) return null;
   url.hash = ''; // the fragment never reaches the server
   return url.href;
+}
+
+export interface PinnedTransport {
+  resolve(host: string): Promise<string[]>;
+  /** Must reject all non-public IPv4/IPv6 ranges, including IPv4-mapped IPv6. */
+  isPublicAddress(address: string): boolean;
+  /** Connects to this exact IP, with Host and TLS SNI taken from url.hostname; redirects disabled. */
+  get(url: URL, address: string): Promise<{ status: number; location?: string; body: Uint8Array }>;
+}
+
+/** Revalidates and pins each hop so redirects and DNS rebinding cannot reach private services. */
+export async function fetchPublic(
+  raw: string,
+  transport: PinnedTransport,
+  maxRedirects = 5,
+): Promise<{ status: number; body: Uint8Array }> {
+  let url = new URL(raw);
+  for (let redirects = 0; redirects <= maxRedirects; redirects++) {
+    if (normalizeUrl(url.href) === null) throw new Error('Rejected URL');
+    const addresses = await transport.resolve(url.hostname);
+    if (addresses.length === 0 || addresses.some((address) => !transport.isPublicAddress(address))) {
+      throw new Error('Host resolves to a non-public address');
+    }
+    const response = await transport.get(url, addresses[0]!);
+    if (response.status < 300 || response.status >= 400 || response.location === undefined) {
+      return { status: response.status, body: response.body };
+    }
+    if (redirects === maxRedirects) throw new Error('Too many redirects');
+    url = new URL(response.location, url);
+  }
+  throw new Error('Too many redirects');
 }
 
 export class Frontier {

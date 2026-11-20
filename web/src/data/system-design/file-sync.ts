@@ -79,8 +79,8 @@ journal          append-only change log; same shard; compacted after N days
   ns_id, seq   pk         gap-free: a device cursor is the last seq it applied
   path, rev, blocks, deleted, device_id, committed_at
 
-ns_blocks        same shard: blocks this namespace may reference without re-uploading
-  ns_id, hash  pk         added by a commit that presents an upload receipt
+ns_blocks        same shard: live references from namespace file versions to blocks
+  ns_id, hash  pk         generation hint; not sufficient by itself to authorize reuse
 
 mounts           which namespaces each user syncs; secondary index on ns_id
   user_id, ns_id  pk
@@ -95,6 +95,9 @@ block_index      separate key-value store, sharded by hash
   last_ref_at  timestamp  last upload touch; GC waits out a grace period after it
 
 A commit or a cursor read touches one namespace, so it is a single-shard transaction.
+A commit asks block_index to atomically acquire a live reference for the current generation;
+GC serializes that operation with its live -> condemned transition and rechecks before deletion.
+Reuse always revalidates block_index; a stale ns_blocks row cannot authorize reclaimed bytes.
 A download checks mounts and ns_blocks on that shard, then reads block_index by hash.`,
   architecture: {
     diagram: `+--------------------+ 1,3. commit          +--------------------+
@@ -154,9 +157,9 @@ A download checks mounts and ns_blocks on that shard, then reads block_index by 
       points: [
         'A 50 GB file is ≈ 48,000 chunks of ~1 MiB, a 1.5 MB list of 32-byte hashes. Each block is an independent, idempotent PUT, so uploads run in parallel and resume after a crash by re-committing and uploading whatever is still missing.',
         'The commit comes last, so other devices never see a half-uploaded file. Downloads write to a temporary file, verify every block hash and atomically rename it into place.',
-        'Reference counts, updated as commits add blocks and old versions expire, find garbage incrementally but drift under bugs and retries; a periodic mark-and-sweep over all live block lists corrects them. Pause GC whenever the count pipeline lags.',
-        'The dangerous race is a block that was uploaded but not yet committed: nothing references it. Uploads touch its last_ref_at, receipts expire well within the grace period, and GC condemns only blocks that are unreferenced and untouched for longer than that period.',
-        'Each state change is a conditional write on the block’s index row (live → condemned → deleted), and bytes are deleted only after reaching deleted; an upload that finds the row condemned or deleted stores a fresh copy instead of trusting the old one.',
+        'Reference counts, updated as commits add live references and old versions expire, find garbage incrementally but drift under bugs and retries; a periodic mark-and-sweep over all live file versions corrects them. Pause GC whenever the count pipeline lags.',
+        'A commit must acquire its namespace reference while the block is live. Reference acquisition and GC serialize on the block index, and GC rechecks the live-reference count before condemning or deleting bytes.',
+        'The namespace can reuse only a block with a live reference and matching generation. If GC has condemned or deleted it, the commit requests a fresh upload; the block server stores and verifies a new object before issuing a receipt for its new live generation.',
       ],
     },
     {

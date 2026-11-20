@@ -93,7 +93,7 @@ dead_letters   run snapshot + last error; kept until replayed or purged
 Claim (per pool and tenant; concurrent dispatchers skip rows that are already locked):
   WITH due AS (
     SELECT run_id FROM runs
-    WHERE pool = $1 AND tenant_id = $2 AND state = 'queued'
+    WHERE pool = $1 AND tenant_id = $2 AND state = 'queued' AND run_at <= now()
     ORDER BY priority DESC, run_at LIMIT $3
     FOR UPDATE SKIP LOCKED)
   UPDATE runs r SET state = 'leased', attempt = r.attempt + 1, fence = r.fence + 1,
@@ -143,7 +143,7 @@ Claim (per pool and tenant; concurrent dispatchers skip rows that are already lo
         'Each leader polls its shard every second with batched range scans on time indexes: cron jobs whose next_run_at has passed, scheduled runs whose run_at has passed (promoted to queued) and leased runs whose lease_until has passed.',
         'A cron occurrence is materialized in one transaction that locks the job row (FOR UPDATE SKIP LOCKED), inserts the run and advances next_run_at. A crash before commit changes nothing, and the unique (job_id, scheduled_for) key blocks duplicates.',
         'Every leader action is an idempotent, conditional update, so two leaders overlapping during a handover waste work but cannot corrupt state. The leader is an efficiency device, not a correctness one.',
-        'Claims need no leader: queued rows are already due, so stateless dispatchers take the top rows of a partial index with SKIP LOCKED and never block on, or double-claim, a row another dispatcher is claiming.',
+        'Claims need no leader: stateless dispatchers take only queued rows whose run_at <= now() from the partial index with SKIP LOCKED, so future retries retain their backoff and dispatchers never double-claim a row.',
       ],
     },
     {

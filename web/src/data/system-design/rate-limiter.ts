@@ -49,11 +49,11 @@ export const rateLimiter: SystemDesignQuestion = {
 -> 400 Bad Request               (needs more tokens than the bucket holds: not retryable)
 RateLimit fields follow the IETF httpapi draft; many APIs still send X-RateLimit-*.
 
-Gateway -> Redis: one atomic script call per check (all keys share one hash slot)
-EVALSHA <reserve-sha> 3 rl:{ak_123}:rpm rl:{ak_123}:tpm rl:{ak_123}:res:<reqId>  1 4000
--> [1, remaining_rpm, remaining_tpm, 0]  |  [0, remaining_rpm, remaining_tpm, retry_ms]
-EVALSHA <reconcile-sha> 2 rl:{ak_123}:tpm rl:{ak_123}:res:<reqId>  3250
--> refunds the unused 750 (or charges an overrun as debt); no-op if already settled
+Gateway -> Redis: one atomic script per subject (that subject’s keys share a hash slot)
+EVALSHA <reserve-sha> 2 rl:{ak_123}:rpm rl:{ak_123}:res:<reqId>:ak  1
+EVALSHA <reserve-sha> 2 rl:{user_7}:rpm rl:{user_7}:res:<reqId>:user  1
+EVALSHA <reserve-sha> 2 rl:{ip_203.0.113.8}:rpm rl:{ip_203.0.113.8}:res:<reqId>:ip  1
+-> each call charges its subject independently; a later rejection may leave earlier checks charged
 
 PUT /admin/v1/rules/{ruleId}     (rules service; pushed to every gateway within seconds)
 { "match": { "endpoint": "POST /v1/generate" }, "keyBy": ["apiKey"], "unit": "tokens",
@@ -79,7 +79,7 @@ rules            Postgres; every gateway caches the full set and gets pushed cha
 
 overrides        primary key (rule_id, subject): per-customer limits with expires_at
 
-Hot path: rules are matched in memory and each check is one Redis script call;
+Hot path: rules are matched in memory and each subject check is one Redis script call;
 Postgres is read only when a rule changes.`,
   architecture: {
     diagram: `                 Clients
@@ -112,7 +112,7 @@ Postgres is read only when a rule changes.`,
    +---------------------------+`,
     flow: [
       'The rules service pushes rule changes and each region’s current shares to every gateway; per request, the gateway matches rules in memory and builds keys such as rl:{ak_123}:tpm.',
-      'Check and reserve (1): one Lua script call to the regional Redis cluster refills every matching bucket from the elapsed time and charges all of them, or none.',
+      'Check and reserve (1): call a Lua script once per matching subject; each call atomically checks and charges that subject’s local buckets, but a rejection on a later subject may leave earlier charges in place.',
       'If any bucket is short, the gateway answers 429 with Retry-After and RateLimit headers without touching a backend; otherwise it forwards the request (2).',
       'Reconcile (3): when an LLM response finishes, the gateway reports the actual token count, which refunds the unused estimate or charges an overrun as debt.',
       'Gateways stream per-key usage aggregates to the budget allocator, which recomputes each region’s share of every global limit every few seconds and publishes it through the rules service.',
@@ -133,8 +133,8 @@ Postgres is read only when a rule changes.`,
       heading: 'Atomic shared state vs local counting',
       points: [
         'With many gateways, read-then-write (GET tokens, compare, SET tokens - 1) lets two gateways both take the last token. The check and the update must be one atomic step.',
-        'Run refill, check and charge as one Redis Lua script: Redis runs a script without interleaving other commands, so it is atomic and costs one round trip. Load it once, call EVALSHA and reload it on a NOSCRIPT error.',
-        'Read the time with Redis TIME inside the script so a skewed gateway clock cannot mint tokens. Keys of one subject share a hash tag (rl:{ak_123}:rpm, rl:{ak_123}:tpm), so a multi-key script stays in one cluster slot.',
+        'Run refill, check and charge for one subject in one Redis Lua script. Redis Cluster cannot atomically access API-key, user and IP keys in different slots; do not claim a cross-subject all-or-nothing check.',
+        'Use one hash tag per subject for that subject’s own keys, and call the scripts sequentially. If a later subject rejects the request, earlier buckets may already be charged; do not refund without a reservation/compensation protocol. Read time with Redis TIME inside each script.',
         'Local buckets in each gateway skip the hop but are approximate: if each holds the full limit, a key spread over N gateways gets up to N× its limit; if each holds limit ÷ N, uneven load rejects too early. Periodic sync narrows both errors.',
         'Enforce at the API gateway, which rejects before any backend work and keeps policy in one place. A sidecar covers internal service-to-service calls, and an in-service library is needed when the cost is only known inside the service.',
       ],

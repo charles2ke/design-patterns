@@ -64,7 +64,10 @@ POST /v1/conversations  { type: "direct" | "group" | "channel", memberIds: [...]
   payload          blob       ciphertext when end-to-end encrypted
   created_at       timestamp  display only, never used for ordering
 
-The message row is also the durable retry record; there is no separately written dedup table.
+The message row is also the durable retry record; there is no separately written dedup table
+or TTL. Keep client_msg_id for the full message-history lifetime (unbounded if history is
+unbounded); if bodies are compacted, retain a compact sender/client_msg_id -> seq mapping for
+the entire supported retry window.
 Before accepting sends after startup or failover, the owner rebuilds its client-ID index from
 the durable log. On an index miss it checks the durable log before assigning a new seq, so a
 retry can recover a message whose quorum write completed before its previous owner crashed.

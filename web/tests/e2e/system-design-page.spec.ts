@@ -55,9 +55,9 @@ test('expands a detailed solution with a diagram, trade-offs and code', async ({
 
   await expect(article.getByRole('img', { name: /architecture diagram/ })).toBeVisible();
   await expect(article.getByRole('table')).toBeVisible();
-  await expect(article.getByRole('region', { name: /leased ID blocks/ })).toContainText(
-    'export function toCode',
-  );
+  const code = article.getByRole('region', { name: /cryptographically random codes/ });
+  await expect(code).toContainText('export function randomCode');
+  await expect(code).toContainText('TOMBSTONE');
   await expect(
     article.getByRole('heading', { name: '10. Follow-up questions', level: 4 }),
   ).toBeVisible();

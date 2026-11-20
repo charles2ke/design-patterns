@@ -58,6 +58,7 @@ POST /v1/cart/sync              (after offline edits: send lines, get the merged
 POST /v1/cart/merge-guest       (at login; the guest cart ID is read only from the cookie)
 -> 200 OK  merged cart, Set-Cookie: guest_cart=; Max-Age=0
 -> later writes to that guest cart: 410 Gone, and the client re-sends them
+-> 409 RESYNC_REQUIRED (incoming line is older than retained tombstone history)
 
 Event on the event bus (key cartId):
   CartChanged { cartId, version, changes: [{ productId, qty, prevQty }] }`,
@@ -66,7 +67,10 @@ Event on the event bus (key cartId):
   lines         map      productId -> { qty, ts, device }; qty 0 is a tombstone
   version       int      compare-and-swap counter; also the ETag
   owner         string   user ID, or null for a guest cart
-  merged_into   string   set on a guest cart after login; later writes get 410
+  state         enum     OPEN | FROZEN; writes to FROZEN carts get 410
+  merge_id      string   stable login operation ID; makes applying the frozen snapshot idempotent
+  merged_into   string   set after the frozen snapshot is merged
+  frozen_lines  map      immutable final guest snapshot, retained until merge completes
   expires_at    epoch s  store TTL for guest carts: 30 days after the last write
   updated_at    epoch ms last change, for abandoned-cart reminders
 
@@ -116,8 +120,8 @@ conflict it re-reads and re-merges, which is safe because merging is idempotent.
       heading: 'Guest carts and login',
       points: [
         'A guest cart ID is 128 random bits in an HttpOnly, Secure, SameSite=Lax cookie. It works as a bearer credential, so it must be unguessable, and guest carts expire 30 days after their last write through the store’s TTL.',
-        'At login, the API reads the guest cart named by the cookie (never an ID from the request body), merges it into the user cart with the same function, marks it merged_into that user and clears the cookie.',
-        'Because merging is idempotent, a retried or double-submitted login merge cannot double quantities. Late writes from another tab that still holds the guest cookie get 410 Gone, and the client re-sends them to the user’s cart.',
+        'At login, the API atomically changes the cookie-named guest cart from OPEN to FROZEN and saves its immutable final snapshot and merge_id. Guest writes check OPEN in the same conditional write, so an edit racing with freeze either lands in the snapshot or gets 410.',
+        'The API applies the frozen snapshot to the user cart idempotently by merge_id, then marks merged_into and clears the cookie. A crash after freezing is recoverable by replaying that same snapshot; later guest writes get 410 and are retried against the user cart.',
       ],
     },
     {
@@ -161,7 +165,7 @@ conflict it re-reads and re-merges, which is safe because merging is idempotent.
       decision: 'Storage layout',
       choice: 'One document per cart, written with compare-and-swap',
       rationale:
-        'A guest merge is one atomic write, and the guest TTL applies to the whole cart. A row per line avoids read-modify-write, but a cart sees a few writes a day, so conflicts are rare.',
+        'Freezing is atomic; applying the immutable snapshot is a separately retryable, idempotent merge keyed by merge_id. A row per line avoids read-modify-write, but a cart sees a few writes a day, so conflicts are rare.',
     },
     {
       decision: 'Cross-device sync',
@@ -172,7 +176,7 @@ conflict it re-reads and re-merges, which is safe because merging is idempotent.
   ],
   failureModes: [
     'A device clock far ahead would win every conflict until real time catches up: the API rejects timestamps more than 60 seconds ahead with 400, and the client corrects its clock from the server’s Date header and retries.',
-    'A phone offline for weeks replays stale edits: each merges per line under the usual order, and lines older than the 30-day tombstone horizon count only for products still in the cart, so removed items stay removed.',
+    'A phone offline beyond the 30-day tombstone horizon replays a line whose history is gone: return 409 RESYNC_REQUIRED and preserve the client edit for conflict resolution instead of acknowledging and dropping it.',
     'A cart store node or zone fails: the replicated store fails over, clients keep edits queued locally and retry with the same versions, and alerts fire on the write error rate and on client queue age.',
     'Price or stock changes between add and checkout: checkout re-validation shows the new price or the reduced quantity and asks the user to confirm, and the order’s inventory reservation is the final check.',
     'Lost or duplicated change events: consumers dedupe by (cart ID, version), analytics tolerates at-least-once delivery, and devices also refetch when the app comes to the foreground, so a missed notification only delays sync.',
@@ -234,13 +238,15 @@ export function items(cart: Cart): [string, number][] {
 /**
  * Server side: folds a device's lines or a guest cart into the stored cart, then drops
  * tombstones older than the horizon (e.g., 30 days ago). An incoming line that old could
- * revive an item whose tombstone is gone, so it counts only if the product is still stored.
+ * revive a removed item; if its history is gone, return RESYNC_REQUIRED rather than silently
+ * acknowledging and dropping a legitimate offline add.
  */
 export function mergeIncoming(stored: Cart, incoming: Cart, horizonTs: number): Cart {
   const accepted = new Map<string, Line>();
   for (const [id, line] of incoming) {
     if (!valid(line)) throw new RangeError('INVALID_LINE');
-    if (line.ts >= horizonTs || stored.has(id)) accepted.set(id, line);
+    if (line.ts < horizonTs && !stored.has(id)) throw new Error('RESYNC_REQUIRED');
+    accepted.set(id, line);
   }
   const out = new Map<string, Line>();
   for (const [id, line] of merge(stored, accepted)) {

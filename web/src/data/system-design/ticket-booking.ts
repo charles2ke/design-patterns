@@ -73,12 +73,15 @@ holds        PRIMARY KEY (hold_id)          event_id, user_id, seat_ids, expires
 bookings     PRIMARY KEY (booking_id)       UNIQUE (hold_id), user_id, amount, created_at
 payments     PRIMARY KEY (idempotency_key)  hold_id, provider_auth_id, state, amount
 
-Hold = one transaction, one statement per seat in seat_id order:
+Hold = one transaction: insert the authoritative holds row and update every seat in seat_id order.
+Confirm = one transaction: read that holds row and verify every listed seat, owner and expiry
+against the database clock before changing any seat to SOLD; expired holds return 410.
   UPDATE seats SET status = 'HELD', hold_id = ?, holder_id = ?, hold_expires_at = ?,
          version = version + 1
   WHERE event_id = ? AND seat_id = ? AND version = ?   -- the version just read as free
-Any UPDATE that changes 0 rows -> ROLLBACK and 409. Confirm checks hold_id, holder_id
-and hold_expires_at > now(), then sets SOLD with the same version CAS.`,
+Every seat update checks its version. confirmHold additionally verifies the persisted hold's
+owner, complete seat_ids and hold_expires_at > database now() in the same transaction; an
+expired hold returns 410 and no seat changes.`,
   architecture: {
     diagram: `  Buyers (web and mobile apps)
     |
@@ -211,14 +214,23 @@ and hold_expires_at > now(), then sets SOLD with the same version CAS.`,
 
 export interface Hold {
   holdId: string;
+  userId: string;
   seatIds: string[];
   expiresAt: number; // for the checkout countdown; the seat rows are the source of truth
 }
 
-/** The database: commit applies all writes only if every row still has its expected version. */
+/** The database: confirmation verifies the stored hold and DB-clock expiry in the same transaction. */
 export interface SeatStore {
   read(seatIds: readonly string[]): Promise<Seat[]>; // rows that exist, in request order
+  readHold(holdId: string): Promise<Hold | undefined>;
   commit(writes: { expected: number; next: Seat }[]): Promise<boolean>;
+  createHold(writes: { expected: number; next: Seat }[], hold: Hold): Promise<boolean>;
+  /** Verifies writes cover the stored hold's full seat_ids, owner and DB-clock expiry atomically. */
+  confirmHold(
+    holdId: string,
+    userId: string,
+    writes: { expected: number; next: Seat }[],
+  ): Promise<'CONFIRMED' | 'EXPIRED_OR_INVALID' | 'CONFLICT'>;
 }
 
 const HOLD_MS = 10 * 60_000;
@@ -250,16 +262,21 @@ export class SeatInventory {
       const holdId = crypto.randomUUID();
       const expiresAt = now + HOLD_MS;
       const patch: Partial<Seat> = { status: 'HELD', holdId, holderId: userId, expiresAt };
-      if (await this.store.commit(seats.map((s) => write(s, patch)))) {
-        return { holdId, seatIds: [...seatIds], expiresAt };
+      const hold = { holdId, userId, seatIds: [...seatIds], expiresAt };
+      if (await this.store.createHold(seats.map((s) => write(s, patch)), hold)) {
+        return hold;
       }
     }
     return null; // still contended after retries: report the seats as taken
   }
 
   /** Runs after the payment is authorized; retrying with the same hold is safe. */
-  async confirm(userId: string, hold: Hold): Promise<'CONFIRMED'> {
+  async confirm(userId: string, holdId: string): Promise<'CONFIRMED'> {
     for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
+      const hold = await this.store.readHold(holdId);
+      if (hold === undefined || hold.userId !== userId) {
+        throw new Error('Hold expired or not yours'); // the caller voids the authorization
+      }
       const seats = await this.load(hold.seatIds);
       const ours = (s: Seat) => s.holdId === hold.holdId && s.holderId === userId;
       if (seats.every((s) => s.status === 'SOLD' && ours(s))) return 'CONFIRMED'; // a retry
@@ -268,7 +285,9 @@ export class SeatInventory {
         throw new Error('Hold expired or not yours'); // the caller voids the authorization
       }
       const sold = seats.map((s) => write(s, { status: 'SOLD' }));
-      if (await this.store.commit(sold)) return 'CONFIRMED'; // else re-check: rows changed
+      const result = await this.store.confirmHold(holdId, userId, sold);
+      if (result === 'CONFIRMED') return 'CONFIRMED';
+      if (result === 'EXPIRED_OR_INVALID') throw new Error('Hold expired or not yours');
     }
     throw new Error('Seats changed concurrently; retry');
   }

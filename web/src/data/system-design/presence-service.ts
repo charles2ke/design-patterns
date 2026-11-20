@@ -43,19 +43,20 @@ export const presenceService: SystemDesignQuestion = {
   api: `Device <-> Gateway: one WebSocket (or MQTT) connection per device, JSON frames
   -> { "type": "heartbeat" }                                  every 30 s
   -> { "type": "subscribe", "userIds": ["u42", "u77"] }       users now on screen
-  <- { "type": "status", "userId": "u42", "online": true }    current status first
-  <- { "type": "status", "userId": "u77", "online": false, "lastSeen": 1767225600000 }
+  <- { "type": "status", "userId": "u42", "online": true, "seq": 18 }    current status first
+  <- { "type": "status", "userId": "u77", "online": false, "lastSeen": 1767225600000, "seq": 29 }
   -> { "type": "unsubscribe", "userIds": ["u42"] }            chat closed
 
 Gateway <-> presence shard (internal RPC, batched per shard)
   Heartbeat(userId, deviceId)          Disconnect(userId, deviceId)
   Subscribe(gatewayId, userIds) -> current statuses    Unsubscribe(gatewayId, userIds)
-  StatusChanged(userId, online, lastSeen)   shard -> subscribed gateways only
+  StatusChanged(userId, online, lastSeen, seq)   shard -> subscribed gateways only
 
 lastSeen is omitted whenever the subject hides it from this viewer.`,
   dataModel: `presence         in memory, sharded by hash(user_id); rebuilt from heartbeats on restart
   user_id      string    key
   leases       map       device_id -> lease end (heartbeat + 60 s, capped at close + 15 s)
+  seq          int64     monotonic per-user version, incremented on each real transition
   last_active  int64     latest heartbeat or disconnect on any device
 
 subscriptions    in memory, on the shard that owns the watched user
@@ -101,7 +102,7 @@ read only for contacts who are offline, filtered by visibility.`,
       points: [
         'A mobile client can vanish without closing its connection, so liveness comes from heartbeats: each device holds a lease that every heartbeat renews to now + 60 s, two intervals, so one lost heartbeat does not flip the user offline.',
         'MQTT builds this into the protocol: the broker drops a client after 1.5× its keep-alive interval without any packet and publishes the client’s Last Will message, which maps directly to an offline event.',
-        'Expiry runs on the owning shard: a timer wheel or once-per-second sweep finds leases that have ended. Status reads compare the lease end with the clock, so they are correct even between sweeps; only pushed events lag by up to one sweep.',
+        'Expiry runs on the owning shard: a timer wheel or once-per-second sweep finds leases that have ended. Status reads compare the lease end with the clock, so they are correct even between sweeps; each pushed change has a per-user sequence.',
         'A gateway crash needs no cleanup: its clients reconnect through other gateways and renew their leases, and the rest stop heartbeating and expire within one TTL, with one offline event each.',
       ],
     },
@@ -110,6 +111,7 @@ read only for contacts who are offline, filtered by visibility.`,
       points: [
         'Pushing every change to all contacts costs ≈ 116,000 × 200 ≈ 23M messages/s, mostly to people who are not looking. The 2008 Facebook Chat engineering post called keeping users aware of friends’ online states its most resource-intensive operation, more than sending messages.',
         'Subscribe on demand: a client subscribes to the users on its screen (open chats, the visible part of the contact list), and each gateway aggregates its clients, so a shard tracks gateways per watched user, not individual devices.',
+        'Gateways track the last sequence delivered to each subscription. A sequence gap triggers an immediate snapshot fetch, and a periodic snapshot revalidation repairs a dropped final event even when both client and gateway stay connected.',
         'Lazy fetch on open: the subscribe reply carries the current status, so opening a chat costs one batched read, and closing it unsubscribes. That trades a small read burst for roughly 40× fewer pushes.',
         'A user watched by many people triggers a burst per change; each gateway still receives one event and fans it out locally, and changes can be coalesced into one digest per gateway every second or two.',
       ],
