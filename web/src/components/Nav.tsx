@@ -7,6 +7,7 @@ import {
   BEST_PRACTICES_QUIZ_HASH,
   INTERVIEW_QUESTIONS_HASH,
   QUIZ_HASH,
+  SYSTEM_DESIGN_HASH,
 } from '../routes';
 
 type NavPage =
@@ -16,7 +17,8 @@ type NavPage =
   | 'algorithms-data-structures'
   | 'algorithms-quiz'
   | 'best-practices-quiz'
-  | 'interview-questions';
+  | 'interview-questions'
+  | 'system-design';
 
 interface NavProps {
   currentPage: NavPage;
@@ -47,6 +49,7 @@ const LINKS: NavLink[] = [
     href: INTERVIEW_QUESTIONS_HASH,
     label: 'Interview Questions',
   },
+  { page: 'system-design', href: SYSTEM_DESIGN_HASH, label: 'System Design' },
 ];
 
 const GROUPS: NavGroup[] = [

@@ -197,4 +197,18 @@ describe('App', () => {
       screen.getByRole('heading', { name: 'Tough Interview Questions', level: 1 }),
     ).toBeInTheDocument();
   });
+
+  it('lazy-loads the system design page and restores its filters from the hash', async () => {
+    window.location.hash = '#/system-design?difficulty=Easy';
+    render(<App />);
+
+    expect(screen.getByRole('status')).toHaveTextContent('Loading system design questions…');
+    expect(
+      await screen.findByRole('heading', { name: 'System Design Interview Questions', level: 1 }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Easy' })).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      screen.getByRole('link', { name: 'System Design', hidden: true }),
+    ).toHaveAttribute('aria-current', 'page');
+  });
 });

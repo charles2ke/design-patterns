@@ -9,6 +9,7 @@ export const ALGORITHMS_DATA_STRUCTURES_HASH = '#/algorithms-data-structures';
 export const ALGORITHMS_QUIZ_HASH = '#/quiz/algorithms-data-structures';
 export const BEST_PRACTICES_QUIZ_HASH = '#/quiz/best-practices';
 export const INTERVIEW_QUESTIONS_HASH = '#/interview-questions';
+export const SYSTEM_DESIGN_HASH = '#/system-design';
 export const PATTERNS_HASH = '#/patterns';
 
 /** Hash for a single pattern's detail page. */
@@ -42,12 +43,14 @@ export function isIndexHash(hash: string): boolean {
   return hash.startsWith('#/?');
 }
 
+function hashQueryParams(hash: string): URLSearchParams {
+  const queryStart = hash.indexOf('?');
+  return new URLSearchParams(queryStart === -1 ? '' : hash.slice(queryStart + 1));
+}
+
 /** Reads the deep-linkable search/category filters from the index hash. */
 export function parseIndexFilters(hash: string): IndexFilters {
-  const queryStart = hash.indexOf('?');
-  const params = new URLSearchParams(
-    queryStart === -1 ? '' : hash.slice(queryStart + 1),
-  );
+  const params = hashQueryParams(hash);
   return {
     query: params.get('q') ?? '',
     category: params.get('category') ?? 'All',
@@ -65,4 +68,36 @@ export function buildIndexHash(filters: IndexFilters): string {
   }
   const search = params.toString();
   return search === '' ? '#/' : `#/?${search}`;
+}
+
+export interface SystemDesignFilters {
+  difficulty: string;
+  company: string;
+}
+
+/** True for the system design page, with or without filters (`#/system-design?difficulty=Hard`). */
+export function isSystemDesignHash(hash: string): boolean {
+  return hash === SYSTEM_DESIGN_HASH || hash.startsWith(`${SYSTEM_DESIGN_HASH}?`);
+}
+
+/** Reads the deep-linkable difficulty/company filters from the system design hash. */
+export function parseSystemDesignFilters(hash: string): SystemDesignFilters {
+  const params = hashQueryParams(hash);
+  return {
+    difficulty: params.get('difficulty') ?? 'All',
+    company: params.get('company') ?? 'All',
+  };
+}
+
+/** Builds a system design hash that restores the given filters when opened. */
+export function buildSystemDesignHash(filters: SystemDesignFilters): string {
+  const params = new URLSearchParams();
+  if (filters.difficulty !== 'All') {
+    params.set('difficulty', filters.difficulty);
+  }
+  if (filters.company !== 'All') {
+    params.set('company', filters.company);
+  }
+  const search = params.toString();
+  return search === '' ? SYSTEM_DESIGN_HASH : `${SYSTEM_DESIGN_HASH}?${search}`;
 }
