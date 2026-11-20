@@ -60,11 +60,14 @@ POST /v1/conversations  { type: "direct" | "group" | "channel", memberIds: [...]
   bucket           int        seq / 10,000: bounds partition size for long-lived channels
   seq              bigint     clustering key; assigned by the partition owner, dense
   sender_id        uuid
-  client_msg_id    uuid       retry key, unique per (conversation, sender)
+  client_msg_id    uuid       retry key stored with the message, unique per (conversation, sender)
   payload          blob       ciphertext when end-to-end encrypted
   created_at       timestamp  display only, never used for ordering
 
-client_msg_ids  PRIMARY KEY ((conversation_id), sender_id, client_msg_id): seq, TTL 7d
+The message row is also the durable retry record; there is no separately written dedup table.
+Before accepting sends after startup or failover, the owner rebuilds its client-ID index from
+the durable log. On an index miss it checks the durable log before assigning a new seq, so a
+retry can recover a message whose quorum write completed before its previous owner crashed.
 conversations   PRIMARY KEY (conversation_id): type, member_count, last_seq
 memberships     PRIMARY KEY ((user_id), conversation_id): read_seq, last_seq
                 (last_seq only for small groups) + reverse table by conversation_id
@@ -98,7 +101,7 @@ bucket for any cursor is computable because seqs have no gaps.`,
     flow: [
       'Each device keeps a WebSocket to a gateway, which registers (user, device) → (gateway, conn_id) in the session registry; on every connect the device syncs the gaps after its cursors.',
       'A send is routed by conversation_id to the message-service node that owns that conversation’s partition (a lease held in etcd or ZooKeeper).',
-      'The owner deduplicates by client message ID, assigns the next seq, writes the message to the store with a quorum write, and only then acks "sent" with the seq.',
+      'The owner checks the durable log for a client message ID before assigning a seq, writes the message and retry ID together with a quorum write, and only then acks "sent" with the seq.',
       'For 1:1 chats and small groups it looks up every member device in the registry and delivers through their gateways; devices ack the highest contiguous seq, which advances their cursors and produces delivered receipts.',
       'Devices without a live connection get an APNs/FCM push and page through the gap from their cursor when the app reconnects. Large channels skip per-member fan-out and are read on demand.',
     ],
@@ -202,6 +205,13 @@ export interface SyncPage {
   hasMore: boolean;
 }
 
+/** Reads the authoritative durable log, including messages committed by a previous owner. */
+export type FindByClientId = (
+  conversationId: string,
+  senderId: string,
+  clientMsgId: string,
+) => Promise<Message | undefined>;
+
 /** Resolves once the message is durable (a quorum write); rejecting means nothing was stored. */
 export type Persist = (conversationId: string, message: Message) => Promise<void>;
 
@@ -215,9 +225,11 @@ export class ConversationLog {
   private readonly cursors = new Map<string, number>(); // (conversation, device) -> seq
   private readonly tails = new Map<string, Promise<void>>();
   private readonly persist: Persist;
+  private readonly findByClientId: FindByClientId;
 
-  constructor(persist: Persist) {
+  constructor(persist: Persist, findByClientId: FindByClientId) {
     this.persist = persist;
+    this.findByClientId = findByClientId;
   }
 
   async send(conversationId: string, outgoing: Outgoing): Promise<Message> {
@@ -227,9 +239,18 @@ export class ConversationLog {
       const dedupKey = key(conversationId, outgoing.senderId, outgoing.clientMsgId);
       const original = this.byClientId.get(dedupKey);
       if (original !== undefined) return original; // retry after a lost ack: same seq
+      const durableOriginal = await this.findByClientId(
+        conversationId,
+        outgoing.senderId,
+        outgoing.clientMsgId,
+      );
+      if (durableOriginal !== undefined) {
+        this.byClientId.set(dedupKey, durableOriginal);
+        return durableOriginal;
+      }
       const log = this.logs.get(conversationId) ?? [];
       const message: Message = { ...outgoing, seq: log.length + 1 };
-      await this.persist(conversationId, message); // if this throws, the seq is reused
+      await this.persist(conversationId, message); // clientMsgId is durable in this same message row
       log.push(message);
       this.logs.set(conversationId, log);
       this.byClientId.set(dedupKey, message);

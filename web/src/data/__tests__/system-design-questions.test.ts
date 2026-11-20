@@ -84,6 +84,16 @@ describe('system design questions data', () => {
     }
   });
 
+  it('keeps chat retry IDs with durable messages and checks the log before assigning a sequence', () => {
+    const chat = systemDesignQuestions.find(({ slug }) => slug === 'chat-messaging');
+    expect(chat).toBeDefined();
+    expect(chat!.dataModel).toContain('client_msg_id    uuid       retry key stored with the message');
+    expect(chat!.dataModel).not.toContain('client_msg_ids  PRIMARY KEY');
+    expect(chat!.code.code.indexOf('await this.findByClientId(')).toBeLessThan(
+      chat!.code.code.indexOf('await this.persist('),
+    );
+  });
+
   it('keeps diagrams to printable ASCII so the monospace layout lines up', () => {
     for (const { slug, architecture } of systemDesignQuestions) {
       expect(architecture.diagram, slug).toMatch(/^[\x20-\x7e\n]+$/);
