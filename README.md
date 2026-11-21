@@ -12,6 +12,7 @@ A browsable React site for design patterns lives in [`web/`](web/README.md). It 
 - a best-practices hub (front-end, backend, database design, AI-first, SOLID principles)
 - three modern **Who Wants to Be a Millionaire?-style** quizzes: design patterns, algorithms & data structures, and best practices
 - a **tough interview questions** page with the hardest design pattern and system design questions, each with a complete worked solution and code
+- a **system design** page with 27 frequently reported system design interview questions from Google, Amazon, Microsoft, Meta, OpenAI, Anthropic, Apple and other companies, grouped into Easy, Medium and Hard, each with a detailed solution, architecture diagram and reference code
 
 Live site: **Design Bible** — https://charles2ke.github.io/design-patterns/
 

@@ -60,6 +60,34 @@ in [`src/data/interview-questions.ts`](src/data/interview-questions.ts).
 ![Tough interview questions page](docs/screenshots/interview-questions.png)
 ![Expanded rate limiter solution](docs/screenshots/interview-questions-solution.png)
 
+## System design interview questions
+
+`#/system-design` collects 27 system design prompts that candidates have
+publicly reported at Google, Amazon, Microsoft, Meta, OpenAI, Anthropic, Apple
+and other companies, grouped into **Easy**, **Medium** and **Hard**. Difficulty
+and company filters are mirrored in the URL (for example
+`#/system-design?difficulty=Hard&company=OpenAI`), so filtered views can be
+shared and survive a reload.
+
+Each question lists what interviewers look for and hides a detailed solution
+that follows a 45-minute interview: requirements, back-of-the-envelope
+estimates, API, data model, an architecture diagram with its request flow, deep
+dives, trade-offs, failure modes, reference code and follow-up questions with
+answers. The page also includes an answer framework and an estimation cheat
+sheet.
+
+Company tags are a guide, not a guarantee. Companies do not publish their
+interview questions, so the tags reflect public candidate reports and
+interview-prep compilations, and prompts vary by team and over time.
+
+The page is code-split, so its content is only downloaded when it is opened.
+Each question lives in its own file under
+[`src/data/system-design/`](src/data/system-design/) and is listed in
+[`src/data/system-design-questions.ts`](src/data/system-design-questions.ts).
+
+![System design questions grouped by difficulty](docs/screenshots/system-design.png)
+![Expanded URL shortener solution](docs/screenshots/system-design-solution.png)
+
 ## Getting started
 
 ```bash
@@ -121,5 +149,5 @@ web/
   data set and the app entry point. Coverage thresholds are set to 100% for
   statements, branches, functions and lines.
 - **Scenario tests** cover complete user journeys across index, best-practices,
-  and quiz flows both at the component level with Testing Library and end-to-end
-  in a real browser with Playwright.
+  quiz and system design flows both at the component level with Testing Library
+  and end-to-end in a real browser with Playwright.

@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BestPracticesPage } from './pages/BestPracticesPage';
 import { AlgorithmsDataStructuresPage } from './pages/AlgorithmsDataStructuresPage';
 import { IndexPage } from './pages/IndexPage';
 import { InterviewQuestionsPage } from './pages/InterviewQuestionsPage';
 import { Nav } from './components/Nav';
+import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import { SiteFooter } from './components/SiteFooter';
 import {
   ALGORITHMS_DATA_STRUCTURES_HASH,
@@ -12,12 +13,18 @@ import {
   BEST_PRACTICES_QUIZ_HASH,
   INTERVIEW_QUESTIONS_HASH,
   QUIZ_HASH,
+  isSystemDesignHash,
   patternSlugFromHash,
 } from './routes';
 import { QuizPage } from './pages/QuizPage';
 import { PatternDetailPage } from './pages/PatternDetailPage';
 import { AlgorithmsQuizPage } from './pages/AlgorithmsQuizPage';
 import { BestPracticesQuizPage } from './pages/BestPracticesQuizPage';
+
+// The system design content is large, so it ships in its own chunk that loads on first visit.
+const SystemDesignPage = lazy(() =>
+  import('./pages/SystemDesignPage').then((module) => ({ default: module.SystemDesignPage })),
+);
 
 function useHashRoute() {
   const [hash, setHash] = useState(() => window.location.hash);
@@ -43,6 +50,7 @@ export function App() {
     hash === ALGORITHMS_DATA_STRUCTURES_HASH ||
     hash.startsWith(`${ALGORITHMS_DATA_STRUCTURES_HASH}/`);
   const isInterviewQuestions = hash === INTERVIEW_QUESTIONS_HASH;
+  const isSystemDesign = isSystemDesignHash(hash);
 
   return (
     <>
@@ -62,7 +70,9 @@ export function App() {
                     ? 'algorithms-data-structures'
                     : isInterviewQuestions
                       ? 'interview-questions'
-                      : 'index'
+                      : isSystemDesign
+                        ? 'system-design'
+                        : 'index'
         }
       />
       <div className="app-content">
@@ -80,6 +90,18 @@ export function App() {
           <AlgorithmsDataStructuresPage />
         ) : isInterviewQuestions ? (
           <InterviewQuestionsPage />
+        ) : isSystemDesign ? (
+          <RouteErrorBoundary>
+            <Suspense
+              fallback={
+                <main className="route-status">
+                  <p role="status">Loading system design questions…</p>
+                </main>
+              }
+            >
+              <SystemDesignPage />
+            </Suspense>
+          </RouteErrorBoundary>
         ) : (
           <IndexPage />
         )}

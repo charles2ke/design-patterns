@@ -5,6 +5,24 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: process.env.VITE_BASE_PATH ?? '/',
   plugins: [react()],
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              // The system design questions are ~550 KB of text. Splitting them into their own
+              // chunks keeps each under the 500 KB warning; they still load in parallel with the
+              // lazy SystemDesignPage chunk.
+              name: 'system-design-questions',
+              test: /[\\/]src[\\/]data[\\/]system-design[\\/]/,
+              maxSize: 300 * 1024,
+            },
+          ],
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

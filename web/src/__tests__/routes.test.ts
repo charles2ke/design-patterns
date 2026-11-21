@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildIndexHash,
+  buildSystemDesignHash,
   isIndexHash,
+  isSystemDesignHash,
   parseIndexFilters,
+  parseSystemDesignFilters,
   patternDetailHash,
   patternSlugFromHash,
 } from '../routes';
@@ -51,5 +54,24 @@ describe('routes', () => {
     const filters = { query: 'lazy loading', category: 'Structural' };
 
     expect(parseIndexFilters(buildIndexHash(filters))).toEqual(filters);
+  });
+
+  it('recognises the system design page with or without filters', () => {
+    expect(isSystemDesignHash('#/system-design')).toBe(true);
+    expect(isSystemDesignHash('#/system-design?difficulty=Hard')).toBe(true);
+    expect(isSystemDesignHash('#/system-designs')).toBe(false);
+    expect(isSystemDesignHash('#/interview-questions')).toBe(false);
+  });
+
+  it('round-trips system design filters, omitting the defaults', () => {
+    const hash = buildSystemDesignHash({ difficulty: 'Hard', company: 'OpenAI' });
+
+    expect(hash).toBe('#/system-design?difficulty=Hard&company=OpenAI');
+    expect(parseSystemDesignFilters(hash)).toEqual({ difficulty: 'Hard', company: 'OpenAI' });
+    expect(buildSystemDesignHash({ difficulty: 'All', company: 'All' })).toBe('#/system-design');
+    expect(parseSystemDesignFilters('#/system-design')).toEqual({
+      difficulty: 'All',
+      company: 'All',
+    });
   });
 });

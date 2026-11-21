@@ -10,6 +10,9 @@
   --shadow: rgb(15 23 42 / 55%);
   --code-bg: #0b1222;
   --danger: #f87171;
+  --difficulty-easy: #4ade80;
+  --difficulty-medium: #fbbf24;
+  --difficulty-hard: #f87171;
   color-scheme: dark;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
@@ -170,6 +173,8 @@ body {
 .index-page,
 .best-practices-page,
 .interview-page,
+.system-design-page,
+.route-status,
 .quiz-page {
   margin: 0 auto;
   max-width: 1100px;
@@ -624,6 +629,248 @@ body {
   white-space: pre;
 }
 
+.system-design-page__section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.system-design-page__section h2 {
+  margin-top: 0;
+}
+
+.system-design-page__note {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75rem;
+}
+
+.system-design-page__guides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 0 1rem;
+}
+
+.system-design-page__guides ol,
+.system-design-page__guides ul {
+  padding-left: 1.25rem;
+}
+
+.system-design-page__guides li + li {
+  margin-top: 0.4rem;
+}
+
+.system-design-page__minutes,
+.system-design-page__count,
+.system-design-page__level-description {
+  color: var(--muted);
+}
+
+.system-design-page__filters {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.filter-group {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.filter-group__label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.system-design-page__count {
+  font-size: 0.9rem;
+}
+
+.system-design-page__level-description {
+  margin-top: 0;
+}
+
+.system-design-card {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.system-design-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.system-design-card__header h3 {
+  margin: 0;
+}
+
+.difficulty-badge {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.1rem 0.6rem;
+}
+
+.difficulty-badge--easy {
+  color: var(--difficulty-easy);
+}
+
+.difficulty-badge--medium {
+  color: var(--difficulty-medium);
+}
+
+.difficulty-badge--hard {
+  color: var(--difficulty-hard);
+}
+
+.system-design-card__companies {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  margin-top: 0.6rem;
+}
+
+.system-design-card__label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.company-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.company-chip {
+  background: var(--accent-soft);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  padding: 0.15rem 0.6rem;
+}
+
+.system-design-card ul,
+.system-design-card ol {
+  padding-left: 1.25rem;
+}
+
+.system-design-card .company-chips {
+  padding-left: 0;
+}
+
+.system-design-card .company-chip {
+  margin-top: 0;
+}
+
+.system-design-card li + li {
+  margin-top: 0.3rem;
+}
+
+.system-design-card h4 {
+  margin: 1rem 0 0.25rem;
+}
+
+.system-design-card h5 {
+  font-size: 0.95rem;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.system-design-card__solution summary {
+  box-sizing: border-box;
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 0.75rem 0;
+}
+
+.system-design-card__step + .system-design-card__step {
+  border-top: 1px dashed var(--border);
+  margin-top: 1rem;
+}
+
+.system-design-card__pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0.5rem 0 0;
+  overflow-x: auto;
+  padding: 0.75rem 0.9rem;
+  white-space: pre;
+}
+
+.system-design-card__pre code {
+  font: inherit;
+}
+
+.system-design-card__diagram {
+  line-height: 1.25;
+}
+
+.system-design-card__table {
+  margin-top: 0.5rem;
+  overflow-x: auto;
+}
+
+.system-design-card__table table {
+  border-collapse: collapse;
+  min-width: 36rem;
+  width: 100%;
+}
+
+.system-design-card__table th,
+.system-design-card__table td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.system-design-card__table thead th {
+  background: var(--code-bg);
+}
+
+.system-design-card__code {
+  margin: 0.5rem 0 0;
+}
+
+.system-design-card__language {
+  color: var(--muted);
+}
+
+.system-design-card__follow-ups dt {
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+.system-design-card__follow-ups dd {
+  margin: 0.25rem 0 0;
+}
+
+.route-status__button {
+  background: var(--accent);
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--on-accent);
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+}
+
 .quiz-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(min(260px, 100%), 1fr);
@@ -975,6 +1222,8 @@ body {
   .best-practices-page,
   .algorithms-page,
   .interview-page,
+  .system-design-page,
+  .route-status,
   .quiz-page {
     padding: 1.25rem 1rem 3rem;
   }
@@ -1001,6 +1250,7 @@ body {
   .solid-page__section,
   .algorithms-page__section,
   .interview-page__section,
+  .system-design-page__section,
   .quiz-card,
   .quiz-ladder {
     padding: 0.9rem;
@@ -1013,6 +1263,7 @@ body {
   .category-filter__button,
   .quiz-lifeline,
   .quiz-lock-button,
+  .route-status__button,
   .empty-state__reset {
     min-height: 2.75rem;
   }
@@ -1037,9 +1288,15 @@ body {
 
   .backend-page__section ul,
   .algorithms-page__section ul,
+  .system-design-card ul,
+  .system-design-card ol,
   .table-of-contents__list,
   .database-design-page__list {
     padding-left: 1rem;
+  }
+
+  .system-design-card__diagram {
+    font-size: 0.72rem;
   }
 }
 
@@ -1100,6 +1357,9 @@ body {
   --shadow: rgb(15 23 42 / 18%);
   --code-bg: #f1f5f9;
   --danger: #b91c1c;
+  --difficulty-easy: #15803d;
+  --difficulty-medium: #b45309;
+  --difficulty-hard: #b91c1c;
   color-scheme: light;
 }
 

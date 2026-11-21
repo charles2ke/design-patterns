@@ -51,6 +51,10 @@ describe('Nav', () => {
     expect(
       screen.getByRole('link', { name: 'Interview Questions' }),
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'System Design' })).toHaveAttribute(
+      'href',
+      '#/system-design',
+    );
     expect(screen.getByRole('link', { name: 'Quiz' })).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Algorithms Quiz' }),
@@ -197,6 +201,19 @@ describe('Nav', () => {
     ).toHaveAttribute('aria-current', 'page');
     expect(
       screen.getByRole('link', { name: 'Design Patterns' }),
+    ).not.toHaveAttribute('aria-current');
+  });
+
+  it('marks the system design link as current when on that page', async () => {
+    const { user, toggle } = renderNav('system-design');
+    await user.click(toggle);
+
+    expect(screen.getByRole('link', { name: 'System Design' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(
+      screen.getByRole('link', { name: 'Interview Questions' }),
     ).not.toHaveAttribute('aria-current');
   });
 });
