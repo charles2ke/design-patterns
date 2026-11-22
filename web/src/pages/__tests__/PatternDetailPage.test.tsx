@@ -1,9 +1,25 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PatternDetailPage } from '../PatternDetailPage';
 import { findPatternDetail } from '../../data/pattern-details';
 
+const examplesMock = vi.hoisted(() => ({ hideSnippets: false }));
+
+vi.mock('../../data/pattern-examples', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('../../data/pattern-examples')>();
+  return {
+    ...actual,
+    findPatternExample: (slug: string) =>
+      examplesMock.hideSnippets ? undefined : actual.findPatternExample(slug),
+  };
+});
+
 describe('PatternDetailPage', () => {
+  afterEach(() => {
+    examplesMock.hideSnippets = false;
+  });
+
   it('renders the deep dive for a known pattern', () => {
     const detail = findPatternDetail('observer');
     render(<PatternDetailPage slug="observer" />);
@@ -41,8 +57,15 @@ describe('PatternDetailPage', () => {
   });
 
   it('omits the examples section for patterns without snippets', () => {
+    examplesMock.hideSnippets = true;
     render(<PatternDetailPage slug="singleton" />);
 
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Singleton',
+    );
+    expect(
+      screen.queryByRole('heading', { name: 'Code examples' }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
   });
 
