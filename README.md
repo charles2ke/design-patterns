@@ -1675,7 +1675,11 @@ print(chain.handle({"recent": 3}))                  # 401 Unauthorized
 
 #### Go
 ```go
-import "net/http"
+import (
+	"errors"
+	"io"
+	"net/http"
+)
 
 // Each middleware either rejects the request or passes it to the next handler.
 func RequireAuth(next http.Handler) http.Handler {
@@ -1695,12 +1699,25 @@ func RejectLargeBodies(limit int64) func(http.Handler) http.Handler {
 				http.Error(w, "request too large", http.StatusRequestEntityTooLarge)
 				return
 			}
+			r.Body = http.MaxBytesReader(w, r.Body, limit)
 			next.ServeHTTP(w, r)
 		})
 	}
 }
 
-// http.Handle("/orders", RequireAuth(RejectLargeBodies(1<<20)(ordersHandler)))
+func CreateOrder(w http.ResponseWriter, r *http.Request) {
+	if _, err := io.ReadAll(r.Body); err != nil {
+		var maxBytesErr *http.MaxBytesError
+		if errors.As(err, &maxBytesErr) {
+			http.Error(w, "request too large", http.StatusRequestEntityTooLarge)
+			return
+		}
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+}
+
+// http.Handle("/orders", RequireAuth(RejectLargeBodies(1<<20)(http.HandlerFunc(CreateOrder))))
 ```
 
 #### Rust
@@ -3096,8 +3113,8 @@ public class AreaVisitor : IShapeVisitor<double> {
 }
 
 public class SvgVisitor : IShapeVisitor<string> {
-    public string Visit(Circle c) => $"<circle r='{c.Radius}' />";
-    public string Visit(Rectangle r) => $"<rect width='{r.Width}' height='{r.Height}' />";
+    public string Visit(Circle c) => FormattableString.Invariant($"<circle r='{c.Radius}' />");
+    public string Visit(Rectangle r) => FormattableString.Invariant($"<rect width='{r.Width}' height='{r.Height}' />");
 }
 
 // IShape[] shapes = [new Circle(1), new Rectangle(2, 3)];
@@ -3141,9 +3158,9 @@ const renderVisitor = {
 const sum = (numbers) => numbers.reduce((total, n) => total + n, 0);
 const wordCountVisitor = {
   doc: (node, counts) => sum(counts),
-  paragraph: (node, counts) => sum(counts),
-  bold: (node, counts) => sum(counts),
-  text: (node) => node.value.split(/\s+/).filter(Boolean).length,
+  paragraph: (node, children) => children.join("").split(/\s+/).filter(Boolean).length,
+  bold: (node, children) => children.join(""),
+  text: (node) => node.value,
 };
 
 // accept() walks the tree and dispatches each node to the visitor method for its type.
