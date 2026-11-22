@@ -135,8 +135,9 @@ class AppConfig:
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:  # double-checked so two threads cannot both create one
-                    cls._instance = super().__new__(cls)
-                    cls._instance.api_url = "https://api.example.com"
+                    instance = super().__new__(cls)
+                    instance.api_url = "https://api.example.com"
+                    cls._instance = instance
         return cls._instance
 
 assert AppConfig() is AppConfig()
