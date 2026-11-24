@@ -1370,23 +1370,29 @@ print(len(placed), glyph.cache_info().currsize)  # 5000 4
 
 #### Go
 ```go
-// Glyph holds the intrinsic state that many characters share. Its fields are unexported,
-// so code in other packages reads them through accessors and cannot assign to them.
-type Glyph struct {
+// Glyph is the read-only view callers get. Get returns an interface rather than a
+// struct pointer, so no caller can overwrite the state that every placement shares.
+type Glyph interface {
+	Symbol() rune
+	Font() string
+}
+
+// glyph holds the intrinsic state. It is unexported, so only this package can change it.
+type glyph struct {
 	symbol rune
 	font   string
 }
 
-func (g Glyph) Symbol() rune { return g.symbol }
-func (g Glyph) Font() string { return g.font }
+func (g *glyph) Symbol() rune { return g.symbol }
+func (g *glyph) Font() string { return g.font }
 
-type GlyphFactory struct{ cache map[Glyph]*Glyph }
+type GlyphFactory struct{ cache map[glyph]*glyph }
 
-func NewGlyphFactory() *GlyphFactory { return &GlyphFactory{cache: map[Glyph]*Glyph{}} }
+func NewGlyphFactory() *GlyphFactory { return &GlyphFactory{cache: map[glyph]*glyph{}} }
 
-// Get returns one shared *Glyph per (symbol, font) pair.
-func (f *GlyphFactory) Get(symbol rune, font string) *Glyph {
-	key := Glyph{symbol: symbol, font: font}
+// Get returns one shared glyph per (symbol, font) pair.
+func (f *GlyphFactory) Get(symbol rune, font string) Glyph {
+	key := glyph{symbol: symbol, font: font}
 	if g, ok := f.cache[key]; ok {
 		return g
 	}
@@ -1394,9 +1400,9 @@ func (f *GlyphFactory) Get(symbol rune, font string) *Glyph {
 	return &key
 }
 
-// PlacedGlyph keeps the extrinsic state (the position) next to the shared pointer.
+// PlacedGlyph keeps the extrinsic state (the position) next to the shared glyph.
 type PlacedGlyph struct {
-	Glyph *Glyph
+	Glyph Glyph
 	X, Y  int
 }
 ```

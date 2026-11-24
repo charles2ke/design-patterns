@@ -1,18 +1,25 @@
 package flyweight_test
 
 import (
+	"go/token"
 	"reflect"
 	"testing"
 
 	"github.com/charles2ke/design-patterns/snippet-tests/go/flyweight"
 )
 
-func TestGlyphFieldsCannotBeChangedByOtherPackages(t *testing.T) {
-	glyphType := reflect.TypeOf(flyweight.Glyph{})
-	for i := 0; i < glyphType.NumField(); i++ {
-		if field := glyphType.Field(i); field.IsExported() {
-			t.Errorf("Glyph.%s is exported, so one caller can change a glyph that every placement shares", field.Name)
-		}
+func TestCallersCannotReplaceASharedGlyph(t *testing.T) {
+	// From a struct pointer, any caller could write *glyph = ... and change every placement.
+	if result := reflect.TypeOf((*flyweight.GlyphFactory).Get).Out(0); result.Kind() != reflect.Interface {
+		t.Fatalf("Get returns %v; want a read-only interface", result)
+	}
+	// An exported concrete type could be type-asserted back to a pointer and overwritten.
+	concrete := reflect.TypeOf(flyweight.NewGlyphFactory().Get('A', "Inter"))
+	if concrete.Kind() == reflect.Pointer {
+		concrete = concrete.Elem()
+	}
+	if token.IsExported(concrete.Name()) {
+		t.Fatalf("Get returns a %v, which other packages can type-assert to and overwrite", concrete)
 	}
 }
 
