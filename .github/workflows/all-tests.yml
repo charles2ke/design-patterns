@@ -191,6 +191,26 @@ jobs:
           path: packages/java/target/*.jar
           retention-days: 7
 
+  snippet-tests:
+    name: Code Example Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: bash scripts/test-snippets.sh
+
   all-pass:
     name: All Tests Passed
     runs-on: ubuntu-latest
@@ -202,5 +222,6 @@ jobs:
       - go-package
       - rust-package
       - java-package
+      - snippet-tests
     steps:
       - run: echo "All checks completed successfully."

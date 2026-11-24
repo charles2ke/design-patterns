@@ -473,7 +473,7 @@ class Document:
     def clone(self, **changes) -> "Document":
         duplicate = copy.deepcopy(self)  # deep copy, so clones never share the tags list
         for name, value in changes.items():
-            setattr(duplicate, name, value)
+            setattr(duplicate, name, copy.deepcopy(value))  # overrides are copied too
         return duplicate
 
 template = Document("Invoice", ["finance"])
@@ -1096,11 +1096,15 @@ def glyph(symbol: str, font: str) -> Glyph:
 text = "hello" * 1000
 placed = [(glyph(char, "Inter"), position) for position, char in enumerate(text)]
 print(len(placed), glyph.cache_info().currsize)  # 5000 4`,
-      go: `// Glyph holds the intrinsic state that many characters can share.
+      go: `// Glyph holds the intrinsic state that many characters share. Its fields are unexported,
+// so code in other packages reads them through accessors and cannot assign to them.
 type Glyph struct {
-	Symbol rune
-	Font   string
+	symbol rune
+	font   string
 }
+
+func (g Glyph) Symbol() rune { return g.symbol }
+func (g Glyph) Font() string { return g.font }
 
 type GlyphFactory struct{ cache map[Glyph]*Glyph }
 
@@ -1108,7 +1112,7 @@ func NewGlyphFactory() *GlyphFactory { return &GlyphFactory{cache: map[Glyph]*Gl
 
 // Get returns one shared *Glyph per (symbol, font) pair.
 func (f *GlyphFactory) Get(symbol rune, font string) *Glyph {
-	key := Glyph{Symbol: symbol, Font: font}
+	key := Glyph{symbol: symbol, font: font}
 	if g, ok := f.cache[key]; ok {
 		return g
 	}
@@ -1366,14 +1370,17 @@ print(chain.handle({"recent": 3}))                  # 401 Unauthorized`,
 )
 
 // Each middleware either rejects the request or passes it to the next handler.
-func RequireAuth(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") == "" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
+// RequireAuth asks the injected validator, so only verified credentials get through.
+func RequireAuth(valid func(authorization string) bool) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if !valid(r.Header.Get("Authorization")) {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func RejectLargeBodies(limit int64) func(http.Handler) http.Handler {
@@ -1401,7 +1408,8 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// http.Handle("/orders", RequireAuth(RejectLargeBodies(1<<20)(http.HandlerFunc(CreateOrder))))`,
+// orders := RejectLargeBodies(1<<20)(http.HandlerFunc(CreateOrder))
+// http.Handle("/orders", RequireAuth(verifySessionToken)(orders))`,
       rust: `struct Request { token: Option<String>, recent_requests: u32 }
 
 trait Handler { fn handle(&self, request: &Request) -> String; }
@@ -2455,16 +2463,19 @@ impl Checkout {
     }
 
     protected abstract IEnumerable<string[]> Parse(string raw);
-    protected virtual bool IsValid(string[] row) => row.All(cell => cell.Length > 0);
+    protected virtual bool IsValid(string[] row) => row.All(cell => !string.IsNullOrWhiteSpace(cell));
     protected virtual void Save(List<string[]> rows) => Console.WriteLine($"saved {rows.Count} rows");
 }
 
 public class CsvImporter : DataImporter {
-    protected override IEnumerable<string[]> Parse(string raw) => raw.Split('\\n').Select(line => line.Split(','));
+    // TrimEnd('\\r') lets Windows (CRLF) line endings parse like LF ones.
+    protected override IEnumerable<string[]> Parse(string raw) =>
+        raw.Split('\\n').Select(line => line.TrimEnd('\\r').Split(','));
 }
 
 public class TsvImporter : DataImporter {
-    protected override IEnumerable<string[]> Parse(string raw) => raw.Split('\\n').Select(line => line.Split('\\t'));
+    protected override IEnumerable<string[]> Parse(string raw) =>
+        raw.Split('\\n').Select(line => line.TrimEnd('\\r').Split('\\t'));
 }`,
       java: `import java.util.Arrays;
 import java.util.List;
@@ -2560,7 +2571,8 @@ type CSV struct{}
 func (CSV) Parse(raw string) [][]string {
 	var rows [][]string
 	for _, line := range strings.Split(raw, "\\n") {
-		rows = append(rows, strings.Split(line, ","))
+		// Trimming the \\r lets Windows (CRLF) line endings parse like LF ones.
+		rows = append(rows, strings.Split(strings.TrimSuffix(line, "\\r"), ","))
 	}
 	return rows
 }
