@@ -22,6 +22,17 @@ test('opening a pattern shows its deep dive and code examples', async ({
   await expect(page.getByRole('tabpanel')).toContainText('def set_state');
 });
 
+test('the Singleton page shows its code examples', async ({ page }) => {
+  await page.goto('/#/patterns/singleton');
+
+  await expect(
+    page.getByRole('heading', { name: 'Code examples' }),
+  ).toBeVisible();
+  await expect(page.getByRole('tabpanel')).toContainText('Lazy<AppConfig>');
+  await page.getByRole('tab', { name: 'Go' }).click();
+  await expect(page.getByRole('tabpanel')).toContainText('sync.Once');
+});
+
 test('related pattern links navigate between detail pages', async ({
   page,
 }) => {

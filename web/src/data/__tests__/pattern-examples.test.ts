@@ -15,6 +15,12 @@ describe('pattern examples dataset', () => {
     }
   });
 
+  it('covers every catalog pattern in catalog order', () => {
+    expect(patternExamples.map((example) => example.slug)).toEqual(
+      patterns.map((pattern) => pattern.slug),
+    );
+  });
+
   it('provides a snippet for every supported language', () => {
     for (const example of patternExamples) {
       for (const language of EXAMPLE_LANGUAGES) {
@@ -34,6 +40,7 @@ describe('pattern examples dataset', () => {
     expect(findPatternExample('observer')?.snippets.python).toContain(
       'class Subject',
     );
-    expect(findPatternExample('singleton')).toBeUndefined();
+    expect(findPatternExample('singleton')?.snippets.go).toContain('sync.Once');
+    expect(findPatternExample('not-a-pattern')).toBeUndefined();
   });
 });
