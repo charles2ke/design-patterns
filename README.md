@@ -617,7 +617,7 @@ class Document:
     def clone(self, **changes) -> "Document":
         duplicate = copy.deepcopy(self)  # deep copy, so clones never share the tags list
         for name, value in changes.items():
-            setattr(duplicate, name, value)
+            setattr(duplicate, name, copy.deepcopy(value))  # overrides are copied too
         return duplicate
 
 template = Document("Invoice", ["finance"])
@@ -1370,19 +1370,29 @@ print(len(placed), glyph.cache_info().currsize)  # 5000 4
 
 #### Go
 ```go
-// Glyph holds the intrinsic state that many characters can share.
-type Glyph struct {
-	Symbol rune
-	Font   string
+// Glyph is the read-only view callers get. Get returns an interface rather than a
+// struct pointer, so no caller can overwrite the state that every placement shares.
+type Glyph interface {
+	Symbol() rune
+	Font() string
 }
 
-type GlyphFactory struct{ cache map[Glyph]*Glyph }
+// glyph holds the intrinsic state. It is unexported, so only this package can change it.
+type glyph struct {
+	symbol rune
+	font   string
+}
 
-func NewGlyphFactory() *GlyphFactory { return &GlyphFactory{cache: map[Glyph]*Glyph{}} }
+func (g *glyph) Symbol() rune { return g.symbol }
+func (g *glyph) Font() string { return g.font }
 
-// Get returns one shared *Glyph per (symbol, font) pair.
-func (f *GlyphFactory) Get(symbol rune, font string) *Glyph {
-	key := Glyph{Symbol: symbol, Font: font}
+type GlyphFactory struct{ cache map[glyph]*glyph }
+
+func NewGlyphFactory() *GlyphFactory { return &GlyphFactory{cache: map[glyph]*glyph{}} }
+
+// Get returns one shared glyph per (symbol, font) pair.
+func (f *GlyphFactory) Get(symbol rune, font string) Glyph {
+	key := glyph{symbol: symbol, font: font}
 	if g, ok := f.cache[key]; ok {
 		return g
 	}
@@ -1390,9 +1400,9 @@ func (f *GlyphFactory) Get(symbol rune, font string) *Glyph {
 	return &key
 }
 
-// PlacedGlyph keeps the extrinsic state (the position) next to the shared pointer.
+// PlacedGlyph keeps the extrinsic state (the position) next to the shared glyph.
 type PlacedGlyph struct {
-	Glyph *Glyph
+	Glyph Glyph
 	X, Y  int
 }
 ```
@@ -1682,14 +1692,17 @@ import (
 )
 
 // Each middleware either rejects the request or passes it to the next handler.
-func RequireAuth(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") == "" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
+// RequireAuth asks the injected validator, so only verified credentials get through.
+func RequireAuth(valid func(authorization string) bool) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if !valid(r.Header.Get("Authorization")) {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func RejectLargeBodies(limit int64) func(http.Handler) http.Handler {
@@ -1717,7 +1730,8 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// http.Handle("/orders", RequireAuth(RejectLargeBodies(1<<20)(http.HandlerFunc(CreateOrder))))
+// orders := RejectLargeBodies(1<<20)(http.HandlerFunc(CreateOrder))
+// http.Handle("/orders", RequireAuth(verifySessionToken)(orders))
 ```
 
 #### Rust
@@ -2944,16 +2958,19 @@ public abstract class DataImporter {
     }
 
     protected abstract IEnumerable<string[]> Parse(string raw);
-    protected virtual bool IsValid(string[] row) => row.All(cell => cell.Length > 0);
+    protected virtual bool IsValid(string[] row) => row.All(cell => !string.IsNullOrWhiteSpace(cell));
     protected virtual void Save(List<string[]> rows) => Console.WriteLine($"saved {rows.Count} rows");
 }
 
 public class CsvImporter : DataImporter {
-    protected override IEnumerable<string[]> Parse(string raw) => raw.Split('\n').Select(line => line.Split(','));
+    // TrimEnd('\r') lets Windows (CRLF) line endings parse like LF ones.
+    protected override IEnumerable<string[]> Parse(string raw) =>
+        raw.Split('\n').Select(line => line.TrimEnd('\r').Split(','));
 }
 
 public class TsvImporter : DataImporter {
-    protected override IEnumerable<string[]> Parse(string raw) => raw.Split('\n').Select(line => line.Split('\t'));
+    protected override IEnumerable<string[]> Parse(string raw) =>
+        raw.Split('\n').Select(line => line.TrimEnd('\r').Split('\t'));
 }
 ```
 
@@ -3065,7 +3082,8 @@ type CSV struct{}
 func (CSV) Parse(raw string) [][]string {
 	var rows [][]string
 	for _, line := range strings.Split(raw, "\n") {
-		rows = append(rows, strings.Split(line, ","))
+		// Trimming the \r lets Windows (CRLF) line endings parse like LF ones.
+		rows = append(rows, strings.Split(strings.TrimSuffix(line, "\r"), ","))
 	}
 	return rows
 }

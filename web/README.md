@@ -20,7 +20,8 @@ page also shows code examples in C#, Java, React, Python, Go and Rust. The
 snippets live in
 [`src/data/pattern-examples.ts`](src/data/pattern-examples.ts) and are also
 rendered into the root `README.md` by `scripts/generate-readme.ts`, so the site
-and the README cannot drift. The deep-dive prose lives in
+and the README cannot drift. Some snippets are also compiled and run by the
+[code example tests](#testing). The deep-dive prose lives in
 [`src/data/pattern-details.ts`](src/data/pattern-details.ts).
 
 Search and category filters are mirrored in the URL (`#/?q=undo&category=Behavioral`),
@@ -151,3 +152,10 @@ web/
 - **Scenario tests** cover complete user journeys across index, best-practices,
   quiz and system design flows both at the component level with Testing Library
   and end-to-end in a real browser with Playwright.
+- **Code example tests** in [`../snippet-tests`](../snippet-tests) run Go, Python
+  and C# regression tests against snippets copied out of
+  `src/data/pattern-examples.ts` by `scripts/extract-snippets.ts`. Run
+  `scripts/test-snippets.sh` from the repository root (it needs Node.js, Go,
+  Python 3 and the .NET SDK). CI runs the same script in the
+  **Code Example Tests** job. To test another snippet, add it to the targets in
+  `scripts/extract-snippets.ts` and put its test next to the generated file.

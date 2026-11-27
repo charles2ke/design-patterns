@@ -1,0 +1,7 @@
+# Written by scripts/extract-snippets.ts from web/src/data/pattern-examples.ts.
+go/*/snippet.go
+python/*_snippet.py
+csharp/*Snippet.cs
+
+csharp/bin/
+csharp/obj/
